@@ -2,7 +2,7 @@
   "name": "conder-blog",
   "private": true,
   "version": "1.0.0",
-  "description": "Conder博客系统, 基于Vue3+NestJS+MySQL+Docker, 包含了博客前台和后台管理系统",
+  "description": "Conder博客系统",
   "scripts": {
     "dev": "turbo run dev",
     "dev:nest": "pnpm --filter blog-nest dev",
