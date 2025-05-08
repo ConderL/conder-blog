@@ -13,7 +13,7 @@
     "lint": "turbo run lint",
     "convert-line-endings": "git config core.autocrlf false && git rm --cached -r . && git reset --hard && git add . && git status",
     "docker:up:local": "docker compose -f docker-compose.local.yml up -d",
-    "prepare": "husky && node setup-husky.js",
+    "prepare": "node setup-husky.js",
     "commit": "cz",
     "lint-staged": "lint-staged"
   },
