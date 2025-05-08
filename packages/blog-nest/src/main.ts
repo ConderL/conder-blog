@@ -20,10 +20,12 @@ async function bootstrap() {
   // 自定义CORS配置 - 更安全的配置，只允许特定来源
   app.enableCors({
     origin: [
-      'http://localhost',
-      'http://localhost:8080',
-      'http://127.0.0.1',
-      'http://127.0.0.1:8080',
+      'http://admin.conder.top',
+      'https://admin.conder.top',
+      'http://conder.top',
+      'https://conder.top',
+      'http://www.conder.top',
+      'https://www.conder.top',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
