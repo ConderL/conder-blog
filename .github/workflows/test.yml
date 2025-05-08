@@ -1,0 +1,56 @@
+name: 测试博客应用
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 18
+  PNPM_VERSION: 9.7.1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 安装PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 配置PNPM缓存
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: 安装依赖
+        run: pnpm install
+
+      - name: 运行后端测试
+        run: |
+          cd packages/blog-nest
+          pnpm test
+
+      - name: 运行前端测试
+        run: |
+          cd packages/blog-vue
+          pnpm test:unit
+
+      - name: 运行后台测试
+        run: |
+          cd packages/blog-admin
+          pnpm test:unit
+
+      - name: 构建检查
+        run: pnpm build

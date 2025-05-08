@@ -1,0 +1,27 @@
+# 依赖目录
+node_modules
+**/node_modules
+**/*.log
+
+# 构建输出
+dist
+**/dist
+
+# 开发工具配置
+.git
+.gitignore
+.vscode
+.idea
+*.log
+
+# 其他
+.DS_Store 
+*.env*
+**/.env
+**/.env.*
+
+# 必须包含以下文件
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!packages/blog-web/  # 允许复制子项目代码

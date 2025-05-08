@@ -1,0 +1,49 @@
+{
+  "name": "conder-blog",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Conder博客系统, 基于Vue3+NestJS+MySQL+Docker, 包含了博客前台和后台管理系统",
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:nest": "pnpm --filter blog-nest dev",
+    "dev:admin": "pnpm --filter blog-admin dev & pnpm --filter blog-vue dev",
+    "dev:all": "pnpm dev:backend & pnpm dev:frontend",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "convert-line-endings": "git config core.autocrlf false && git rm --cached -r . && git reset --hard && git add . && git status",
+    "docker:up:local": "docker compose -f docker-compose.local.yml up -d",
+    "prepare": "husky && node setup-husky.js",
+    "commit": "cz",
+    "lint-staged": "lint-staged"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "devDependencies": {
+    "turbo": "^1.12.4",
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.0.1",
+    "lint-staged": "^15.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "echo 'Skipping eslint check'"
+    ],
+    "*.{css,scss,less}": [
+      "echo 'Skipping stylelint check'"
+    ]
+  }
+}

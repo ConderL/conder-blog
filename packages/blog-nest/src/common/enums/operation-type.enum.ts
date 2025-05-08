@@ -1,0 +1,17 @@
+export enum OperationType {
+  CREATE = '新增',
+  UPDATE = '修改',
+  DELETE = '删除',
+  QUERY = '查询',
+  IMPORT = '导入',
+  EXPORT = '导出',
+  UPLOAD = '上传',
+  DOWNLOAD = '下载',
+  PUBLISH = '发布',
+  UNPUBLISH = '下线',
+  CLEAR = '清空',
+  LOGIN = '登录',
+  LOGOUT = '登出',
+  GRANT = '授权',
+  OTHER = '其他',
+}

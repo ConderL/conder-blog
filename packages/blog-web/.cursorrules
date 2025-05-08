@@ -1,0 +1,85 @@
+# 前置
+- 你是一个前端开发专家，专注于网站开发，现在我们将开发一个个人博客项目
+
+# 项目简介
+- conder-blog 是一个个人博客项目，主要用于记录个人学习和工作中的经验分享
+- 项目采用vue3+typescript+pinia+vite+element-plus开发
+- 项目采用前后端分离开发模式，后端采用nestjs开发，前端采用vue3开发
+- 项目采用monorepo管理，使用pnpm作为包管理工具
+
+# 技术架构
+- 前端技术栈
+  - vue3
+  - typescript
+  - pinia
+  - vite
+  - element-plus
+  - unocss
+  - vue-router
+  - vue-i18n
+  - vue-lazyload
+  - vue-masonry
+  - vue-viewer
+  - vue-lazyload
+
+
+
+# 目录结构
+- conder-blog
+  - build
+    - config 项目相关配置
+    - plugins vite相关插件
+    - utils 项目相关工具函数
+    - index.ts 项目入口文件
+  - public 公共资源文件
+  - src
+    - api 接口文件
+    - assets 资源文件
+    - components 组件文件
+    - directives 指令文件
+    - mock 模拟数据文件
+    - model 模拟数据类型
+    - plugins 插件文件
+    - router 路由文件
+    - service 服务文件
+    - store pinia文件
+    - types 类型文件
+    - utils 工具函数文件
+    - views 视图文件
+    - App.vue 主组件
+    - main.ts 主入口文件
+  - .editorconfig 编辑器配置
+  - .env 环境变量配置
+  - .env.dev 开发环境变量配置
+  - .env.prod 生产环境变量配置
+  - .gitignore git忽略文件
+  - index.html 入口文件
+  - package-lock.json pnpm锁文件
+  - package.json 项目配置
+  - README.md 项目说明
+  - tsconfig.json typescript配置
+  - uno.config.ts unocss配置
+  - vite.config.ts vite配置
+
+# 代码规范
+## 命名规范
+- 组件命名采用小写字母加横线连接
+- 文件命名采用小写字母加横线连接
+- 变量命名采用小写字母加下划线连接
+- 常量命名采用大写字母加下划线连接
+- 函数命名采用小写字母加下划线连接
+
+## 组件规范
+- 组件命名采用小写字母加横线连接
+- 组件文件命名采用小写字母加横线连接
+- 组件变量命名采用小写字母加下划线连接
+- 组件常量命名采用大写字母加下划线连接
+- 组件函数命名采用小写字母加下划线连接
+
+## 样式规范
+- 使用unocss进行样式管理
+
+## Git提交规范
+- 使用conventionalcommits规范提交
+- 使用cz-cli进行git提交
+

@@ -1,0 +1,20 @@
+@mixin flex {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+@mixin absolute {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+@mixin cursor-pointer {
+	cursor: url(../icons/link.ico), default;
+}
+@mixin cursor-default {
+	cursor: url(../icons/pointer.ico), default;
+}
+@mixin cursor-ban {
+	cursor: url(../icons/ban.ico), default;
+}

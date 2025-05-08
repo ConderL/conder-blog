@@ -1,0 +1,72 @@
+# 依赖目录
+node_modules
+.pnpm-store
+.turbo
+
+# 构建输出
+dist
+*.tsbuildinfo
+
+# 日志文件
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 环境变量
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+packages/*/.env
+packages/*/.env.*
+!packages/*/.env.example
+!.env.example
+
+# 编辑器配置
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 测试覆盖率
+coverage
+
+# 临时文件
+*.tmp
+*.temp
+.cache
+.temp
+.tmp
+
+# Vite 临时文件
+vite.config.ts.timestamp-*
+*.mjs
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 数据库文件
+*.sqlite
+*.sqlite3
+*.db
+
+# 备份文件
+backups
+*.bak
+*.swp
+*~
+
+# Docker相关文件
+docker-compose.override.yml 
