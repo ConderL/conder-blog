@@ -280,6 +280,26 @@ jobs:
               echo "等待 MySQL... 尝试 $i/20"
               sleep 10
             done
+      - name: 部署到服务器 - 清理旧镜像
+        if: github.event_name != 'pull_request'
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.SERVER_HOST }}
+          username: ${{ env.SERVER_USERNAME }}
+          key: ${{ env.SERVER_SSH_KEY }}
+          script: |
+            set -exo pipefail
+            cd ${{ env.SERVER_DEPLOY_PATH }}
+
+            # 强制停止所有容器
+            docker compose down --remove-orphans --timeout 30
+
+            # 强制清理所有旧镜像
+            echo "强制清理旧镜像..."
+            docker image prune -a -f
+
+            # 清理未使用的卷和网络
+            docker system prune -f --volumes
 
       - name: 部署到服务器 - 启动服务
         if: github.event_name != 'pull_request'
