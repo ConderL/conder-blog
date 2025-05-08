@@ -318,11 +318,24 @@ jobs:
             # 拉取镜像
             docker compose pull
 
-            # 使用最新镜像启动服务
-            docker compose up -d --force-recreate --pull always
-
-            # 等待服务启动
+            # 先启动除Nginx外的服务
+            docker compose up -d mysql redis nest web admin
+            echo "等待前后端服务启动完成..."
             sleep 30
+
+            # 检查服务是否成功启动
+            echo "检查服务状态:"
+            docker compose ps
+
+            # 确保各容器网络连通性
+            echo "检查容器网络连通性:"
+            docker exec blog-nginx ping -c 2 blog-web || echo "无法连接web服务"
+            docker exec blog-nginx ping -c 2 blog-admin || echo "无法连接admin服务" 
+            docker exec blog-nginx ping -c 2 blog-nest || echo "无法连接nest服务"
+
+            # 最后启动Nginx
+            docker compose up -d nginx
+            sleep 5
 
             # 清理镜像
             docker image prune -a -f --filter "until=24h"
@@ -332,4 +345,4 @@ jobs:
             docker compose logs > deployment.log
 
             # 重新加载Nginx配置
-            docker compose exec nginx nginx -s reload
+            docker compose exec nginx nginx -s reload || echo "Nginx配置重载失败"
