@@ -251,10 +251,10 @@ jobs:
             set -exo pipefail
             cd ${{ env.SERVER_DEPLOY_PATH }}
 
-            # 先删除本地的旧镜像
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest
+            # 安全删除旧的 latest 镜像（存在则删，不存在忽略）
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest 2>/dev/null || echo "镜像 blog-nest:latest 不存在，跳过删除"
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest 2>/dev/null || echo "镜像 blog-web:latest 不存在，跳过删除"
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest 2>/dev/null || echo "镜像 blog-admin:latest 不存在，跳过删除"
 
             # 拉取新镜像
             docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
