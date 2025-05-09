@@ -19,17 +19,30 @@ async function bootstrap() {
 
   // 自定义CORS配置 - 更安全的配置，只允许特定来源
   app.enableCors({
-    origin: [
-      'http://admin.conder.top',
-      'https://admin.conder.top',
-      'http://conder.top',
-      'https://conder.top',
-      'http://www.conder.top',
-      'https://www.conder.top',
-    ],
+    origin: (origin, callback) => {
+      console.log(`收到的Origin: ${origin}`); // 添加日志记录
+
+      const allowedOrigins = [
+        'http://admin.conder.top',
+        'https://admin.conder.top',
+        'http://conder.top',
+        'https://conder.top',
+        'http://www.conder.top',
+        'https://www.conder.top',
+      ];
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        // 设置Vary头，表明响应可能因Origin而不同
+        callback(null, origin);
+      } else {
+        console.log(`不允许的Origin: ${origin}`);
+        callback(null, allowedOrigins[0]); // 默认允许第一个域名，避免错误
+      }
+    },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Content-Disposition'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    exposedHeaders: ['Content-Disposition', 'Content-Length', 'Content-Range'],
     maxAge: 3600,
   });
 
@@ -85,6 +98,12 @@ async function bootstrap() {
   const port = configService.get('PORT', 3000);
   await app.listen(port);
   logger.log(`应用已启动: http://localhost:${port}`);
+
+  // 在NestJS应用的中间件或响应拦截器中添加
+  app.use((req, res, next) => {
+    res.header('Vary', 'Origin');
+    next();
+  });
 }
 
 bootstrap();
