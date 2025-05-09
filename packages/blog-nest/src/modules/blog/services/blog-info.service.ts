@@ -213,7 +213,6 @@ export class BlogInfoService {
       uv: Math.ceil(item.count * 0.75), // UV通常比PV低，这里简单模拟
     }));
 
-    // 返回与Java版本对应的数据结构
     return {
       viewCount: totalVisitCount,
       messageCount: commentCount,
