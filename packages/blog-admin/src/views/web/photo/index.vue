@@ -158,7 +158,7 @@
               :headers="authorization"
               class="avatar-uploader"
               multiple
-              action="/api/admin/photo/upload"
+              :action="baseURL + '/admin/photo/upload'"
               :before-upload="beforeUpload"
               :on-success="handleSuccess"
               :on-remove="handleRemove"
@@ -178,7 +178,7 @@
                 :headers="authorization"
                 drag
                 multiple
-                action="/api/admin/photo/upload"
+                :action="baseURL + '/admin/photo/upload'"
                 :before-upload="beforeUpload"
                 :show-file-list="false"
                 accept="image/*"
@@ -298,13 +298,13 @@ import * as imageConversion from "image-conversion";
 import { computed, onMounted, reactive, ref, toRefs, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
-
+import { getBaseURL } from "@/utils/request";
 // 定义上传图片项接口
 interface UploadItem {
   url: string;
   [key: string]: any;
 }
-
+const baseURL = getBaseURL();
 const photoFormRef = ref<FormInstance>();
 const rules = reactive<FormRules>({
   photoName: [{ required: true, message: "请输入照片名称", trigger: "blur" }],

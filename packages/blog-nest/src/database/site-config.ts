@@ -49,7 +49,7 @@ export async function initSiteConfig(siteConfigRepository: Repository<SiteConfig
       isMusic: true,
       musicId: '13616943965',
       isChat: true,
-      websocketUrl: 'ws://localhost:3300/chat',
+      websocketUrl: 'ws://localhost:3000/chat',
       archiveWallpaper: '',
       categoryWallpaper: '',
       tagWallpaper: '',

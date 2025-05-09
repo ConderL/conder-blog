@@ -123,7 +123,7 @@
             drag
             :show-file-list="false"
             :headers="authorization"
-            action="/api/admin/album/upload"
+            :action="baseURL + '/admin/album/upload'"
             accept="image/*"
             :before-upload="beforeUpload"
             :on-success="handleSuccess"
@@ -171,7 +171,7 @@ import { FormInstance, FormRules, UploadRawFile } from "element-plus";
 import * as imageConversion from "image-conversion";
 import { computed, onMounted, reactive, ref, toRefs } from "vue";
 import { checkPermission } from "@/utils/permission";
-
+import { getBaseURL } from "@/utils/request";
 const albumFormRef = ref<FormInstance>();
 const rules = reactive<FormRules>({
   albumName: [{ required: true, message: "请输入相册名称", trigger: "blur" }],
@@ -182,6 +182,7 @@ const authorization = computed(() => {
     Authorization: token_prefix + getToken(),
   };
 });
+const baseURL = getBaseURL();
 const data = reactive({
   count: 0,
   showSearch: true,

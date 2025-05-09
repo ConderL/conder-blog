@@ -54,19 +54,32 @@ export function setToken(token: string): string | undefined {
     return;
   }
 
+  // 为Cookie添加通用选项，解决跨域问题
+  const cookieOptions = {
+    path: "/",
+    sameSite: "Lax" as const, // 使用类型断言修复类型错误
+    secure: false, // 本地开发环境不需要secure
+    expires: 7, // 7天有效期
+  };
+
   // 本地开发环境不设置domain
   console.log(`成功保存token，长度: ${token.length}`);
   if (isProd) {
-    return Cookies.set(TokenKey, token, { domain: domain });
+    return Cookies.set(TokenKey, token, { ...cookieOptions, domain: domain });
   }
-  return Cookies.set(TokenKey, token);
+  return Cookies.set(TokenKey, token, cookieOptions);
 }
 
 export function removeToken(): void {
+  const cookieOptions = {
+    path: "/",
+    sameSite: "Lax" as const, // 使用类型断言修复类型错误
+  };
+
   // 本地开发环境不设置domain
   if (isProd) {
-    Cookies.remove(TokenKey, { domain: domain });
+    Cookies.remove(TokenKey, { ...cookieOptions, domain: domain });
   } else {
-    Cookies.remove(TokenKey);
+    Cookies.remove(TokenKey, cookieOptions);
   }
 }

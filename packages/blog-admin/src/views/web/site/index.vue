@@ -23,7 +23,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -45,7 +45,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -129,7 +129,7 @@
             <el-upload
               class="avatar-uploader"
               :headers="authorization"
-              action="/api/admin/site/upload"
+              :action="baseURL + '/admin/site/upload'"
               :show-file-list="false"
               accept="image/*"
               :before-upload="beforeUpload"
@@ -285,7 +285,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -307,7 +307,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -352,7 +352,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -374,7 +374,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -396,7 +396,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -420,7 +420,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -442,7 +442,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -464,7 +464,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -488,7 +488,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -510,7 +510,7 @@
                 <el-upload
                   class="avatar-uploader"
                   :headers="authorization"
-                  action="/api/admin/site/upload"
+                  :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
                   :before-upload="beforeUpload"
@@ -560,7 +560,7 @@
             <el-upload
               class="avatar-uploader"
               :headers="authorization"
-              action="/api/admin/site/upload"
+              :action="baseURL + '/admin/site/upload'"
               :show-file-list="false"
               accept="image/*"
               :before-upload="beforeUpload"
@@ -627,6 +627,7 @@ import { getSiteConfig, updateSiteConfig, uploadSiteImg } from "@/api/site";
 import { SiteConfig } from "@/api/site/types";
 import { notifySuccess } from "@/utils/modal";
 import { getToken, token_prefix } from "@/utils/token";
+import { getBaseURL } from "@/utils/request";
 import { AxiosError, AxiosResponse } from "axios";
 import { UploadRawFile } from "element-plus";
 import * as imageConversion from "image-conversion";
@@ -672,6 +673,9 @@ const data = reactive({
   loginList: [] as string[],
 });
 const { siteConfig, socialList, loginList } = toRefs(data);
+
+const baseURL = getBaseURL();
+
 const uploadImg = async (
   files: Array<File>,
   callback: (urls: string[]) => void

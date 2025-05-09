@@ -15,7 +15,7 @@ import { useUserStore } from "@/store";
 export let isRelogin = { show: false };
 
 // 获取环境变量中的API地址
-const getBaseURL = () => {
+export const getBaseURL = () => {
   // 判断是否为生产环境
   if (import.meta.env.PROD) {
     // 使用环境变量中定义的API地址
@@ -32,6 +32,8 @@ const requests = axios.create({
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
   },
+  // 允许跨域请求携带cookie
+  withCredentials: true,
 });
 
 // 请求拦截器

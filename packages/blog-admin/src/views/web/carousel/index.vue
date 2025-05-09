@@ -1,74 +1,166 @@
 <template>
   <div class="app-container">
     <!-- 搜索栏 -->
-    <el-form @submit.native.prevent :model="queryParams" :inline="true" v-show="showSearch">
+    <el-form
+      @submit.native.prevent
+      :model="queryParams"
+      :inline="true"
+      v-show="showSearch"
+    >
       <el-form-item label="状态">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 130px;">
-          <el-option v-for="item in status" :key="item.value" :label="item.label" :value="item.value" />
+        <el-select
+          v-model="queryParams.status"
+          placeholder="请选择状态"
+          clearable
+          style="width: 130px"
+        >
+          <el-option
+            v-for="item in status"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery"
+          >搜索</el-button
+        >
       </el-form-item>
     </el-form>
     <!-- 操作按钮 -->
     <el-row :gutter="10" class="mb15">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Upload" @click="openModel(undefined)">上传</el-button>
+        <el-button
+          type="primary"
+          plain
+          icon="Upload"
+          @click="openModel(undefined)"
+          >上传</el-button
+        >
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" plain :disabled="carouselIdList.length === 0" icon="Delete"
-          @click="handleDelete(undefined)">批量删除</el-button>
+        <el-button
+          type="danger"
+          plain
+          :disabled="carouselIdList.length === 0"
+          icon="Delete"
+          @click="handleDelete(undefined)"
+          >批量删除</el-button
+        >
       </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar
+        v-model:showSearch="showSearch"
+        @queryTable="getList"
+      ></right-toolbar>
     </el-row>
     <!-- 轮播图列表 -->
-    <el-table border :data="carouselList" @selection-change="handleSelectionChange" v-loading="loading">
-      <el-table-column type="selection" width="55" align="center"></el-table-column>
+    <el-table
+      border
+      :data="carouselList"
+      @selection-change="handleSelectionChange"
+      v-loading="loading"
+    >
+      <el-table-column
+        type="selection"
+        width="55"
+        align="center"
+      ></el-table-column>
       <el-table-column prop="imgUrl" label="图片" align="center">
         <template #default="scope">
-          <el-image style="width: 200px; height: 100%" :src="scope.row.imgUrl" fit="cover"></el-image>
+          <el-image
+            style="width: 200px; height: 100%"
+            :src="scope.row.imgUrl"
+            fit="cover"
+          ></el-image>
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" width="80" align="center">
         <template #default="scope">
-          <el-switch v-model="scope.row.status" style="--el-switch-on-color: #13ce66;" :disabled="scope.row.status == 0"
-            :active-value="1" :inactive-value="0" @change="handleStatus(scope.row)"></el-switch>
+          <el-switch
+            v-model="scope.row.status"
+            style="--el-switch-on-color: #13ce66"
+            :disabled="scope.row.status == 0"
+            :active-value="1"
+            :inactive-value="0"
+            @change="handleStatus(scope.row)"
+          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column prop="remark" width="200" label="备注" align="center">
       </el-table-column>
-      <el-table-column prop="createTime" width="220" label="创建时间" align="center">
+      <el-table-column
+        prop="createTime"
+        width="220"
+        label="创建时间"
+        align="center"
+      >
         <template #default="scope">
           <div class="create-time">
             <el-icon>
               <clock />
             </el-icon>
-            <span style="margin-left: 10px">{{ formatDateTime(scope.row.createTime) }}</span>
+            <span style="margin-left: 10px">{{
+              formatDateTime(scope.row.createTime)
+            }}</span>
           </div>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
         <template #default="scope">
-          <el-button type="primary" icon="Edit" link @click="openModel(scope.row)">
+          <el-button
+            type="primary"
+            icon="Edit"
+            link
+            @click="openModel(scope.row)"
+          >
             编辑
           </el-button>
-          <el-button type="danger" icon="Delete" link @click="handleDelete(scope.row.id)">
+          <el-button
+            type="danger"
+            icon="Delete"
+            link
+            @click="handleDelete(scope.row.id)"
+          >
             删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <pagination v-if="count > 0" :total="count" v-model:page="queryParams.current" v-model:limit="queryParams.size"
-      @pagination="getList"></pagination>
+    <pagination
+      v-if="count > 0"
+      :total="count"
+      v-model:page="queryParams.current"
+      v-model:limit="queryParams.size"
+      @pagination="getList"
+    ></pagination>
     <!-- 添加或修改对话框 -->
-    <el-dialog :title="title" v-model="addOrUpdate" width="600px" append-to-body>
-      <el-form ref="carouselFormRef" label-width="80px" :model="carouselForm" :rules="rules">
+    <el-dialog
+      :title="title"
+      v-model="addOrUpdate"
+      width="600px"
+      append-to-body
+    >
+      <el-form
+        ref="carouselFormRef"
+        label-width="80px"
+        :model="carouselForm"
+        :rules="rules"
+      >
         <el-form-item label="轮播图" prop="imgUrl">
-          <el-upload drag :show-file-list="false" :headers="authorization" action="/api/admin/carousel/upload"
-            accept="image/*" :before-upload="beforeUpload" :on-success="handleSuccess">
-            <el-icon class="el-icon--upload" v-if="carouselForm.imgUrl === ''"><upload-filled /></el-icon>
+          <el-upload
+            drag
+            :show-file-list="false"
+            :headers="authorization"
+            :action="baseURL + '/admin/carousel/upload'"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            :on-success="handleSuccess"
+          >
+            <el-icon class="el-icon--upload" v-if="carouselForm.imgUrl === ''"
+              ><upload-filled
+            /></el-icon>
             <div class="el-upload__text" v-if="carouselForm.imgUrl === ''">
               将文件拖到此处，或<em>点击上传</em>
             </div>
@@ -76,11 +168,23 @@
           </el-upload>
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-switch v-model="carouselForm.status" :active-value="1" :inactive-value="0"></el-switch>
+          <el-switch
+            v-model="carouselForm.status"
+            :active-value="1"
+            :inactive-value="0"
+          ></el-switch>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="carouselForm.remark" :autosize="{ minRows: 2, maxRows: 4 }" resize="none" type="textarea"
-            placeholder="请输入内容" maxlength="50" show-word-limit style="width: 300px;"></el-input>
+          <el-input
+            v-model="carouselForm.remark"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+            resize="none"
+            type="textarea"
+            placeholder="请输入内容"
+            maxlength="50"
+            show-word-limit
+            style="width: 300px"
+          ></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -94,16 +198,24 @@
 </template>
 
 <script setup lang="ts">
-import { addCarousel, deleteCarousel, getCarouselList, updateCarousel, updateCarouselStatus } from "@/api/carousel";
-import { Carousel, CarouselForm, CarouselQuery } from '@/api/carousel/types';
+import {
+  addCarousel,
+  deleteCarousel,
+  getCarouselList,
+  updateCarousel,
+  updateCarouselStatus,
+} from "@/api/carousel";
+import { Carousel, CarouselForm, CarouselQuery } from "@/api/carousel/types";
 import { formatDateTime } from "@/utils/date";
 import { messageConfirm, notifySuccess } from "@/utils/modal";
 import { getToken, token_prefix } from "@/utils/token";
 import { AxiosResponse } from "axios";
 import { FormInstance, FormRules, UploadRawFile } from "element-plus";
-import * as imageConversion from 'image-conversion';
-import { computed, onMounted, reactive, ref } from 'vue';
+import * as imageConversion from "image-conversion";
+import { computed, onMounted, reactive, ref } from "vue";
+import { getBaseURL } from "@/utils/request";
 
+const baseURL = getBaseURL();
 const carouselList = ref<Carousel[]>();
 const loading = ref(false);
 const addOrUpdate = ref(false);
@@ -140,23 +252,21 @@ const rules = reactive<FormRules>({
 });
 
 const beforeUpload = (rawFile: UploadRawFile) => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     if (rawFile.size / 1024 < 200) {
       resolve(rawFile);
     }
     // 压缩到200KB,这里的200就是要压缩的大小,可自定义
-    imageConversion
-      .compressAccurately(rawFile, 200)
-      .then(res => {
-        resolve(res);
-      });
+    imageConversion.compressAccurately(rawFile, 200).then((res) => {
+      resolve(res);
+    });
   });
 };
 
 const authorization = computed(() => {
   return {
     Authorization: token_prefix + getToken(),
-  }
+  };
 });
 
 const handleSuccess = (response: AxiosResponse) => {
@@ -169,15 +279,21 @@ const handleSelectionChange = (selection: Carousel[]) => {
 
 const handleStatus = (carousel: Carousel) => {
   let text = carousel.status === 0 ? "隐藏" : "显示";
-  messageConfirm("确定要" + text + "该图片吗?").then(() => {
-    updateCarouselStatus({ id: carousel.id, status: carousel.status }).then(({ data }) => {
-      if (data.flag) {
-        notifySuccess(data.msg);
-      } else {
-        carousel.status = carousel.status === 0 ? 1 : 0;
-      }
+  messageConfirm("确定要" + text + "该图片吗?")
+    .then(() => {
+      updateCarouselStatus({ id: carousel.id, status: carousel.status }).then(
+        ({ data }) => {
+          if (data.flag) {
+            notifySuccess(data.msg);
+          } else {
+            carousel.status = carousel.status === 0 ? 1 : 0;
+          }
+        }
+      );
+    })
+    .catch(() => {
+      carousel.status = carousel.status === 0 ? 1 : 0;
     });
-  }).catch(() => { carousel.status = carousel.status === 0 ? 1 : 0; });
 };
 
 const handleDelete = (id?: number) => {
@@ -187,14 +303,16 @@ const handleDelete = (id?: number) => {
   } else {
     ids = [id];
   }
-  messageConfirm("确认删除已选中的数据项?").then(() => {
-    deleteCarousel(ids).then(({ data }) => {
-      if (data.flag) {
-        notifySuccess(data.msg);
-        getList();
-      }
-    });
-  }).catch(() => { });
+  messageConfirm("确认删除已选中的数据项?")
+    .then(() => {
+      deleteCarousel(ids).then(({ data }) => {
+        if (data.flag) {
+          notifySuccess(data.msg);
+          getList();
+        }
+      });
+    })
+    .catch(() => {});
 };
 
 const submitForm = () => {
@@ -207,7 +325,7 @@ const submitForm = () => {
             getList();
           }
           addOrUpdate.value = false;
-        })
+        });
       } else {
         addCarousel(carouselForm.value).then(({ data }) => {
           if (data.flag) {
@@ -233,7 +351,7 @@ const openModel = (carousel?: Carousel) => {
       imgUrl: "",
       status: 0,
       remark: "",
-    }
+    };
   }
   addOrUpdate.value = true;
 };
@@ -254,7 +372,6 @@ const handleQuery = () => {
 onMounted(() => {
   getList();
 });
-
 </script>
 
 <style lang="scss" scoped>

@@ -1,6 +1,6 @@
 <template>
   <a
-    href="https://github.com/Conder"
+    href="https://github.com/ConderL"
     target="_blank"
     class="github-corner"
     aria-label="View source on Github"

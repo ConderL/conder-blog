@@ -175,7 +175,7 @@
             drag
             :show-file-list="false"
             :headers="authorization"
-            action="/api/admin/article/upload"
+            :action="baseURL + '/admin/article/upload'"
             accept="image/*"
             :before-upload="beforeUpload"
             :on-success="handleSuccess"
@@ -287,7 +287,7 @@ import {
 import { useRoute } from "vue-router";
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
-
+import { getBaseURL } from "@/utils/request";
 // 使用异步组件加载编辑器和扩展
 const MdEditor = defineAsyncComponent(() =>
   import("md-editor-v3").then((m) => {
@@ -311,7 +311,7 @@ const editorRef = ref();
 const articleFormRef = ref<FormInstance>();
 const articleTitle = ref(useDateFormat(new Date(), "YYYY-MM-DD"));
 const tagViewStore = useTagViewStore();
-
+const baseURL = getBaseURL();
 const rules = reactive<FormRules>({
   categoryName: [
     { required: true, message: "文章分类不能为空", trigger: "blur" },

@@ -179,7 +179,7 @@
           <el-upload
             accept="image/*"
             multiple
-            action="/api/admin/talk/upload"
+            :action="baseURL + '/admin/talk/upload'"
             :headers="authorization"
             :before-upload="beforeUpload"
             :on-success="handleSuccess"
@@ -236,7 +236,7 @@
       <el-upload
         accept="image/*"
         v-show="uploadList.length > 0"
-        action="/api/admin/talk/upload"
+        :action="baseURL + '/admin/talk/upload'"
         :headers="authorization"
         list-type="picture-card"
         :file-list="uploadList"
@@ -279,7 +279,8 @@ import { UploadFile, UploadRawFile } from "element-plus";
 import * as imageConversion from "image-conversion";
 import { computed, onMounted, reactive, ref, toRefs } from "vue";
 import { checkPermission } from "@/utils/permission";
-
+import { getBaseURL } from "@/utils/request";
+const baseURL = getBaseURL();
 const editorRef = ref();
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);

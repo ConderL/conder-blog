@@ -29,6 +29,7 @@ async function bootstrap() {
         'https://conder.top',
         'http://www.conder.top',
         'https://www.conder.top',
+        'http://localhost:4173',
       ];
 
       if (!origin || allowedOrigins.includes(origin)) {

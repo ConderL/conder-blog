@@ -36,7 +36,7 @@ export default () => ({
     strategy: process.env.UPLOAD_STRATEGY || 'local',
     local: {
       path: process.env.UPLOAD_LOCAL_PATH || 'public/uploads/',
-      url: process.env.UPLOAD_LOCAL_URL || 'http://localhost:3300/',
+      url: process.env.UPLOAD_LOCAL_URL || 'http://localhost:3000/',
     },
     oss: {
       accessKeyId: process.env.OSS_ACCESS_KEY_ID || '',
