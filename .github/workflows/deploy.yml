@@ -249,14 +249,11 @@ jobs:
           command_timeout: 30m
           script: |
             set -exo pipefail
-            cd ${{ env.SERVER_DEPLOY_PATH }}     
+            cd ${{ env.SERVER_DEPLOY_PATH }}
 
-            # 清理Docker缓存
-            docker system prune -af --volumes
-
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest
+            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
+            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }}
+            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}
 
       - name: 部署到服务器 - 启动数据库
         if: github.event_name != 'pull_request'
@@ -280,26 +277,6 @@ jobs:
               echo "等待 MySQL... 尝试 $i/20"
               sleep 10
             done
-      - name: 部署到服务器 - 清理旧镜像
-        if: github.event_name != 'pull_request'
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SERVER_HOST }}
-          username: ${{ env.SERVER_USERNAME }}
-          key: ${{ env.SERVER_SSH_KEY }}
-          script: |
-            set -exo pipefail
-            cd ${{ env.SERVER_DEPLOY_PATH }}
-
-            # 强制停止所有容器
-            docker compose down --remove-orphans --timeout 30
-
-            # 强制清理所有旧镜像
-            echo "强制清理旧镜像..."
-            docker image prune -a -f
-
-            # 清理未使用的卷和网络
-            docker system prune -f --volumes
 
       - name: 部署到服务器 - 启动服务
         if: github.event_name != 'pull_request'
@@ -311,9 +288,6 @@ jobs:
           script: |
             set -exo pipefail
             cd ${{ env.SERVER_DEPLOY_PATH }}
-
-            # 停止并删除所有旧容器
-            docker compose down --remove-orphans --timeout 30
 
             # 拉取镜像
             docker compose pull
@@ -327,12 +301,6 @@ jobs:
             echo "检查服务状态:"
             docker compose ps
 
-            # 确保各容器网络连通性
-            echo "检查容器网络连通性:"
-            docker exec blog-nginx ping -c 2 blog-web || echo "无法连接web服务"
-            docker exec blog-nginx ping -c 2 blog-admin || echo "无法连接admin服务" 
-            docker exec blog-nginx ping -c 2 blog-nest || echo "无法连接nest服务"
-
             # 最后启动Nginx
             docker compose up -d nginx
             sleep 5
@@ -340,6 +308,9 @@ jobs:
             # 清理镜像
             docker image prune -a -f --filter "until=24h"
             docker images | grep "blog-" | grep -v "${{ env.TAG }}" | awk '{print $3}' | xargs -I {} sh -c 'docker rmi {} || echo "跳过镜像 {}"' || echo "清理完成"
+
+            # 清理未使用的卷和网络
+            docker system prune -f --volumes
 
             # 保存日志
             docker compose logs > deployment.log
