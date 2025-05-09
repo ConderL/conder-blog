@@ -320,7 +320,8 @@ jobs:
 
             # 清理镜像
             docker image prune -a -f --filter "until=24h"
-            docker images | grep "blog-" | grep -v "${{ env.TAG }}" | awk '{print $3}' | xargs -I {} sh -c 'docker rmi {} || echo "跳过镜像 {}"' || echo "清理完成"
+            docker image prune -a -f --filter "until=24h"
+            docker images | grep "blog-" | grep -vE "${{ env.TAG }}|latest" | awk '{print $3}' | xargs -I {} docker rmi {} || true
 
             # 清理未使用的卷和网络
             docker system prune -f --volumes

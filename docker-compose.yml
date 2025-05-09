@@ -52,7 +52,7 @@ services:
 
   nest:
     image: ${DOCKERHUB_USERNAME}/blog-nest:latest
-    pull_policy: always
+    pull_policy: if_not_present
     labels:
       - "sh.rancher.container.pull_images=always"
     deploy:
@@ -93,7 +93,7 @@ services:
 
   admin:
     image: ${DOCKERHUB_USERNAME}/blog-admin:latest
-    pull_policy: always
+    pull_policy: if_not_present
     deploy:
       update_config:
         order: start-first
@@ -109,7 +109,7 @@ services:
 
   web:
     image: ${DOCKERHUB_USERNAME}/blog-web:latest
-    pull_policy: always
+    pull_policy: if_not_present
     deploy:
       update_config:
         order: start-first
