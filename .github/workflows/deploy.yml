@@ -251,9 +251,25 @@ jobs:
             set -exo pipefail
             cd ${{ env.SERVER_DEPLOY_PATH }}
 
+            # 先删除本地的旧镜像
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest
+
+            # 拉取新镜像
             docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
             docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }}
             docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}
+
+            # 新镜像指定为latest
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest
+
+            # 删除旧镜像
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }}
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}
 
       - name: 部署到服务器 - 启动数据库
         if: github.event_name != 'pull_request'
@@ -288,9 +304,6 @@ jobs:
           script: |
             set -exo pipefail
             cd ${{ env.SERVER_DEPLOY_PATH }}
-
-            # 拉取镜像
-            docker compose pull
 
             # 先启动除Nginx外的服务
             docker compose up -d mysql redis nest web admin
