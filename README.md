@@ -185,9 +185,9 @@ docker compose up -d
 
 系统部署完成后，可通过以下URL访问：
 
-- 博客前台：http://youserver.com 或 http://www.youserver.com
-- 管理后台：http://admin.youserver.com
-- API服务：http://api.youserver.com
+- 博客前台：https://youserver.com 或 https://www.youserver.com
+- 管理后台：https://admin.youserver.com
+- API服务：https://api.youserver.com
 
 ## 网络架构
 
@@ -206,7 +206,7 @@ docker compose up -d
 ```dockerfile
 # 示例(blog-web.Dockerfile)
 ENV VITE_BASE_URL=/
-ENV VITE_SERVICE_BASE_URL=http://api.youserver.com
+ENV VITE_SERVICE_BASE_URL=https://api.youserver.com
 ```
 
 ## 项目维护

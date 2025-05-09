@@ -6,7 +6,7 @@ WORKDIR /app
 # 设置环境变量
 ENV NODE_ENV=production
 ENV VITE_BASE_URL=/
-ENV VITE_SERVICE_BASE_URL=http://api.conder.top
+ENV VITE_SERVICE_BASE_URL=https://api.conder.top
 ENV VITE_ICON_PREFIX=icon
 ENV VITE_ICON_LOCAL_PREFIX=icon-local
 ENV VITE_DIST_NAME=dist

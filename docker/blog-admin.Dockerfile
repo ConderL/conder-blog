@@ -5,7 +5,7 @@ WORKDIR /app
 
 # 设置环境变量
 ENV NODE_ENV=production
-ENV VITE_SERVICE_BASE_URL=http://api.conder.top
+ENV VITE_SERVICE_BASE_URL=https://api.conder.top
 ENV VITE_APP_TITLE=博客管理系统
 
 # 安装 pnpm
