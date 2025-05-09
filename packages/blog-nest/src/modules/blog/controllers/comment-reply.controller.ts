@@ -70,7 +70,7 @@ export class CommentReplyController {
           id: reply.id,
           fromNickname: reply.user?.nickname || reply.user?.username || '匿名用户',
           fromUid: reply.userId,
-          avatar: reply.user?.avatar || 'http://img.conder.top/config/default_avatar.jpg',
+          avatar: reply.user?.avatar || 'https://img.conder.top/config/default_avatar.jpg',
           toUid: reply.toUid || parentComment?.userId,
           toNickname: toNickname,
           commentContent: reply.content,

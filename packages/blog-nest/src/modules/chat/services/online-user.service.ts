@@ -35,7 +35,7 @@ export class OnlineUserService {
           }
 
           // 获取用户头像
-          const defaultAvatar = 'http://img.conder.top/config/default_avatar.jpg';
+          const defaultAvatar = 'https://img.conder.top/config/default_avatar.jpg';
           const avatar = client.data?.avatar || defaultAvatar;
 
           // 获取IP归属地

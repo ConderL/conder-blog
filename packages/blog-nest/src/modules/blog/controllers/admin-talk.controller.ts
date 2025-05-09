@@ -441,7 +441,7 @@ export class TalkController {
         return {
           id: talk.id,
           nickname: talk.user?.nickname || talk.user?.username || '匿名用户',
-          avatar: talk.user?.avatar || 'http://img.conder.top/config/default_avatar.jpg',
+          avatar: talk.user?.avatar || 'https://img.conder.top/config/default_avatar.jpg',
           talkContent: talk.talkContent,
           imgList: talk.images ? talk.images.split(',').filter((img) => img) : [],
           isTop: talk.isTop,
@@ -520,7 +520,7 @@ export class TalkController {
       const formattedTalk = {
         id: talk.id,
         nickname: talk.user?.nickname || talk.user?.username || '匿名用户',
-        avatar: talk.user?.avatar || 'http://img.conder.top/config/default_avatar.jpg',
+        avatar: talk.user?.avatar || 'https://img.conder.top/config/default_avatar.jpg',
         talkContent: talk.talkContent,
         imgList: talk.images ? talk.images.split(',').filter((img) => img) : [],
         isTop: talk.isTop,

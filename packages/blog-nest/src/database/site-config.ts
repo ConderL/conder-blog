@@ -21,8 +21,8 @@ export async function initSiteConfig(siteConfigRepository: Repository<SiteConfig
     // 默认站点配置
     const siteConfig = siteConfigRepository.create({
       id: 1,
-      userAvatar: 'http://img.conder.top/config/avatar.jpg',
-      touristAvatar: 'http://img.conder.top/config/default_avatar.jpg',
+      userAvatar: 'https://img.conder.top/config/avatar.jpg',
+      touristAvatar: 'https://img.conder.top/config/default_avatar.jpg',
       siteName: "Conder's blog",
       siteAddress: 'https://www.conder.top',
       siteIntro: '每天进步一点点。',
@@ -30,9 +30,9 @@ export async function initSiteConfig(siteConfigRepository: Repository<SiteConfig
         '小站新开，有点小bug很正常，欢迎大家来多多测试。\n后端基于NestJs开发，前端基于Vue3 Ts Navie UI开发',
       createSiteTime: '2025-5-20',
       recordNumber: '豫ICP备2024068028号',
-      authorAvatar: 'http://img.conder.top/config/avatar.jpg',
+      authorAvatar: 'https://img.conder.top/config/avatar.jpg',
       siteAuthor: '@ConderL',
-      articleCover: 'http://img.conder.top/config/default_cover.png',
+      articleCover: 'https://img.conder.top/config/default_cover.png',
       aboutMe: '\uD83C\uDF40个人简介\n\n全栈开发工程师\n\n喜欢捣鼓一些新奇的东西',
       github: 'https://github.com/ConderL',
       bilibili: 'https://space.bilibili.com/180248324',

@@ -217,12 +217,12 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-image: url("http://img.conder.top/config/bg-close-eyes");
+  background-image: url("https://img.conder.top/config/bg-close-eyes");
   background-size: contain;
   transition: background-image 0.5s ease;
 
   &.password-visible {
-    background-image: url("http://img.conder.top/config/bg-open-eyes");
+    background-image: url("https://img.conder.top/config/bg-open-eyes");
   }
 }
 

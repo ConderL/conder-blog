@@ -101,7 +101,7 @@ export class AdminCommentController {
           reply_nickname: '', // 初始化被回复者昵称，后续会更新
           comment_type: comment.commentType,
           user: userData,
-          avatar: userData?.avatar ?? 'http://img.conder.top/config/default_avatar.jpg',
+          avatar: userData?.avatar ?? 'https://img.conder.top/config/default_avatar.jpg',
           article: articleData,
           article_title: articleData?.article_title ?? '无',
         };

@@ -18,8 +18,8 @@
 					emojiType === 0
 						? "小黄脸"
 						: emojiType === 1
-						? "genshin"
-						: "颜文字"
+							? "genshin"
+							: "颜文字"
 				}}
 			</div>
 		</template>
@@ -73,7 +73,7 @@
 					@click="chooseType(0)"
 				>
 					<img
-						src="http://img.conder.top/emoji/tv.png"
+						src="https://img.conder.top/emoji/tv.png"
 						width="22"
 						height="22"
 					/>
@@ -84,7 +84,7 @@
 					@click="chooseType(1)"
 				>
 					<img
-						src="http://img.conder.top/emoji/genshin.png"
+						src="https://img.conder.top/emoji/genshin.png"
 						width="22"
 						height="22"
 					/>
@@ -95,7 +95,7 @@
 					@click="chooseType(2)"
 				>
 					<img
-						src="http://img.conder.top/emoji/smileys.png"
+						src="https://img.conder.top/emoji/smileys.png"
 						width="22"
 						height="22"
 					/>

@@ -85,7 +85,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.logger.log(`为客户端 ${client.id}, IP: ${ip} 分配昵称: ${nickname}`);
 
     // 默认头像
-    const defaultAvatar = 'http://img.conder.top/config/default_avatar.jpg';
+    const defaultAvatar = 'https://img.conder.top/config/default_avatar.jpg';
     const avatar = userAvatar || defaultAvatar;
 
     // 为当前socket设置数据，保证数据一致性
@@ -109,7 +109,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // 发送欢迎消息
     const welcomeMessage = {
       nickname: '系统',
-      avatar: 'http://img.conder.top/config/system-avatar.png',
+      avatar: 'https://img.conder.top/config/system-avatar.png',
       content: '欢迎加入聊天室！',
       ipAddress: '127.0.0.1',
     };

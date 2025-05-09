@@ -5,7 +5,7 @@
 				<img
 					width="32"
 					height="32"
-					src="http://img.conder.top/config/chat.png"
+					src="https://img.conder.top/config/chat.png"
 				/>
 				<div style="margin-left: 12px">
 					<div>聊天室</div>
@@ -82,7 +82,7 @@
 		</div>
 		<div class="chat-btn" @click="handleOpen">
 			<span class="unread" v-if="unreadCount > 0">{{ unreadCount }}</span>
-			<img src="http://img.conder.top/config/chat_room.svg" alt="" />
+			<img src="https://img.conder.top/config/chat_room.svg" alt="" />
 		</div>
 	</div>
 </template>
@@ -145,7 +145,7 @@ const isMy = computed(
 	() => (chat: ChatRecord) =>
 		chat.ipAddress == ipAddress.value ||
 		(chat.userId !== undefined && chat.userId === user.id) ||
-		(chat.senderId !== undefined && chat.senderId === websocket.value.id)
+		(chat.senderId !== undefined && chat.senderId === websocket.value.id),
 );
 const userNickname = computed(() => {
 	// 如果是登录用户，使用登录昵称
@@ -160,7 +160,7 @@ const userNickname = computed(() => {
 	return ipAddress.value || "访客";
 });
 const userAvatar = computed(() =>
-	user.avatar ? user.avatar : blog.blogInfo.siteConfig.touristAvatar
+	user.avatar ? user.avatar : blog.blogInfo.siteConfig.touristAvatar,
 );
 const handleOpen = () => {
 	if (websocket.value === undefined) {
@@ -189,12 +189,12 @@ const handleOpen = () => {
 
 		console.log(
 			blog.blogInfo.siteConfig.websocketUrl,
-			"blog.blogInfo.siteConfig.websocketUrl"
+			"blog.blogInfo.siteConfig.websocketUrl",
 		);
 
 		const socket = io(
 			blog.blogInfo.siteConfig.websocketUrl,
-			connectionOptions
+			connectionOptions,
 		);
 
 		websocket.value = socket;
@@ -209,7 +209,7 @@ const handleOpen = () => {
 			console.error("WebSocket连接错误:", error);
 			console.log(
 				"尝试连接的URL:",
-				blog.blogInfo.siteConfig.websocketUrl
+				blog.blogInfo.siteConfig.websocketUrl,
 			);
 		});
 
