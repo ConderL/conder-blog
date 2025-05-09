@@ -150,7 +150,7 @@ jobs:
             cd ${{ env.SERVER_DEPLOY_PATH }}
 
             # 强制清理旧容器
-            docker compose down --remove-orphans --volumes --timeout 30
+            docker compose down --remove-orphans --timeout 30
 
             # git fetch --all
             # git reset --hard origin/main
