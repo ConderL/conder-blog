@@ -7,5 +7,5 @@ import iFrame from "@/components/iFrame/index.vue";
 import { getBaseURL } from "@/utils/request";
 import { ref } from "vue";
 const baseUrl = getBaseURL();
-const url = ref(baseUrl + "/api/api-docs");
+const url = ref(baseUrl + "/api-docs");
 </script>
