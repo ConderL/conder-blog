@@ -39,9 +39,15 @@
 	--box-bg-shadow: var(--grey-9-a1);
 	--text-color: var(--grey-7);
 	--header-text-color: var(--grey-0);
-	--primary-color: var(--color-red);
-	--nav-bg: linear-gradient(-225deg, var(--color-cyan-light) 0, var(--color-pink-light) 100%);
-	--footer-bg: linear-gradient(-45deg, #ec8c69, #e9546b, #38a1db, #23d5ab);
+	--primary-color: var(--color-grey);
+	--nav-bg: linear-gradient(-225deg, var(--grey-1) 0, var(--grey-9) 100%);
+	--footer-bg: linear-gradient(
+		-45deg,
+		var(--grey-1-a3),
+		var(--color-pink-a3),
+		var(--color-pink-light-a3),
+		var(--color-red-a1)
+	);
 	--note-border: #cda0c7;
 	--note-bg: #fdf8ff;
 	--note-text: #8a51c0;
@@ -105,23 +111,23 @@
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: var(--color-pink-light);
-	background-image: -webkit-linear-gradient(45deg,
-			hsla(0, 0%, 100%, 0.4) 25%,
-			transparent 0,
-			transparent 50%,
-			hsla(0, 0%, 100%, 0.4) 0,
-			hsla(0, 0%, 100%, 0.4) 75%,
-			transparent 0,
-			transparent);
+	background-color: var(--grey-6);
+	background-image: -webkit-linear-gradient(
+		45deg,
+		hsla(0, 0%, 100%, 0.4) 25%,
+		transparent 0,
+		transparent 50%,
+		hsla(0, 0%, 100%, 0.4) 0,
+		hsla(0, 0%, 100%, 0.4) 75%,
+		transparent 0,
+		transparent
+	);
 	border-radius: 2em;
 }
 
 ::-webkit-scrollbar-corner {
 	background-color: transparent;
 }
-
-
 
 /* 加载进度条 */
 #nprogress .bar {

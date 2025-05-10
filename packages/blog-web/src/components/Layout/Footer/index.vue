@@ -43,7 +43,7 @@ const isMessage = computed(() => route.path == "/message");
 
 @keyframes gradientBG {
 	0% {
-		background-position: 0 50%;
+		background-position: 0 40%;
 	}
 
 	50% {

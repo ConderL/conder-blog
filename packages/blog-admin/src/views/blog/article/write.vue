@@ -288,21 +288,8 @@ import { useRoute } from "vue-router";
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
 import { getBaseURL } from "@/utils/request";
-// 使用异步组件加载编辑器和扩展
-const MdEditor = defineAsyncComponent(() =>
-  import("md-editor-v3").then((m) => {
-    return { default: m.MdEditor };
-  })
-);
-
-// 异步加载扩展
-const vExtensions = import("@vavt/v3-extension").then((module) => {
-  return {
-    Emoji: module.Emoji,
-    Mark: module.Mark,
-    ExportPDF: module.ExportPDF,
-  };
-});
+import { Mark, Emoji, ExportPDF } from "@vavt/v3-extension";
+import { MdEditor } from "md-editor-v3";
 
 const editorId = "editor-preview";
 const route = useRoute();
@@ -522,6 +509,7 @@ const submitForm = () => {
           notifySuccess(data.msg);
           tagViewStore.delView({
             path: `/article/write/${articleForm.value.id}`,
+            fullPath: `/article/write/${articleForm.value.id}`,
           });
           router.push({ path: "/article/list" });
           articleForm.value = initArticle;
@@ -532,7 +520,10 @@ const submitForm = () => {
       addArticle(articleForm.value).then(({ data }) => {
         if (data.flag) {
           notifySuccess(data.msg);
-          tagViewStore.delView({ path: "/article/write" });
+          tagViewStore.delView({
+            path: "/article/write",
+            fullPath: "/article/write",
+          });
           router.push({ path: "/article/list" });
           articleForm.value = initArticle;
         }
@@ -571,7 +562,10 @@ onMounted(() => {
       if (data.flag) {
         articleForm.value = data.data;
       } else {
-        tagViewStore.delView({ path: `/article/write/${articleId}` });
+        tagViewStore.delView({
+          path: `/article/write/${articleId}`,
+          fullPath: `/article/write/${articleId}`,
+        });
         router.push({ path: "/article/list" });
       }
     });
