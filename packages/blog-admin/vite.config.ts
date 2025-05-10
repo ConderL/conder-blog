@@ -63,11 +63,11 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "dist",
       chunkSizeWarningLimit: 4000, // 警告阈值4000KiB
-      sourcemap: "inline", // 生产环境关闭sourcemap以提高构建速度
+      sourcemap: false, // 生产环境关闭sourcemap以提高构建速度
       minify: false, // 确保使用可调试的压缩方式
       terserOptions: {
         compress: {
-          drop_console: false, // 保留 console 日志
+          drop_console: true, // 清除 console 日志
         },
       },
       reportCompressedSize: false, // 禁用压缩大小报告，提高速度

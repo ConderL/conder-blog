@@ -43,6 +43,9 @@ export default defineConfig((configEnv) => {
 			minify: "esbuild",
 			sourcemap: false,
 			outDir: viteEnv.VITE_DIST_NAME,
+			esbuild: {
+				drop: ["console", "debugger"],
+			},
 			commonjsOptions: {
 				ignoreTryCatch: false,
 			},
