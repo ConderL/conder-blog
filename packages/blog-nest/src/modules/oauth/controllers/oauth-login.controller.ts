@@ -56,7 +56,8 @@ export class OauthLoginController {
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: OauthLoginDto })
   async giteeLogin(@Body() loginDto: OauthLoginDto): Promise<ResultDto<any>> {
-    this.logger.log(`收到Gitee登录请求，token长度: ${loginDto.token?.length || 0}`);
+    this.logger.log(`收到Gitee登录请求，完整token: ${loginDto.token}`);
+    this.logger.log(`请求体内容: ${JSON.stringify(loginDto)}`);
 
     if (!loginDto.token) {
       this.logger.error('Gitee登录失败: 缺少token参数');

@@ -256,10 +256,23 @@ jobs:
             docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest 2>/dev/null || echo "镜像 blog-web:latest 不存在，跳过删除"
             docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest 2>/dev/null || echo "镜像 blog-admin:latest 不存在，跳过删除"
 
-            # 拉取新镜像
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }}
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}
+            # 拉取镜像
+            echo "开始拉取镜像..."
+            for i in {1..6}; do
+              echo "尝试拉取镜像 (第 $i 次)"
+              if docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }} && \
+                 docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }} && \
+                 docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}; then
+                echo "镜像拉取成功"
+                break
+              fi
+              if [ $i -eq 6 ]; then
+                echo "镜像拉取失败，已达到最大重试次数"
+                exit 1
+              fi
+              echo "等待 30 秒后重试..."
+              sleep 30
+            done
 
             # 新镜像指定为latest
             docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest

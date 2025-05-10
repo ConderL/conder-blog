@@ -4,7 +4,8 @@
 
 <script setup lang="ts">
 import iFrame from "@/components/iFrame/index.vue";
+import { getBaseURL } from "@/utils/request";
 import { ref } from "vue";
-
-const url = ref(window.location.origin + "/api/api-docs");
+const baseUrl = getBaseURL();
+const url = ref(baseUrl + "/api/api-docs");
 </script>

@@ -23,7 +23,7 @@ export function getCaptcha(): AxiosPromise<Result<CaptchaInfo>> {
  */
 export function validateCaptcha(
 	captchaUUID: string,
-	code: string
+	code: string,
 ): AxiosPromise<Result<boolean>> {
 	return request({
 		url: "/captcha/validate",
@@ -42,7 +42,7 @@ export function validateCaptcha(
  * @returns Token
  */
 export function login(
-	data: LoginForm
+	data: LoginForm,
 ): AxiosPromise<Result<Record<string, any>>> {
 	data.type = "ConderView";
 	return request({
@@ -108,7 +108,12 @@ export function giteeLogin(data: GitInfo): AxiosPromise<Result<string>> {
 	return request({
 		url: "/oauth/login/gitee",
 		method: "post",
-		data,
+		data: {
+			token: data.token,
+		},
+		headers: {
+			"Content-Type": "application/json",
+		},
 	});
 }
 

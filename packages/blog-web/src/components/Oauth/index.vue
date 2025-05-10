@@ -13,66 +13,91 @@
 import { giteeLogin, githubLogin, qqLogin } from "@/api/login";
 import { useUserStore } from "@/store";
 import { setToken } from "@/utils/token";
+
 const user = useUserStore();
 const router = useRouter();
 const route = useRoute();
-onMounted(() => {
-	if (route.path == "/oauth/login/qq") {
-		qqLogin({ token: route.query.token as string }).then(
-			async ({ data }) => {
-				if (data.flag) {
-					// 设置Token
-					setToken(data.data);
-					// 获取用户信息
-					await user.GetUserInfo();
-					if (user.email === "") {
-						window.$message?.warning("请绑定邮箱以便及时收到回复");
-					} else {
-						window.$message?.success("登录成功");
-					}
-				}
-			}
-		);
-	} else if (route.path == "/oauth/login/gitee") {
-		giteeLogin({ token: route.query.token as string }).then(
-			async ({ data }) => {
-				if (data.flag) {
-					// 设置Token
-					setToken(data.data);
-					// 获取用户信息
-					await user.GetUserInfo();
-					if (user.email === "") {
-						window.$message?.warning("请绑定邮箱以便及时收到回复");
-					} else {
-						window.$message?.success("登录成功");
-					}
-				}
-			}
-		);
-	} else if (route.path == "/oauth/login/github") {
-		githubLogin({ token: route.query.token as string }).then(
-			async ({ data }) => {
-				if (data.flag) {
-					// 设置Token
-					setToken(data.data);
-					// 获取用户信息
-					await user.GetUserInfo();
-					if (user.email === "") {
-						window.$message?.warning("请绑定邮箱以便及时收到回复");
-					} else {
-						window.$message?.success("登录成功");
-					}
-				}
-			}
-		);
+
+// 处理登录成功后的逻辑
+const handleLoginSuccess = async (token: string) => {
+	// 设置Token
+	setToken(token);
+	// 获取用户信息
+	await user.GetUserInfo();
+	if (user.email === "") {
+		window.$message?.warning("请绑定邮箱以便及时收到回复");
+	} else {
+		window.$message?.success("登录成功");
 	}
-	// 跳转回原页面
+};
+
+// 处理登录失败
+const handleLoginError = (error: any) => {
+	window.$message?.error(error.message || "登录失败");
+};
+
+// 处理登录请求
+const handleOAuthLogin = async (
+	type: "qq" | "gitee" | "github",
+	token: string,
+) => {
+	if (!token) {
+		window.$message?.error("登录失败：缺少令牌");
+		return;
+	}
+
+	try {
+		let response;
+		switch (type) {
+			case "qq":
+				response = await qqLogin({ token });
+				break;
+			case "gitee":
+				response = await giteeLogin({ token });
+				break;
+			case "github":
+				response = await githubLogin({ token });
+				break;
+		}
+
+		const { data } = response;
+		if (data.flag) {
+			await handleLoginSuccess(data.data);
+		} else {
+			window.$message?.error("登录失败");
+		}
+	} catch (error) {
+		handleLoginError(error);
+	}
+};
+
+// 处理路由跳转
+const handleRouteRedirect = () => {
 	const loginUrl = user.path;
 	if (loginUrl != null && loginUrl != "") {
 		router.push(loginUrl);
 	} else {
 		router.push("/");
 	}
+};
+
+onMounted(() => {
+	const path = route.path;
+	const token = route.query.token as string;
+
+	switch (path) {
+		case "/oauth/login/qq":
+			handleOAuthLogin("qq", token);
+			break;
+		case "/oauth/login/gitee":
+			handleOAuthLogin("gitee", token);
+			break;
+		case "/oauth/login/github":
+			handleOAuthLogin("github", token);
+			break;
+	}
+
+	handleRouteRedirect();
 });
 </script>
 
