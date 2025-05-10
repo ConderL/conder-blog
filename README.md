@@ -2,6 +2,10 @@
 
 这是一个使用Vue3和NestJS构建的全栈博客系统，包含博客前台、管理后台和API服务。
 
+前台访问地址 https://conder.top（https://conder.top）
+后台访问地址 [https://admin.conder.top]（https://admin.conder.top）
+账密 user 123456
+
 
 ## 项目结构
 
