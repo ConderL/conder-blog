@@ -44,59 +44,58 @@ export class ArticleService {
    * 查询文章列表
    */
   async findAll(
-    page: number = 1,
-    limit: number = 10,
+    page: number,
+    limit: number,
     keyword?: string,
     categoryId?: number,
     tagId?: number,
     status?: number,
     isDelete: number = 0,
     articleType?: number,
+    statusQuery?: number[],
   ): Promise<{ recordList: Article[]; count: number }> {
-    const qb = this.articleRepository
+    const queryBuilder = this.articleRepository
       .createQueryBuilder('article')
       .leftJoinAndSelect('article.category', 'category')
-      .leftJoinAndSelect('article.tags', 'tag');
+      .leftJoinAndSelect('article.tags', 'tags')
+      .where('article.isDelete = :isDelete', { isDelete });
 
-    // 关键字搜索
+    // 如果提供了状态查询数组，使用IN查询
+    if (statusQuery && statusQuery.length > 0) {
+      queryBuilder.andWhere('article.status IN (:...statusQuery)', { statusQuery });
+    } else if (status !== undefined) {
+      // 否则使用单个状态查询
+      queryBuilder.andWhere('article.status = :status', { status });
+    }
+
     if (keyword) {
-      qb.andWhere('article.articleTitle LIKE :keyword', { keyword: `%${keyword}%` });
+      queryBuilder.andWhere(
+        '(article.articleTitle LIKE :keyword OR article.articleContent LIKE :keyword)',
+        { keyword: `%${keyword}%` },
+      );
     }
 
-    // 分类过滤
     if (categoryId) {
-      qb.andWhere('article.categoryId = :categoryId', { categoryId });
+      queryBuilder.andWhere('article.categoryId = :categoryId', { categoryId });
     }
 
-    // 标签过滤
     if (tagId) {
-      qb.andWhere('tag.id = :tagId', { tagId });
+      queryBuilder.innerJoin('article.tags', 'tag').andWhere('tag.id = :tagId', { tagId });
     }
 
-    // 状态过滤
-    if (status !== undefined) {
-      qb.andWhere('article.status = :status', { status });
-    }
-
-    // 文章类型过滤
     if (articleType !== undefined) {
-      qb.andWhere('article.articleType = :articleType', { articleType });
+      queryBuilder.andWhere('article.articleType = :articleType', { articleType });
     }
 
-    // 删除状态过滤
-    qb.andWhere('article.isDelete = :isDelete', { isDelete });
-
-    // 排序: 置顶文章在前，然后按创建时间降序
-    qb.orderBy('article.isTop', 'DESC').addOrderBy('article.createTime', 'DESC');
-
-    const count = await qb.getCount();
-    const articles = await qb
+    const [recordList, count] = await queryBuilder
+      .orderBy('article.isTop', 'DESC')
+      .addOrderBy('article.createTime', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
-      .getMany();
+      .getManyAndCount();
 
     // 为每个文章添加tagVOList属性
-    const recordList = articles.map((article) => {
+    const recordListWithTags = recordList.map((article) => {
       const articleObj = article as any;
       articleObj.tagVOList = article.tags.map((tag) => ({
         tagId: tag.id,
@@ -105,7 +104,7 @@ export class ArticleService {
       return articleObj;
     }) as Article[];
 
-    return { recordList, count };
+    return { recordList: recordListWithTags, count };
   }
 
   /**
@@ -247,15 +246,19 @@ export class ArticleService {
   }
 
   /**
-   * 更新文章删除状态（回收或恢复）
+   * 更新文章删除状态
    */
-  async updateIsDelete(id: number, isDelete: number): Promise<void> {
-    const article = await this.articleRepository.findOne({ where: { id } });
-    if (!article) {
-      throw new NotFoundException(`文章ID ${id} 不存在`);
+  async updateIsDelete(id: number | number[], isDelete: number): Promise<void> {
+    if (Array.isArray(id)) {
+      await this.articleRepository
+        .createQueryBuilder()
+        .update(Article)
+        .set({ isDelete })
+        .whereInIds(id)
+        .execute();
+    } else {
+      await this.articleRepository.update(id, { isDelete });
     }
-
-    await this.articleRepository.update(id, { isDelete });
   }
 
   /**
@@ -402,5 +405,12 @@ export class ArticleService {
       console.error(`获取多篇文章点赞数失败: ${error.message}`);
       return {};
     }
+  }
+
+  /**
+   * 根据ID列表查询文章
+   */
+  async findByIds(ids: number[]): Promise<Article[]> {
+    return this.articleRepository.findByIds(ids);
   }
 }

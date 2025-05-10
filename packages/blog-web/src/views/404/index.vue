@@ -1,21 +1,24 @@
 <template>
 	<div class="page-header">
-		<h1 class="page-title">页面不存在</h1>
-		<img class="page-cover" :src="blog.blogInfo.siteConfig.aboutWallpaper"
-			 alt="">
+		<img
+			class="page-cover"
+			:src="blog.blogInfo.siteConfig.aboutWallpaper"
+			alt=""
+		/>
 		<Waves></Waves>
 	</div>
 	<div class="bg">
 		<div class="page-container">
-			<div class="notfound">Σ( ° △ °|||)︴404！何も見えない</div>
+			<NotFound></NotFound>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {useBlogStore} from "@/store";
+import { useBlogStore } from "@/store";
+import NotFound from "@/components/NotFound/index.vue";
 
-const {blog} = useBlogStore();
+const blog = useBlogStore();
 </script>
 
 <style scoped>

@@ -1,8 +1,14 @@
 <template>
 	<!-- <meting-js v-if="blog.blogInfo.siteConfig.isMusic" server="netease" type="playlist"
 		:id="blog.blogInfo.siteConfig.musicId" fixed="true" theme="#e9546b"></meting-js> -->
-	<aplayer server="netease" type="playlist" :id="blog.blogInfo.siteConfig.musicId" :fixed=true theme="#e9546b">
-	</aplayer>
+	<aplayer
+		v-if="blog.blogInfo.siteConfig?.musicId"
+		server="netease"
+		type="playlist"
+		:id="blog.blogInfo.siteConfig.musicId"
+		:fixed="true"
+		theme="#e9546b"
+	/>
 </template>
 
 <script setup lang="ts">

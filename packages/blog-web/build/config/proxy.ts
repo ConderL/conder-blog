@@ -1,4 +1,3 @@
-
 import type { ProxyOptions } from "vite";
 import { createServiceConfig } from "../../src/utils/service";
 
@@ -16,7 +15,10 @@ export function createViteProxy(env: Env.ImportMeta) {
 
 	const { baseURL, proxyPattern } = createServiceConfig(env);
 
-	const proxy: Record<string, ProxyOptions> = createProxyItem({ baseURL, proxyPattern });
+	const proxy: Record<string, ProxyOptions> = createProxyItem({
+		baseURL,
+		proxyPattern,
+	});
 
 	return proxy;
 }
@@ -27,7 +29,8 @@ function createProxyItem(item: App.Service.ServiceConfig) {
 	proxy[item.proxyPattern] = {
 		target: item.baseURL,
 		changeOrigin: true,
-		rewrite: (path) => path.replace(new RegExp(`^${item.proxyPattern}`), ""),
+		rewrite: (path) =>
+			path.replace(new RegExp(`^${item.proxyPattern}`), ""),
 	};
 
 	return proxy;

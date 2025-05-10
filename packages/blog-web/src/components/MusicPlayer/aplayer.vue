@@ -1,5 +1,5 @@
 <template>
-	<div ref="playerRef"></div>
+	<div ref="playerRef" class="aplayer-container"></div>
 </template>
 
 <script setup lang="ts">
@@ -9,6 +9,7 @@ import { AxiosPromise } from "axios";
 
 const playerRef = ref();
 let instance: any;
+const hasInteracted = ref(false);
 
 // APlayer歌曲信息
 class Audio {
@@ -28,7 +29,7 @@ class Audio {
 		name: String,
 		url: String,
 		cover: String,
-		lrc: String
+		lrc: String,
 	) {
 		this.author = artist;
 		this.title = name;
@@ -123,39 +124,76 @@ const props = defineProps({
 	},
 });
 
+// 处理播放
+const handlePlay = () => {
+	if (instance && !hasInteracted.value) {
+		hasInteracted.value = true;
+		instance.play();
+		// 恢复音量
+		instance.volume(props.volume);
+	}
+};
+
 // 初始化
 onMounted(() => {
+	// 添加全局点击事件监听
+	document.addEventListener("click", handlePlay, { once: true });
+
 	nextTick(() => {
 		request<AxiosPromise<Audio[]>>({
 			url: `https://api.i-meto.com/meting/api?server=${
 				props.server
 			}&type=${props.type}&id=${props.id}&r=${Math.random()}`,
 			method: "get",
-		}).then(({ data }) => {
-			instance = new window.APlayer({
-				container: playerRef.value,
-				fixed: props.fixed,
-				mini: props.mini,
-				autoplay: props.autoplay,
-				theme: props.theme,
-				loop: props.loop,
-				order: props.order,
-				preload: props.preload,
-				volume: props.volume,
-				mutex: props.mutex,
-				lrcType: props.lrcType,
-				listFolded: props.listFolded,
-				listMaxHeight: props.listMaxHeight,
-				storageName: props.storageName,
-				audio: data,
+		})
+			.then(({ data }) => {
+				if (Array.isArray(data) && data.length > 0) {
+					instance = new (window as any).APlayer({
+						container: playerRef.value,
+						fixed: props.fixed,
+						mini: props.mini,
+						autoplay: true, // 启用自动播放
+						theme: props.theme,
+						loop: props.loop,
+						order: props.order,
+						preload: props.preload,
+						volume: 0, // 初始音量为0
+						mutex: props.mutex,
+						lrcType: props.lrcType,
+						listFolded: props.listFolded,
+						listMaxHeight: props.listMaxHeight,
+						storageName: props.storageName,
+						audio: data,
+					});
+
+					// 监听播放器事件
+					instance.on("play", () => {
+						if (!hasInteracted.value) {
+							// 如果用户还没有交互，恢复音量
+							instance.volume(props.volume);
+							hasInteracted.value = true;
+						}
+					});
+				}
+			})
+			.catch((error) => {
+				console.error("Failed to load music playlist:", error);
 			});
-		});
 	});
 });
+
 // 销毁
 onBeforeUnmount(() => {
-	instance.destroy();
+	// 移除全局点击事件监听
+	document.removeEventListener("click", handlePlay);
+	if (instance) {
+		instance.destroy();
+	}
 });
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.aplayer-container {
+	cursor: pointer;
+}
+</style>

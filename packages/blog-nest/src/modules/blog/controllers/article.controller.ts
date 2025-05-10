@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
   Delete,
   Body,
   Param,
@@ -11,8 +10,6 @@ import {
   Put,
   UploadedFile,
   UseInterceptors,
-  Res,
-  HttpStatus,
   Request,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -40,7 +37,6 @@ import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { CommentService } from '../services/comment.service';
-import { Response } from 'express';
 import { ArticleSearch } from '../dtos/article-search.dto';
 import { SiteConfig } from '../entities/site-config.entity';
 import { UserService } from '../../user/user.service';
@@ -97,8 +93,22 @@ export class ArticleController {
   @ApiOperation({ summary: '查询文章列表' })
   @Get('list')
   @Public()
-  async findAll(@Query() query: any): Promise<ResultDto<{ recordList: Article[]; count: number }>> {
+  async findAll(
+    @Query() query: any,
+    @Request() req,
+  ): Promise<ResultDto<{ recordList: Article[]; count: number }>> {
     const { page = 1, limit = 10, keyword, categoryId, tagId, status, articleType } = query;
+
+    // 获取用户角色
+    const userRole = req.user?.roleId;
+
+    // 构建状态查询条件
+    let statusQuery = [1]; // 默认只查询公开文章
+    if (userRole === 1) {
+      // 如果是管理员
+      statusQuery = [1, 2]; // 同时查询公开和私密文章
+    }
+
     const result = await this.articleService.findAll(
       +page,
       +limit,
@@ -108,6 +118,7 @@ export class ArticleController {
       status !== undefined ? +status : undefined,
       0, // isDelete=0 表示未删除
       articleType !== undefined ? +articleType : undefined,
+      statusQuery, // 传入状态查询条件
     );
     return ResultDto.success(result);
   }
@@ -182,31 +193,6 @@ export class ArticleController {
   @VisitLog('文章详情')
   async findById(@Param('id') id: string): Promise<ResultDto<Article>> {
     const result = await this.articleService.findById(+id);
-    return ResultDto.success(result);
-  }
-
-  @ApiOperation({ summary: '更新文章' })
-  @Patch(':id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @OperationLog(OperationType.UPDATE)
-  async update(
-    @Param('id') id: string,
-    @Body() updateArticleDto: UpdateArticleDto,
-    @Body('tagIds') tagIds: number[],
-  ): Promise<ResultDto<Article>> {
-    const article: Partial<Article> = {
-      articleTitle: updateArticleDto.title,
-      articleContent: updateArticleDto.content,
-      articleDesc: updateArticleDto.description,
-      articleCover: updateArticleDto.cover,
-      categoryId: updateArticleDto.categoryId,
-      originalUrl: updateArticleDto.originalUrl,
-      isTop: updateArticleDto.isTop ? 1 : 0,
-      status: updateArticleDto.isPublish ? 1 : 3, // 1-公开 3-草稿
-    };
-
-    const result = await this.articleService.update(+id, article, tagIds);
     return ResultDto.success(result);
   }
 
@@ -396,57 +382,73 @@ export class AdminArticleController {
   @ApiOperation({ summary: '回收或恢复文章' })
   @OperationLog(OperationType.UPDATE)
   async updateArticleDelete(
-    @Body() body: { id: number; isDelete: number },
+    @Body() body: { idList: number[]; isDelete: number },
   ): Promise<ResultDto<null>> {
-    await this.articleService.updateIsDelete(body.id, body.isDelete);
-    return ResultDto.success(null);
+    try {
+      // 验证文章状态
+      const articles = await this.articleService.findByIds(body.idList);
+      const invalidArticles = articles.filter((article) => article.status !== 3);
+
+      if (invalidArticles.length > 0) {
+        return ResultDto.error('只能回收草稿状态的文章');
+      }
+
+      // 批量更新文章删除状态
+      await this.articleService.updateIsDelete(body.idList, body.isDelete);
+      return ResultDto.success(null, body.isDelete === 1 ? '文章已移至回收站' : '文章已恢复');
+    } catch (error) {
+      return ResultDto.error('操作失败: ' + error.message);
+    }
   }
 
   @Put('update')
   @ApiOperation({ summary: '修改文章' })
   @OperationLog(OperationType.UPDATE)
-  async updateArticle(@Body() updateArticleDto: UpdateArticleDto, @Res() res: Response) {
+  async updateArticle(@Body() updateArticleDto: UpdateArticleDto): Promise<ResultDto<any>> {
     console.log('=========== 接收到更新请求 ===========');
     console.log('文章ID:', updateArticleDto.id);
-    console.log('文章标题:', updateArticleDto.title);
-    console.log('文章内容长度:', updateArticleDto.content?.length);
-    console.log('文章内容预览:', updateArticleDto.content?.substring(0, 100) + '...');
+    console.log('文章标题:', updateArticleDto.articleTitle);
+    console.log('文章内容长度:', updateArticleDto.articleContent?.length);
+    console.log('文章内容预览:', updateArticleDto.articleContent?.substring(0, 100) + '...');
     console.log('分类ID:', updateArticleDto.categoryId);
-    console.log('标签名列表:', updateArticleDto.tagNameList);
+    console.log('标签名称列表:', updateArticleDto.tagNameList);
 
     try {
       // 如果没有提供封面，使用站点配置中的默认封面
-      if (!updateArticleDto.cover || updateArticleDto.cover.trim() === '') {
+      if (!updateArticleDto.articleCover || updateArticleDto.articleCover.trim() === '') {
         const [siteConfig] = await this.siteConfigRepository.find();
-        updateArticleDto.cover = siteConfig.articleCover;
+        updateArticleDto.articleCover = siteConfig.articleCover;
       }
 
       // 准备用于更新的文章数据
       const updateData: Partial<Article> = {
         id: updateArticleDto.id,
-        articleTitle: updateArticleDto.title,
-        articleContent: updateArticleDto.content,
-        articleDesc: updateArticleDto.description,
-        articleCover: updateArticleDto.cover,
+        articleTitle: updateArticleDto.articleTitle,
+        articleContent: updateArticleDto.articleContent,
+        articleDesc: updateArticleDto.articleDesc,
+        articleCover: updateArticleDto.articleCover,
         categoryId: updateArticleDto.categoryId,
-        articleType: updateArticleDto.isOriginal ? 1 : 2, // 1-原创 2-转载
-        isTop: updateArticleDto.isTop ? 1 : 0,
-        isRecommend: 0, // 默认不推荐
-        status: updateArticleDto.isPublish ? 1 : 3, // 1-公开 3-草稿
+        articleType: updateArticleDto.articleType ?? 1, // 默认原创
+        isTop: updateArticleDto.isTop ?? 0,
+        isRecommend: updateArticleDto.isRecommend ?? 0,
+        status: updateArticleDto.status ?? 1, // 默认公开
+        isDelete: updateArticleDto.isDelete ?? 0,
+        isComment: updateArticleDto.isComment ?? 1,
         updateTime: new Date(),
       };
 
       // 处理标签
       let tagIds = [];
-      if (updateArticleDto.tagIds && Array.isArray(updateArticleDto.tagIds)) {
-        tagIds = updateArticleDto.tagIds;
-      } else if (updateArticleDto.tagNameList && Array.isArray(updateArticleDto.tagNameList)) {
+      if (updateArticleDto.tagNameList && Array.isArray(updateArticleDto.tagNameList)) {
         // 如果提供了标签名称列表，则查找或创建标签
         const tagPromises = updateArticleDto.tagNameList.map((tagName) =>
           this.tagService.findOrCreate(tagName),
         );
         const tags = await Promise.all(tagPromises);
         tagIds = tags.map((tag) => tag.id);
+      } else if (updateArticleDto.tags && Array.isArray(updateArticleDto.tags)) {
+        // 如果提供了标签对象数组，直接使用标签ID
+        tagIds = updateArticleDto.tags.map((tag) => tag.id);
       }
 
       console.log('准备更新的标签IDs:', tagIds);
@@ -462,17 +464,9 @@ export class AdminArticleController {
       const updatedArticle = await this.articleService.update(updateData.id, updateData, tagIds);
       console.log('更新结果:', updatedArticle ? '成功' : '失败');
 
-      return res.status(HttpStatus.OK).json({
-        code: 200,
-        message: '更新成功',
-        data: updatedArticle,
-      });
+      return ResultDto.success();
     } catch (error) {
-      console.error('更新文章时出错:', error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        code: 500,
-        message: '更新失败: ' + error.message,
-      });
+      return ResultDto.error('更新失败: ' + error.message);
     }
   }
 
@@ -550,6 +544,27 @@ export class AdminArticleController {
     } catch (error) {
       return ResultDto.error('上传失败: ' + error.message);
     }
+  }
+
+  @Get('recycle/list')
+  @ApiOperation({ summary: '获取回收站文章列表' })
+  async getRecycleList(
+    @Query() query: any,
+  ): Promise<ResultDto<{ recordList: Article[]; count: number }>> {
+    const { page = 1, limit = 10, keyword, categoryId, tagId, articleType } = query;
+
+    const result = await this.articleService.findAll(
+      +page,
+      +limit,
+      keyword,
+      categoryId ? +categoryId : undefined,
+      tagId ? +tagId : undefined,
+      3, // 只查询草稿状态的文章
+      1, // 查询已删除的文章
+      articleType !== undefined ? +articleType : undefined,
+    );
+
+    return ResultDto.success(result);
   }
 }
 

@@ -6,10 +6,6 @@ import { createViteProxy, setupVitePlugins } from "./build";
 export default defineConfig((configEnv) => {
 	const viteEnv = loadEnv(configEnv.mode, process.cwd()) as Env.ImportMeta;
 
-	console.log("=== Vite Environment ===");
-	console.log("Mode:", configEnv.mode);
-	console.log("Environment Variables:", viteEnv);
-
 	const buildTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
 	return {
@@ -31,11 +27,6 @@ export default defineConfig((configEnv) => {
 			open: true,
 			proxy: {
 				...createViteProxy(viteEnv),
-				"/api": {
-					target: "http://localhost:3000",
-					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/api/, ""),
-				},
 			},
 		},
 		css: {

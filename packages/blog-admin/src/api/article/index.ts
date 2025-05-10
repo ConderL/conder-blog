@@ -25,7 +25,7 @@ export function getArticleList(
   params: ArticleQuery
 ): AxiosPromise<Result<PageResult<Article[]>>> {
   return request({
-    url: "/articles/list",
+    url: "/admin/article/list",
     method: "get",
     params,
   });

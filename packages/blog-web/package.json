@@ -23,6 +23,7 @@
     "js-cookie": "^3.0.5",
     "jsencrypt": "^3.3.2",
     "lodash-es": "^4.17.21",
+    "lottie-web": "^5.12.2",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-mark": "^4.0.0",
