@@ -1,10 +1,51 @@
 # Conder博客系统
 
-这是一个使用Vue3和NestJS构建的全栈博客系统，包含博客前台、管理后台和API服务。
+<p align="center">
+  <a href="https://www.conder.top">
+    <img src="https://img.conder.top/config/avatar.jpg" alt="Conder's blog" style="border-radius: 50%; height: 160px;">
+  </a>
+</p>
 
-前台访问地址 https://www.conder.top
-后台访问地址 https://admin.conder.top
-账密 user 123456
+<p align="center">
+   基于 NestJS + Vue3 开发的全栈博客系统
+</p>
+
+<p align="center">
+   <a target="_blank" href="https://github.com/yourusername/conder-blog">
+      <img src="https://img.shields.io/badge/Node.js-19.6+-green"/>
+      <img src="https://img.shields.io/badge/nestjs-10.x-green"/>
+      <img src="https://img.shields.io/badge/vue-3.x-green"/>
+      <img src="https://img.shields.io/badge/vite-4.x-green"/>
+      <img src="https://img.shields.io/badge/typescript-5.x-green"/>
+      <img src="https://img.shields.io/badge/mysql-8.0-green"/>
+      <img src="https://img.shields.io/badge/redis-7.0-green"/>
+      <img src="https://img.shields.io/badge/docker-24.x-green"/>
+      <img src="https://img.shields.io/badge/nginx-1.24.x-green"/>
+      <img src="https://img.shields.io/badge/element--plus-2.x-green"/>
+      <img src="https://img.shields.io/badge/tailwindcss-3.x-green"/>
+   </a>
+</p>
+
+## 在线演示
+
+- 博客前台：[https://www.conder.top](https://www.conder.top)
+- API文档：[https://api.conder.top/api-docs](https://api.conder.top/api-docs)
+- 管理后台：[https://admin.conder.top](https://admin.conder.top)
+- 测试账号：user
+- 测试密码：123456
+
+## 项目特点
+
+- 🚀 基于 Vue3 + Vite + TypeScript 的现代化前端架构
+- 🔥 使用 NestJS 构建高性能后端 API
+- 📦 采用 Docker 容器化部署，支持一键部署
+- 🔐 完善的用户认证和权限管理系统
+- 🌈 响应式设计，支持多端适配
+- 📝 支持 Markdown 编辑器
+- 🔍 集成全文搜索功能
+- 🖼️ 支持图片上传和 OSS 存储
+- 📊 数据统计和分析功能
+- 🔄 支持第三方登录（GitHub、Gitee、QQ）
 
 
 ## 项目结构
@@ -219,6 +260,24 @@ ENV VITE_SERVICE_BASE_URL=https://api.youserver.com
 - 使用`docker compose restart <service_name>`重启特定服务
 - 使用`./deploy.sh --rebuild`完全重建服务
 
-## 贡献指南
+## 项目背景与历程
 
-欢迎贡献代码或提出建议。请遵循项目的代码风格和贡献指南。
+本项目是我历时数月潜心研发的全栈实践作品，核心目标是通过实战深入掌握NestJS框架的工程化应用。
+在前端实现方面，完全采用了[kramrs](https://github.com/kramrs/blog)开源的博客设计方案，因为大佬的页面真的很酷_(≧∇≦」∠)_。
+基于对原Java后端实现的深入解析，完成了从Java技术栈到NestJS框架的完整迁移与重构，实现了前后端分离架构的最佳实践。
+
+## 特别致谢
+
+感谢开源社区的前辈们无私分享技术成果，尤其要致敬kramrs的Java实现给予的架构启发。本项目的技术方案文档已完整开源，包含详细的设计决策文档和踩坑记录。
+
+- [kramrs's blog](https://github.com/kramrs/blog)
+- [ 掐指yi算’逢考必过 ](https://gitee.com/wu_shengdong/blog)
+- [hexo-theme-shoka](https://github.com/amehime/hexo-theme-shoka)
+- [A Hexo Theme: Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)
+- [RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue)
+- [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)
+- [基于 Vue.js 的弹幕交互组件](https://github.com/hellodigua/vue-danmaku)
+- ...
+
+🌟 如果本项目对您的技术学习有所帮助，欢迎通过Star支持项目的持续演进！
+📮 任何建议或合作意向请通过Issue区交流，期待与开发者们共同成长！
