@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:19.6.1 AS builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY . .
 RUN pnpm run build
 
 # 使用更轻量的镜像
-FROM node:18-alpine AS production
+FROM node:19.6.1-alpine AS production
 
 # 创建app目录
 WORKDIR /app
@@ -25,11 +25,10 @@ WORKDIR /app
 # 从构建阶段复制node_modules和构建产物
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/public ./public
 
 # 复制配置文件和必要的资源
 COPY package.json ./
-COPY .env.example ./.env
+COPY .env ./.env
 
 # 暴露3000端口
 EXPOSE 3000
