@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql-local
+    restart: always
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: blog
+      MYSQL_USER: conder
+      MYSQL_PASSWORD: conder123
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data_local:/var/lib/mysql
+    networks:
+      - blog-network-local
+
+  redis:
+    image: redis:7.0
+    container_name: blog-redis-local
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data_local:/data
+    networks:
+      - blog-network-local
+
+  nest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blog-nest-local
+    restart: always
+    ports:
+      - '3000:3000' # 直接映射到3000端口
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      # 数据库配置
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=conder
+      - DB_PASSWORD=conder123
+      - DB_DATABASE=blog
+
+      # Redis配置
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+      # 允许本地前端访问的CORS设置
+      - ALLOWED_ORIGINS=http://localhost:3300,http://localhost:5173,http://localhost:8080
+    volumes:
+      - .:/app # 挂载本地代码，便于开发时的热更新
+      - /app/node_modules # 避免覆盖容器内的node_modules
+    networks:
+      - blog-network-local
+    command: pnpm run start:dev # 使用开发模式启动，支持热更新
+
+networks:
+  blog-network-local:
+    driver: bridge
+
+volumes:
+  mysql_data_local:
+  redis_data_local:

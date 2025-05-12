@@ -17,20 +17,32 @@ async function bootstrap() {
   });
   const logger = new Logger('Bootstrap');
 
+  // 获取配置服务
+  const configService = app.get(ConfigService);
+
+  // 获取允许的域名列表，如果环境变量中有ALLOWED_ORIGINS，则使用它
+  const allowedOriginsFromEnv = configService.get<string>('ALLOWED_ORIGINS');
+  let allowedOrigins = [
+    'http://admin.conder.top',
+    'https://admin.conder.top',
+    'http://conder.top',
+    'https://conder.top',
+    'http://www.conder.top',
+    'https://www.conder.top',
+    'http://localhost:4173',
+  ];
+
+  // 如果有设置环境变量ALLOWED_ORIGINS，则添加到允许列表中
+  if (allowedOriginsFromEnv) {
+    const additionalOrigins = allowedOriginsFromEnv.split(',');
+    allowedOrigins = [...allowedOrigins, ...additionalOrigins];
+    logger.log(`添加额外的CORS origins: ${additionalOrigins.join(', ')}`);
+  }
+
   // 自定义CORS配置 - 更安全的配置，只允许特定来源
   app.enableCors({
     origin: (origin, callback) => {
       console.log(`收到的Origin: ${origin}`); // 添加日志记录
-
-      const allowedOrigins = [
-        'http://admin.conder.top',
-        'https://admin.conder.top',
-        'http://conder.top',
-        'https://conder.top',
-        'http://www.conder.top',
-        'https://www.conder.top',
-        'http://localhost:4173',
-      ];
 
       if (!origin || allowedOrigins.includes(origin)) {
         // 设置Vary头，表明响应可能因Origin而不同
@@ -46,9 +58,6 @@ async function bootstrap() {
     exposedHeaders: ['Content-Disposition', 'Content-Length', 'Content-Range'],
     maxAge: 3600,
   });
-
-  // 获取配置服务
-  const configService = app.get(ConfigService);
 
   // 配置全局管道
   app.useGlobalPipes(
@@ -99,6 +108,7 @@ async function bootstrap() {
   const port = configService.get('PORT', 3000);
   await app.listen(port);
   logger.log(`应用已启动: http://localhost:${port}`);
+  logger.log(`允许的CORS Origins: ${allowedOrigins.join(', ')}`);
 
   // 在NestJS应用的中间件或响应拦截器中添加
   app.use((req, res, next) => {
