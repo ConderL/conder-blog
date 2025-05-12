@@ -67,6 +67,7 @@
 					<MdPreview
 						editorId="preview-only"
 						:modelValue="article.articleContent"
+						class="md-preview-custom"
 					/>
 					<div class="article-post">
 						<div class="tag-share">
@@ -188,7 +189,7 @@
 									class="post-cover"
 									:style="
 										articleCover(
-											article.lastArticle.articleCover
+											article.lastArticle.articleCover,
 										)
 									"
 								>
@@ -204,7 +205,7 @@
 									class="post-cover"
 									:style="
 										articleCover(
-											article.nextArticle.articleCover
+											article.nextArticle.articleCover,
 										)
 									"
 								>
@@ -277,11 +278,11 @@ const data = reactive({
 });
 const { articleLoaded, wordNum, readTime, commentType, article } = toRefs(data);
 const articleCover = computed(
-	() => (cover: string) => "background-image:url(" + cover + ")"
+	() => (cover: string) => "background-image:url(" + cover + ")",
 );
 const isLike = computed(
 	() => (id: number) =>
-		user.articleLikeSet.indexOf(id) != -1 ? "like-btn-active" : "like-btn"
+		user.articleLikeSet.indexOf(id) != -1 ? "like-btn-active" : "like-btn",
 );
 const count = (value: number) => {
 	if (value >= 1000) {
@@ -310,7 +311,7 @@ const like = () => {
 	console.log("当前文章:", article.value.articleTitle);
 	console.log(
 		"当前点赞状态:",
-		user.articleLikeSet.indexOf(id) != -1 ? "已点赞" : "未点赞"
+		user.articleLikeSet.indexOf(id) != -1 ? "已点赞" : "未点赞",
 	);
 
 	// 判断当前是否已点赞
@@ -322,7 +323,7 @@ const like = () => {
 				if (data.flag) {
 					article.value.likeCount = Math.max(
 						0,
-						article.value.likeCount - 1
+						article.value.likeCount - 1,
 					);
 					user.articleLike(id);
 				}
@@ -522,6 +523,51 @@ onMounted(() => {
 	.reward-img {
 		width: 105px;
 		height: 105px;
+	}
+}
+</style>
+
+<style lang="scss">
+/* 修复Markdown列表样式问题 */
+.md-preview-custom {
+	.md-editor-preview {
+		ul {
+			list-style-type: disc !important;
+			padding-left: 2em !important;
+
+			li {
+				list-style-type: disc !important;
+				display: list-item !important;
+				margin: 0.5em 0 !important;
+			}
+
+			ul li {
+				list-style-type: circle !important;
+			}
+
+			ul ul li {
+				list-style-type: square !important;
+			}
+		}
+
+		ol {
+			list-style-type: decimal !important;
+			padding-left: 2em !important;
+
+			li {
+				list-style-type: decimal !important;
+				display: list-item !important;
+				margin: 0.5em 0 !important;
+			}
+
+			ol li {
+				list-style-type: lower-alpha !important;
+			}
+
+			ol ol li {
+				list-style-type: lower-roman !important;
+			}
+		}
 	}
 }
 </style>
