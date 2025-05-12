@@ -88,9 +88,7 @@
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <div class="title">文章标签统计🌈</div>
-          <TagCloud
-            :data="tagList.map((tag) => ({ name: tag.tagName, value: 1 }))"
-          />
+          <TagCloud :tagList="tagList" />
         </div>
       </el-col>
     </el-row>
