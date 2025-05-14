@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { LoginDto } from './dto/login.dto';
 import { ResultDto } from '../../common/dtos/result.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { CaptchaService } from '../captcha/captcha.service';
 import { EmailLoginDto, SendEmailCodeDto } from './dto/email-login.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
