@@ -24,7 +24,6 @@ pnpm-debug.log*
 .env.*.local
 packages/*/.env
 packages/*/.env.*
-packages/*/docker-compose.yml
 !packages/*/.env.example
 !.env.example
 

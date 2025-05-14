@@ -2,11 +2,6 @@
 FROM node:19.6.1 AS deps
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y python3 make g++ git netcat-openbsd && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 # 仅复制 package.json 相关文件
 COPY package.json pnpm-lock.yaml turbo.json pnpm-workspace.yaml ./
 COPY packages/blog-nest/package.json ./packages/blog-nest/
