@@ -55,13 +55,31 @@ declare function defineNuxtConfig(config: Record<string, any>): Record<string, a
 
 declare function definePageMeta(meta: Record<string, any>): void;
 
-// 为Nuxt自动导入的组合式函数提供类型声明
+// Nuxt自动导入的函数类型声明
 declare global {
-  const useHead: any;
-  const useRoute: any;
+  // Nuxt Composables
+  const useAsyncData: any;
   const useFetch: any;
+  const useHead: any;
+  const useNuxtApp: any;
   const useRuntimeConfig: any;
+  const useSeoMeta: any;
+  const useState: any;
+  
+  // Vue Router
+  const useRoute: any;
+  const useRouter: any;
+  
+  // Nuxt Helpers
   const defineNuxtPlugin: any;
+  const defineNuxtRouteMiddleware: any;
+  const definePageMeta: any;
+  
+  // Nuxt Types
+  namespace process {
+    const client: boolean;
+    const server: boolean;
+  }
 }
 
-export {}; 
+export { useHead, useRoute, useRouter }; 

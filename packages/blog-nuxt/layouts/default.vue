@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 // 移动端菜单状态
 const isMobileMenuActive = ref(false);
@@ -101,19 +101,38 @@ const isMobileMenuActive = ref(false);
 const toggleMobileMenu = () => {
   isMobileMenuActive.value = !isMobileMenuActive.value;
   
-  // 切换body滚动锁定，防止滚动
-  if (isMobileMenuActive.value) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = '';
+  // 在客户端环境切换body滚动锁定，防止滚动
+  // @ts-ignore - Nuxt全局变量
+  if (process.client) {
+    if (isMobileMenuActive.value) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 };
 
 // 关闭移动端菜单
 const closeMobileMenu = () => {
   isMobileMenuActive.value = false;
-  document.body.style.overflow = '';
+  // 在客户端环境恢复滚动
+  // @ts-ignore - Nuxt全局变量
+  if (process.client) {
+    document.body.style.overflow = '';
+  }
 };
+
+// 监听页面宽度变化，在大屏幕下自动关闭移动菜单
+onMounted(() => {
+  // @ts-ignore - Nuxt全局变量
+  if (process.client) {
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && isMobileMenuActive.value) {
+        closeMobileMenu();
+      }
+    });
+  }
+});
 </script>
 
 <style scoped>
