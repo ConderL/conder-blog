@@ -41,7 +41,7 @@ export default defineNuxtConfig({
     typeCheck: true
   },
   devServer: {
-    port: 3333
+    port: 3334
   },
   build: {
     transpile: []
@@ -52,6 +52,18 @@ export default defineNuxtConfig({
     ]
   },
   image: {
-    provider: 'ipx'
+    provider: 'ipx',
+    dir: 'public',
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536
+    }
+  },
+  experimental: {
+    payloadExtraction: false
   }
 }) 
