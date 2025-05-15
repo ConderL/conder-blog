@@ -73,18 +73,22 @@ jobs:
         run: |
           docker builder prune -f
 
+
       - name: 安装PNPM
         uses: pnpm/action-setup@v2
         with:
           version: 9.7.1
 
-      - name: 配置PNPM缓存
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+      - name: 清理PNPM缓存
+        run: pnpm store prune
+
+      # - name: 配置PNPM缓存
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.pnpm-store
+      #     key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pnpm-
 
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
