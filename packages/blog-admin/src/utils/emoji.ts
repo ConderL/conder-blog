@@ -201,3 +201,50 @@ export const emojiGenshinList: Record<string, string> = {
   "[达达利亚_来打一架]":
     "https://img.conder.top/emoji-genshin/d4cabbefe938a927f3ad41bcd1b312ed_2290532288349109618.png",
 };
+
+export const mygoList: Record<string, string> = {
+  "[emo]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/84bd3c48-1c7a-4d31-938b-5d8d22ded084.gif",
+  "[rua猫]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/5a5c837c-2a47-4206-accf-585a40a2c890.gif",
+  "[傲娇]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/4a54900b-1c6e-4480-b3a1-3028139a8f62.gif",
+  "[比心]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/19cf404d-119b-40f9-9312-e257eb21e47c.gif",
+  "[瞪]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/c08d48ee-e1de-41d5-bab4-0c925623af72.gif",
+  "[鼓掌]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/06924350-a483-45e5-a052-957832bdb830.gif",
+  "[观察]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/fb61c0d5-ba6e-4329-afef-47003baa43fa.gif",
+  "[哈？]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/9f40c7c0-be36-4284-aa01-7ffefb6df592.gif",
+  "[剪切]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/1def3bf1-50cf-4158-bbcf-3403645f774a.gif",
+  "[泣]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/097d37a7-3726-4487-8aa6-3ff4b8f331e1.gif",
+  "[生气]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/eac0568b-cc99-4613-971a-6c93c4f73509.gif",
+  "[思考]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/f1967d29-fdd7-42db-8952-661b84b39d52.gif",
+  "[逃跑]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/95d5fa1c-2c1e-4537-90b7-26d597c22f32.gif",
+  "[微笑]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/7c3a26e0-e8f2-4f37-bfbd-5a68d1e5d17b.gif",
+  "[Love]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/9efdc3ce-3b0e-4c7b-b000-e2d6e9720c1a.gif",
+  "[不会吧？]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/06e3ede4-7994-4785-a912-32692894cc71.gif",
+  "[创作中]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/061d4b70-1201-4e23-993a-9fc97ba23f72.gif",
+  "[大哭]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/f9c90882-cf17-4682-b112-d21c29c60d07.gif",
+  "[那我呢？]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/226489a0-3dcd-4672-a87b-a631b48a212d.gif",
+  "[让我看看]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/2da7081a-a3f1-45f9-9e13-13299fcbe5ae.gif",
+  "[愤怒]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/c47b6cf8-e9ba-42b2-ad40-45c295a3ef6a.gif",
+  "[探头]":
+    "https://bbs.api.hoilai.com/upload/img/2025/5/13/6d7f3325-43b3-4c17-a80f-541683a9b9a0.gif",
+};

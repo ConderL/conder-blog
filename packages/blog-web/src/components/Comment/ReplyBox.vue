@@ -42,9 +42,7 @@
 import { addComment } from "@/api/comment";
 import { CommentForm } from "@/api/comment/types";
 import { useAppStore, useBlogStore, useUserStore } from "@/store";
-import { emojiGenshinList } from "@/utils/emoji_genshin";
-import { emojiList } from "@/utils/emoji";
-import { processEmoji } from "@/utils/emoji-processor";
+import { processEmoji } from "@/utils/emojiProcessor";
 const user = useUserStore();
 const blog = useBlogStore();
 const app = useAppStore();
@@ -84,7 +82,7 @@ const data = reactive({
 const { nickname, sendActive, show, commentContent, emojiType, commentForm } =
 	toRefs(data);
 const placeholderText = computed(() =>
-	nickname.value ? `回复 @${nickname.value}：` : "发一条友善的评论"
+	nickname.value ? `回复 @${nickname.value}：` : "发一条友善的评论",
 );
 const inputActive = () => {
 	if (commentContent.value.length == 0) {
@@ -113,7 +111,7 @@ const handleAdd = () => {
 	// 使用工具函数处理表情
 	commentForm.value.commentContent = processEmoji(
 		commentContent.value,
-		emojiType.value
+		emojiType.value,
 	);
 
 	// 发送评论
