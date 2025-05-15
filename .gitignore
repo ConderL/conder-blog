@@ -7,6 +7,14 @@ node_modules
 dist
 *.tsbuildinfo
 
+# Nuxt相关文件
+.nuxt
+.output
+.generate
+.nitro
+.cache
+.netlify
+
 # 日志文件
 logs
 *.log
