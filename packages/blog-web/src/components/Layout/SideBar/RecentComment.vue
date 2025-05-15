@@ -21,7 +21,7 @@
 					<div>{{ formatDate(comment.createTime) }}</div>
 				</div>
 				<!-- 内容 -->
-				<span class="content" v-html="comment.commentContent"></span>
+				<span class="content" v-html="processCommentContent(comment.commentContent)"></span>
 			</div>
 		</div>
 	</div>
@@ -31,11 +31,18 @@
 import { getRecentComment } from "@/api/comment";
 import { RecentComment } from "@/api/comment/types";
 import { formatDate } from "@/utils/date";
+import { cleanupContent } from "@/utils/emojiProcessor";
+
 const commentList = ref<RecentComment[]>([]);
+
+// 处理评论内容，转换表情代码为图片
+const processCommentContent = (content: string) => {
+	return cleanupContent(content);
+};
+
 onMounted(() => {
 	getRecentComment().then(({ data }) => {
 		console.log(data, "data");
-
 		commentList.value = data.data;
 	});
 });
