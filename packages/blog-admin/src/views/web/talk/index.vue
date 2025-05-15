@@ -172,6 +172,20 @@
                 height="60"
               />
             </span>
+            <span
+              class="emoji-item"
+              v-for="(value, key, index) of mygoList"
+              :key="index"
+              @click="addEmoji(key, value, 60)"
+            >
+              <img
+                :src="value"
+                :title="key"
+                class="emoji"
+                width="60"
+                height="60"
+              />
+            </span>
           </el-popover>
         </el-col>
         <el-col :span="1.5">
@@ -271,7 +285,7 @@ import { Talk, TalkForm, TalkQuery } from "@/api/talk/types";
 import Editor from "@/components/Editor/index.vue";
 import { Picture } from "@/model";
 import { formatDateTime } from "@/utils/date";
-import { emojiList, emojiGenshinList } from "@/utils/emoji";
+import { emojiList, emojiGenshinList, mygoList } from "@/utils/emoji";
 import { messageConfirm, notifySuccess } from "@/utils/modal";
 import { getToken, token_prefix } from "@/utils/token";
 import { AxiosResponse } from "axios";

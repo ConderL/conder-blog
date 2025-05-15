@@ -161,7 +161,7 @@ import { Comment, CommentQuery, Reply } from "@/api/comment/types";
 import { useAppStore, useUserStore } from "@/store";
 import { formatDateTime } from "@/utils/date";
 import { ClickDebouncer } from "@/utils/debounce";
-import { cleanupContent } from "@/utils/emoji-processor";
+import { cleanupContent } from "@/utils/emojiProcessor";
 const user = useUserStore();
 const app = useAppStore();
 const replyRef = ref<any>([]);

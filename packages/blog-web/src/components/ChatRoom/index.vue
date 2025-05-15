@@ -49,7 +49,7 @@
 								showBack(chat, index, $event)
 							"
 						>
-							<div v-html="chat.content"></div>
+							<div v-html="processMessageContent(chat.content)"></div>
 							<div
 								class="back-menu"
 								ref="backBtn"
@@ -88,11 +88,11 @@
 </template>
 
 <script setup lang="ts">
-import { Record } from "@/model";
 import { useBlogStore, useUserStore } from "@/store";
 import { formatDateTime } from "@/utils/date";
-import { emojiGenshinList } from "@/utils/emoji_genshin";
+import { emojiGenshinList } from "@/utils/emojiGenshin";
 import { emojiList } from "@/utils/emoji";
+import { emojiMygoList } from "@/utils/emojiMygo";
 import { onMounted, ref } from "vue";
 import { loadSocketIO } from "@/plugins/socket";
 
@@ -303,29 +303,7 @@ const handleSend = () => {
 		window.$message?.error("内容不能为空");
 		return;
 	}
-	chatContent.value = chatContent.value.replace(/\[.+?\]/g, (str) => {
-		if (emojiType.value === 0) {
-			if (emojiList[str] === undefined) {
-				return str;
-			}
-			return (
-				"<img src='" +
-				emojiList[str] +
-				"' width='21' height='21' style='margin: 0 1px;vertical-align: text-bottom'/>"
-			);
-		}
-		if (emojiType.value === 1) {
-			if (emojiGenshinList[str] === undefined) {
-				return str;
-			}
-			return (
-				"<img src='" +
-				emojiGenshinList[str] +
-				"' width='60' height='60' style='margin: 0 1px;vertical-align: text-bottom'/>"
-			);
-		}
-		return str;
-	});
+	// 直接发送原始表情代码，不进行转换
 	let chat = {
 		nickname: userNickname.value,
 		avatar: userAvatar.value,
@@ -435,6 +413,80 @@ onUpdated(() => {
 		element.scrollTop = element.scrollHeight;
 	}
 });
+
+/**
+ * 替换表情符号为对应的图片
+ * @param {string} str 表情符号
+ * @param {number} type 表情类型
+ * @returns {string} 替换后的HTML
+ */
+function replaceEmoji(str: string, type: number): string {
+	let emojiMap: Record<string, string>;
+	let size = { width: 21, height: 21 };
+
+	switch (type) {
+		case 0: // 默认表情
+			emojiMap = emojiList;
+			size = { width: 21, height: 21 };
+			break;
+		case 1: // 原神表情
+			emojiMap = emojiGenshinList;
+			size = { width: 60, height: 60 };
+			break;
+		case 2: // Mygo表情
+			emojiMap = emojiMygoList;
+			size = { width: 60, height: 60 };
+			break;
+		default:
+			return str;
+	}
+
+	if (emojiMap[str] === undefined) {
+		return str;
+	}
+
+	return `<img src='${emojiMap[str]}' width='${size.width}' height='${size.height}' style='margin: 0 1px;vertical-align: text-bottom'/>`;
+}
+
+// 添加新的处理函数，用于在显示消息时处理表情
+function processMessageContent(content: string): string {
+	if (!content) return '';
+	
+	try {
+		let processedContent = content;
+		const emojiPattern = /\[([^\[\]]+?)\]/g;
+		const matches = [...processedContent.matchAll(emojiPattern)];
+		
+		// 从后向前替换，避免替换过程中改变索引位置
+		for (let i = matches.length - 1; i >= 0; i--) {
+			const match = matches[i];
+			const fullMatch = match[0];
+			const startIndex = match.index || 0;
+			const endIndex = startIndex + fullMatch.length;
+			
+			// 尝试所有表情集
+			for (let emojiType = 0; emojiType < 3; emojiType++) {
+				const currentEmojiList = [emojiList, emojiGenshinList, emojiMygoList][emojiType];
+				
+				if (currentEmojiList[fullMatch]) {
+					const imgSize = emojiType === 0 ? 21 : 60;
+					const imgHtml = `<img src="${currentEmojiList[fullMatch]}" width="${imgSize}" height="${imgSize}" style="margin: 0 1px;vertical-align: text-bottom"/>`;
+					
+					processedContent = 
+						processedContent.substring(0, startIndex) + 
+						imgHtml + 
+						processedContent.substring(endIndex);
+					break;
+				}
+			}
+		}
+		
+		return processedContent;
+	} catch (error) {
+		console.error("处理消息内容时出错:", error);
+		return content;
+	}
+}
 </script>
 
 <style lang="scss" scoped>

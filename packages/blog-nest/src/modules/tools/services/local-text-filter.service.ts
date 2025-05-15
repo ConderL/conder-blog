@@ -30,38 +30,62 @@ export class LocalTextFilterService {
       };
     }
 
-    // 创建表情图片正则表达式
-    const emojiImgRegex = /<img\s+[^>]*?src\s*=\s*(['"])[^>]*?img\.conder\.top\/emoji[^>]*?>/gi;
+    const imgDomains = [
+      'img\\.conder\\.top',
+      'bbs\\.api\\.hoilai\\.com'
+    ];
+    
+    // 创建正则表达式
+    const emojiImgRegex = new RegExp(
+      `<img\\s+[^>]*?src\\s*=\\s*(['"])[^>]*?(?:${imgDomains.join('|')})[^>]*?>`,
+      'gi'
+    );
 
-    // 将文本分割成普通文本和图片标签
+    // 表情代码正则表达式
+    const emojiCodeRegex = /\[([^\[\]]+?)\]/g;
+
+    // 将文本分割成普通文本、图片标签和表情代码
     const segments: string[] = [];
     const imgTags: string[] = [];
+    const emojiCodes: string[] = [];
 
     // 使用match方法获取所有匹配的图片标签
     const allImgTags = text.match(emojiImgRegex) || [];
-
-    // 将所有匹配的图片标签保存到数组
     allImgTags.forEach((tag) => {
       imgTags.push(tag);
     });
 
-    // 如果没有图片标签，直接处理整个文本
-    if (imgTags.length === 0) {
+    // 使用match方法获取所有匹配的表情代码
+    const allEmojiCodes = text.match(emojiCodeRegex) || [];
+    allEmojiCodes.forEach((code) => {
+      emojiCodes.push(code);
+    });
+
+    // 如果没有图片标签和表情代码，直接处理整个文本
+    if (imgTags.length === 0 && emojiCodes.length === 0) {
       segments.push(text);
     } else {
-      // 使用图片标签分割文本
+      // 使用图片标签和表情代码分割文本
       let remainingText = text;
 
+      // 先处理图片标签
       for (const imgTag of imgTags) {
         const imgIndex = remainingText.indexOf(imgTag);
         if (imgIndex > 0) {
-          // 添加图片前的文本
           segments.push(remainingText.substring(0, imgIndex));
         }
-        // 添加图片标签（作为特殊标记）
         segments.push(`__IMG_TAG_${imgTags.indexOf(imgTag)}__`);
-        // 更新剩余文本
         remainingText = remainingText.substring(imgIndex + imgTag.length);
+      }
+
+      // 再处理表情代码
+      for (const emojiCode of emojiCodes) {
+        const emojiIndex = remainingText.indexOf(emojiCode);
+        if (emojiIndex > 0) {
+          segments.push(remainingText.substring(0, emojiIndex));
+        }
+        segments.push(`__EMOJI_CODE_${emojiCodes.indexOf(emojiCode)}__`);
+        remainingText = remainingText.substring(emojiIndex + emojiCode.length);
       }
 
       // 添加最后剩余的文本
@@ -74,10 +98,10 @@ export class LocalTextFilterService {
     const sensitiveWords = defaultSensitiveWords;
     const foundWords = [];
 
-    // 只过滤非图片标签的段落
+    // 只过滤非图片标签和非表情代码的段落
     const filteredSegments = segments.map((segment) => {
-      // 如果是图片标签占位符，直接返回
-      if (segment.startsWith('__IMG_TAG_') && segment.endsWith('__')) {
+      // 如果是图片标签或表情代码占位符，直接返回
+      if ((segment.startsWith('__IMG_TAG_') || segment.startsWith('__EMOJI_CODE_')) && segment.endsWith('__')) {
         return segment;
       }
 
@@ -96,10 +120,13 @@ export class LocalTextFilterService {
       return filteredSegment;
     });
 
-    // 恢复图片标签
+    // 恢复图片标签和表情代码
     let filteredText = filteredSegments.join('');
     for (let i = 0; i < imgTags.length; i++) {
       filteredText = filteredText.replace(`__IMG_TAG_${i}__`, imgTags[i]);
+    }
+    for (let i = 0; i < emojiCodes.length; i++) {
+      filteredText = filteredText.replace(`__EMOJI_CODE_${i}__`, emojiCodes[i]);
     }
 
     const hasSensitiveContent = foundWords.length > 0;

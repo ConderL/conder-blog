@@ -14,13 +14,7 @@
 		</template>
 		<template #header>
 			<div class="emoji-title">
-				{{
-					emojiType === 0
-						? "小黄脸"
-						: emojiType === 1
-							? "genshin"
-							: "颜文字"
-				}}
+				{{ emojiTitle }}
 			</div>
 		</template>
 		<div class="emoji-content" v-if="emojiType === 0">
@@ -56,6 +50,22 @@
 			</span>
 		</div>
 		<div class="emoji-content" v-if="emojiType === 2">
+			<span
+				class="emoji-item"
+				v-for="(value, key, index) of emojiMygoList"
+				:key="index"
+				@click="addEmoji(key)"
+			>
+				<img
+					:src="value"
+					:title="key"
+					class="emoji"
+					width="24"
+					height="24"
+				/>
+			</span>
+		</div>
+		<div class="emoji-content" v-if="emojiType === 3">
 			<span
 				class="text-emoji"
 				v-for="(value, index) in textList"
@@ -95,6 +105,17 @@
 					@click="chooseType(2)"
 				>
 					<img
+						src="https://img.conder.top/emoji/MyGO!!!!!.png"
+						width="22"
+						height="22"
+					/>
+				</div>
+				<div
+					class="emoji-tab"
+					:class="{ on: emojiType === 3 }"
+					@click="chooseType(3)"
+				>
+					<img
 						src="https://img.conder.top/emoji/smileys.png"
 						width="22"
 						height="22"
@@ -108,10 +129,25 @@
 <script setup lang="ts">
 import { emojiList } from "@/utils/emoji";
 import { textList } from "@/utils/text";
-import { emojiGenshinList } from "@/utils/emoji_genshin";
+import { emojiGenshinList } from "@/utils/emojiGenshin";
+import { emojiMygoList } from "@/utils/emojiMygo";
 
 const emojiType = ref(0);
 const emit = defineEmits(["addEmoji", "chooseType"]);
+
+const emojiTitle = computed(() => {
+	switch (emojiType.value) {
+		case 0:
+			return "小黄脸";
+		case 1:
+			return "genshin";
+		case 2:
+			return "MyGO!!!!!";
+		case 3:
+			return "颜文字";
+	}
+});
+
 const addEmoji = (key: string) => {
 	emit("addEmoji", key);
 };
