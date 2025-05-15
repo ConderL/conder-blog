@@ -79,16 +79,16 @@ jobs:
         with:
           version: 9.7.1
 
-      - name: 清理PNPM缓存
-        run: pnpm store prune
+      - name: 配置PNPM缓存
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
-      # - name: 配置PNPM缓存
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.pnpm-store
-      #     key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-pnpm-
+      - name: 清理 pnpm 缓存
+        run: pnpm store prune || echo "缓存已清理或无需清理"
 
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
