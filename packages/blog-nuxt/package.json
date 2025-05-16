@@ -1,0 +1,44 @@
+{
+  "name": "blog-nuxt",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --port 3334",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.5.1",
+    "@vueuse/core": "^10.7.0",
+    "axios": "^1.6.0",
+    "dayjs": "^1.11.10",
+    "easy-typer-js": "^2.1.0",
+    "js-cookie": "^3.0.5",
+    "lodash-es": "^4.17.21",
+    "md-editor-v3": "^4.21.2",
+    "nprogress": "^0.2.0",
+    "nuxt-svgo": "^4.1.2",
+    "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^2.4.0",
+    "prismjs": "^1.29.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxt/image": "^1.10.0",
+    "@nuxt/types": "^2.18.1",
+    "@nuxtjs/composition-api": "^0.34.0",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^18.19.100",
+    "@types/nprogress": "^0.2.3",
+    "@types/prismjs": "^1.26.3",
+    "@unocss/nuxt": "^0.59.4",
+    "h3": "^1.15.3",
+    "nuxt": "^3.9.0",
+    "sass": "^1.75.0",
+    "typescript": "^5.3.0",
+    "vue-tsc": "^2.0.13"
+  }
+}
