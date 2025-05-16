@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, LessThan, MoreThan } from 'typeorm';
 import { Article } from '../entities/article.entity';
 import { Tag } from '../entities/tag.entity';
 import { CategoryService } from './category.service';
@@ -125,6 +125,36 @@ export class ArticleService {
 
     // 不再尝试更新数据库中不存在的字段
     // await this.articleRepository.update(id, { viewCount: article.viewCount });
+
+    // 查询上一篇文章（按ID排序，比当前文章ID小的最大一个，且状态为公开的非删除文章）
+    const lastArticle = await this.articleRepository.findOne({
+      where: {
+        id: LessThan(id),
+        status: 1, // 公开状态
+        isDelete: 0, // 非删除状态
+      },
+      order: { id: 'DESC' },
+      select: ['id', 'articleTitle', 'articleCover', 'createTime'],
+    });
+
+    if (lastArticle) {
+      article.lastArticle = lastArticle;
+    }
+
+    // 查询下一篇文章（按ID排序，比当前文章ID大的最小一个，且状态为公开的非删除文章）
+    const nextArticle = await this.articleRepository.findOne({
+      where: {
+        id: MoreThan(id),
+        status: 1, // 公开状态
+        isDelete: 0, // 非删除状态
+      },
+      order: { id: 'ASC' },
+      select: ['id', 'articleTitle', 'articleCover', 'createTime'],
+    });
+
+    if (nextArticle) {
+      article.nextArticle = nextArticle;
+    }
 
     return article;
   }
