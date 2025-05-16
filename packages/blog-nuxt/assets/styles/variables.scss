@@ -1,0 +1,109 @@
+@use "sass:color";
+
+// 颜色变量
+$primary-color: #3eaf7c;
+$primary-color-dark: #4abf8a;
+$text-color: #2c3e50;
+$text-color-dark: #e5e5e5;
+$bg-color: #ffffff;
+$bg-color-dark: #1a1a1a;
+$border-color: #eaecef;
+$border-color-dark: #2c2c2c;
+
+// 文本颜色
+$text-color-primary: #303133;
+$text-color-regular: #606266;
+$text-color-secondary: #909399;
+$text-color-placeholder: #C0C4CC;
+
+// 边框颜色
+$border-color-base: #DCDFE6;
+$border-color-light: #E4E7ED;
+$border-color-lighter: #EBEEF5;
+$border-color-extra-light: #F2F6FC;
+
+// 背景色
+$background-color-base: #F5F7FA;
+$background-color-light: #FAFAFA;
+
+// 字体大小
+$font-size-base: 1rem;
+$font-size-small: 0.875rem;
+$font-size-large: 1.25rem;
+$font-size-extra-large: 20px;
+$font-size-medium: 16px;
+$font-size-extra-small: 12px;
+
+// 圆角
+$border-radius: 4px;
+$border-radius-small: 2px;
+$border-radius-large: 8px;
+$border-radius-circle: 50%;
+
+// 阴影
+$box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+$box-shadow-light: 0 2px 12px 0 rgba(0, 0, 0, .1);
+$box-shadow-dark: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+// 断点
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+
+// 动画
+$transition-all: all .3s cubic-bezier(.645,.045,.355,1);
+$transition-fade: opacity .3s cubic-bezier(.645,.045,.355,1);
+$transition-duration: 0.3s;
+$transition-timing: ease;
+
+// 博客主题色彩
+$header-bg-color: #20232A;
+$header-text-color: #FFFFFF;
+$sidebar-bg-color: #FFFFFF;
+$content-bg-color: #FFFFFF;
+$footer-bg-color: #20232A;
+$footer-text-color: #FFFFFF;
+
+// 暗黑模式颜色
+$dark-bg-color: #1E1E1E;
+$dark-text-color: #E0E0E0;
+$dark-border-color: #444444;
+$dark-card-bg: #2D2D2D;
+
+// 间距
+$spacing-unit: 1rem;
+$spacing-small: 0.5rem;
+$spacing-large: 2rem;
+
+// 导出变量
+:export {
+  primaryColor: $primary-color;
+  primaryColorDark: $primary-color-dark;
+  textColor: $text-color;
+  textColorDark: $text-color-dark;
+  bgColor: $bg-color;
+  bgColorDark: $bg-color-dark;
+} 
+$footer-text-color: #FFFFFF;
+
+// 暗黑模式颜色
+$dark-bg-color: #1E1E1E;
+$dark-text-color: #E0E0E0;
+$dark-border-color: #444444;
+$dark-card-bg: #2D2D2D;
+
+// 间距
+$spacing-unit: 1rem;
+$spacing-small: 0.5rem;
+$spacing-large: 2rem;
+
+// 导出变量
+:export {
+  primaryColor: $primary-color;
+  primaryColorDark: $primary-color-dark;
+  textColor: $text-color;
+  textColorDark: $text-color-dark;
+  bgColor: $bg-color;
+  bgColorDark: $bg-color-dark;
+} 
