@@ -135,6 +135,16 @@ export class Article extends BaseEntity {
   isComment: number = 1;
 
   /**
+   * 上一篇文章 - 虚拟字段，不映射到数据库
+   */
+  lastArticle?: Article;
+
+  /**
+   * 下一篇文章 - 虚拟字段，不映射到数据库
+   */
+  nextArticle?: Article;
+
+  /**
    * 实体加载后设置虚拟字段的默认值
    */
   @AfterLoad()
