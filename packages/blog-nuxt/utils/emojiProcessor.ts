@@ -1,37 +1,52 @@
 // 先创建一个简化版本的表情处理器
 // 后续可以导入实际的表情列表
 
+import { emojiList } from './emoji';
+import { emojiGenshinList } from './emojiGenshin';
+import { emojiMygoList } from './emojiMygo';
+
 /**
- * 处理评论中的表情符号
- * @param content 评论内容
- * @param emojiType 表情类型
- * @returns 处理后的内容
+ * 处理文本中的表情代码，将其转换为HTML图片标签
+ * @param content 包含表情代码的原始文本
+ * @param emojiType 表情类型：0-普通表情，1-原神表情，2-Mygo表情
+ * @returns 处理后的HTML内容
  */
 export function processEmoji(content: string, emojiType: number = 0): string {
-  // 普通表情处理
-  if (emojiType === 0) {
-    // 简单的表情符号替换
-    return content
-      .replace(/:\)/g, '😊')
-      .replace(/:\(/g, '😢')
-      .replace(/:D/g, '😃')
-      .replace(/:P/g, '😛')
-      .replace(/<3/g, '❤️');
-  }
+  if (!content) return '';
   
-  // 其他类型表情处理
-  if (emojiType === 1) {
-    // 另一种类型的表情符号替换
-    return content
-      .replace(/\[笑脸\]/g, '😄')
-      .replace(/\[哭脸\]/g, '😭')
-      .replace(/\[爱心\]/g, '❤️')
-      .replace(/\[点赞\]/g, '👍')
-      .replace(/\[思考\]/g, '🤔');
+  try {
+    // 创建临时字符串保存处理结果
+    let processedContent = content;
+    
+    // 创建正则表达式寻找所有表情标记 [xxx]
+    const emojiPattern = /\[([^\[\]]+?)\]/g;
+    
+    // 查找所有匹配项
+    const matches = [...processedContent.matchAll(emojiPattern)];
+    
+    // 从后向前替换，避免替换过程中改变索引位置
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const match = matches[i];
+      const fullMatch = match[0]; // 完整匹配，例如 [doge]
+      const startIndex = match.index || 0;
+      const endIndex = startIndex + fullMatch.length;
+      
+      // 根据表情类型选择不同的表情集
+      const currentEmojiList = [emojiList, emojiGenshinList, emojiMygoList][emojiType];
+      
+      // 如果表情存在于表情集中，则保留原始表情代码
+      if (currentEmojiList[fullMatch]) {
+        // 直接保留原始表情代码，不转换为HTML
+        continue;
+      }
+    }
+    
+    return processedContent;
+  } catch (error) {
+    console.error("处理表情时出错:", error);
+    // 出错时返回原始内容
+    return content;
   }
-  
-  // 默认返回原始内容
-  return content;
 }
 
 /**
@@ -42,7 +57,44 @@ export function processEmoji(content: string, emojiType: number = 0): string {
 export function cleanupContent(content: string): string {
   if (!content) return '';
   
-  // 在Nuxt项目完善前，先返回原始内容
-  // 后续应导入表情列表，并实现完整的解析逻辑
-  return content;
+  try {
+    // 创建临时字符串保存处理结果
+    let processedContent = content;
+    
+    // 创建正则表达式寻找所有表情标记 [xxx]
+    const emojiPattern = /\[([^\[\]]+?)\]/g;
+    
+    // 查找所有匹配项
+    const matches = [...processedContent.matchAll(emojiPattern)];
+    
+    // 从后向前替换，避免替换过程中改变索引位置
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const match = matches[i];
+      const fullMatch = match[0]; // 完整匹配，例如 [doge]
+      const startIndex = match.index || 0;
+      const endIndex = startIndex + fullMatch.length;
+      
+      // 尝试所有表情集
+      for (let emojiType = 0; emojiType < 3; emojiType++) {
+        const currentEmojiList = [emojiList, emojiGenshinList, emojiMygoList][emojiType];
+        
+        if (currentEmojiList[fullMatch]) {
+          const imgSize = emojiType === 0 ? 21 : 60;
+          const imgHtml = `<img src="${currentEmojiList[fullMatch]}" width="${imgSize}" height="${imgSize}" style="margin: 0 1px;vertical-align: text-bottom"/>`;
+          
+          // 替换原字符串中的表情标记
+          processedContent = 
+            processedContent.substring(0, startIndex) + 
+            imgHtml + 
+            processedContent.substring(endIndex);
+          break;
+        }
+      }
+    }
+    
+    return processedContent;
+  } catch (error) {
+    console.error("清理内容时出错:", error);
+    return content;
+  }
 } 

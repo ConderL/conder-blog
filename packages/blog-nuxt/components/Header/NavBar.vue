@@ -2,7 +2,7 @@
 	<div class="menu">
 		<div class="menu-item title">
 			<NuxtLink to="/" class="menu-btn">
-				{{ blogInfo.siteConfig.siteName }}
+				{{ siteName }}
 			</NuxtLink>
 		</div>
 		<template v-for="menu of menuList" :key="menu.name">
@@ -29,33 +29,35 @@
 			</div>
 		</template>
 		<div class="menu-item">
-			<a v-if="!isLoggedIn" @click="app.loginDialogVisible = true" class="menu-btn">
-				<svg-icon icon-class="user"></svg-icon>
-				登录
-			</a>
-			<template v-else>
-				<img class="user-avatar drop" :src="userAvatar"/>
-				<ul class="submenu">
-					<li class="subitem" :class="{ active: route.meta.title === '个人中心' }">
-						<NuxtLink to="/user" class="link">
-							<svg-icon icon-class="author"></svg-icon>
-							个人中心
-						</NuxtLink>
-					</li>
-					<li class="subitem">
-						<a class="link" @click="logout">
-							<svg-icon icon-class="logout"></svg-icon>
-							退出
-						</a>
-					</li>
-				</ul>
-			</template>
+			<ClientOnly>
+				<a v-if="!user.userInfo.id" @click="app.loginDialogVisible = true" class="menu-btn">
+					<svg-icon icon-class="user"></svg-icon>
+					登录
+				</a>
+				<template v-else>
+					<img class="user-avatar drop" :src="userAvatar"/>
+					<ul class="submenu">
+						<li class="subitem" :class="{ active: route.meta.title === '个人中心' }">
+							<NuxtLink to="/user" class="link">
+								<svg-icon icon-class="author"></svg-icon>
+								个人中心
+							</NuxtLink>
+						</li>
+						<li class="subitem">
+							<a class="link" @click="logout">
+								<svg-icon icon-class="logout"></svg-icon>
+								退出
+							</a>
+						</li>
+					</ul>
+				</template>
+			</ClientOnly>
 		</div>
 	</div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue';
+<script setup>
+import { computed, ref, onMounted } from 'vue';
 // 使用组合式函数导入store
 import { useAppStore, useBlogStore, useUserStore } from '../../composables/useStores';
 
@@ -63,14 +65,22 @@ const user = useUserStore();
 const app = useAppStore();
 const blog = useBlogStore();
 
-// 使用计算属性来处理兼容性
-const isLoggedIn = computed(() => user.isLogin && !!user.userInfo?.id);
-const userAvatar = computed(() => user.userInfo?.avatar || '/images/avatar/default.jpg');
-const blogInfo = computed(() => blog.blogInfo || { siteConfig: { siteName: '博客' }});
-
-// 获取路由，在Nuxt中自动可用
+// 获取路由，在Nuxt中使用相关函数
 const router = useRouter();
 const route = useRoute();
+
+// 使用计算属性获取用户头像
+const userAvatar = computed(() => user.userInfo?.avatar || '/images/avatar/default.jpg');
+
+// 使用固定值确保服务端和客户端一致性
+const siteName = ref('博客');
+
+// 客户端挂载后更新数据
+onMounted(() => {
+  if (blog.blogInfo && blog.blogInfo.siteConfig && blog.blogInfo.siteConfig.siteName) {
+    siteName.value = blog.blogInfo.siteConfig.siteName;
+  }
+});
 
 const menuList = [
 	{
@@ -137,15 +147,11 @@ const logout = () => {
 		router.go(-1);
 	}
 	// 使用正确的logout方法
-		user.logout();
+	user.logout();
 	
 	// 提示消息
-	// 避免直接访问window.$message
-	if (typeof window !== 'undefined') {
-		const message = (window as any).$message;
-		if (message && typeof message.success === 'function') {
-			message.success("退出成功");
-		}
+	if (typeof window !== 'undefined' && window.$message) {
+		window.$message.success("退出成功");
 	}
 };
 

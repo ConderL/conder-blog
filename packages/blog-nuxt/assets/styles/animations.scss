@@ -1,0 +1,30 @@
+/* 动画效果 */
+@keyframes slideUpBigIn {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slideUpBigIn {
+  animation-name: slideUpBigIn;
+}
+
+@keyframes titleScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.titleScale {
+  animation-name: titleScale;
+} 

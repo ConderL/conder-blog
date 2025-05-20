@@ -4,11 +4,38 @@ export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: '2025-05-16',
   modules: [
+    '@nuxt/icon', // 图标模块放在前面优先加载
+    '@nuxt/ui',
     '@unocss/nuxt',
     '@pinia/nuxt',
     '@nuxt/image',
     'nuxt-svgo',
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/color-mode',
   ],
+  
+  // 图标配置
+  icon: {
+    // 图标服务器端配置
+    serverBundle: {
+      // 只包含使用到的图标集合，减小打包体积
+      collections: ['heroicons', 'lucide']
+    }
+  },
+  // Tailwind CSS 配置
+  tailwindcss: {
+    cssPath: '~/assets/css/tailwind.css',
+    configPath: '~/tailwind.config.js',
+    exposeConfig: true,
+    viewer: false,
+  },
+  // Nuxt UI 配置
+  ui: {
+    icons: ['heroicons', 'lucide'],
+    safelistColors: ['primary', 'gray', 'green', 'red', 'yellow', 'blue', 'pink', 'orange'],
+    global: true,
+    prefix: 'U',
+  },
   pinia: {
     autoImports: ['defineStore', 'acceptHMRUpdate', 'storeToRefs'],
   },
@@ -23,33 +50,43 @@ export default defineNuxtConfig({
     ]
   },
   css: [
-    '@/assets/styles/main.scss'
+    '@/assets/styles/main.scss',
+    '@/assets/styles/animations.scss',
+    '@/assets/styles/slideover.scss'
   ],
   app: {
     head: {
-      title: '博客系统',
+      title: "Conder's blog",
       titleTemplate: '%s - 技术与生活分享',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: '一个基于Nuxt.js的服务端渲染博客系统' },
         { name: 'keywords', content: 'Nuxt,Vue,SSR,博客,Blog' },
-        { name: 'author', content: '博主' },
+        { name: 'author', content: '@ConderL' },
         { name: 'robots', content: 'index, follow' },
         { property: 'og:type', content: 'website' },
-        { property: 'og:title', content: '博客网站 - 技术与生活分享' },
+        { property: 'og:title', content: "Conder's blog - 技术与生活分享" },
         { property: 'og:description', content: '一个使用Nuxt.js构建的博客网站，提供优质的技术文章和生活分享' },
-        { property: 'og:site_name', content: '博客网站' }
+        { property: 'og:site_name', content: "Conder's blog" }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', href: '/favicon.ico', sizes: 'any' }
       ]
+    },
+    // 全局页面和布局过渡效果
+    pageTransition: {
+      name: 'page-slide',
+      mode: 'out-in'
+    },
+    layoutTransition: {
+      name: 'layout-fade',
+      mode: 'out-in'
     }
   },
   runtimeConfig: {
     public: {
-      // 环境变量
-      apiBase: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
+      baseURL: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
       // 公共变量
       iconPrefix: 'icon',
       // 本地SVG图标集合配置
@@ -76,16 +113,21 @@ export default defineNuxtConfig({
     port: 3334
   },
   build: {
-    transpile: ['easy-typer-js']
+    transpile: ['easy-typer-js', '@heroicons/vue', '@nuxt/icon']
   },
-  components: [
+  components: {
+    global: true,
+    dirs: [
     {
       path: '~/components',
       pathPrefix: false,
       extensions: ['.vue'],
-      global: true
+        priority: 1 // 设置优先级高于默认值
     }
-  ],
+    ]
+  },
+  
+  // 图标配置已移至 UI 配置中
   image: {
     provider: 'ipx',
     dir: 'public',
@@ -105,7 +147,10 @@ export default defineNuxtConfig({
     import: 'default'
   },
   experimental: {
-    payloadExtraction: false
+    payloadExtraction: false,
+    inlineSSRStyles: false,
+    viewTransition: true,
+    componentIslands: true
   },
   // 路由选项
   routeRules: {
@@ -133,6 +178,17 @@ export default defineNuxtConfig({
           silenceDeprecations: ["legacy-js-api", "import"]
         }
       }
+    },
+    // 优化构建性能
+    optimizeDeps: {
+      include: ['vue', 'vue-router', 'pinia', '@vueuse/core']
+    },
+    // 减少构建警告
+    build: {
+      chunkSizeWarningLimit: 1000
     }
-  }
+  },
+  colorMode: {
+    classSuffix: ''
+  },
 }) 

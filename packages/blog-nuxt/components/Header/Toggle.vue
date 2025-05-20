@@ -1,31 +1,20 @@
 <template>
-  <ClientOnly>
-    <div :class="drawerVisible(app.isCollapse)" @click="app.isCollapse = true">
-      <div class="lines">
-        <span class="line"></span>
-        <span class="line"></span>
-        <span class="line"></span>
-      </div>
+  <div :class="drawerVisible(app.isCollapse)" @click="app.isCollapse = true">
+    <div class="lines">
+      <span class="line"></span>
+      <span class="line"></span>
+      <span class="line"></span>
     </div>
-    <template #fallback>
-      <div class="toggle">
-        <div class="lines">
-          <span class="line"></span>
-          <span class="line"></span>
-          <span class="line"></span>
-        </div>
-      </div>
-    </template>
-  </ClientOnly>
+  </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 import { useAppStore } from "../../composables/useStores";
 
 const app = useAppStore();
 
-const drawerVisible = computed(() => (value: boolean) => value ? "toggle close" : "toggle");
+const drawerVisible = computed(() => (value) => value ? "toggle close" : "toggle");
 
 // 默认导出
 defineExpose({

@@ -93,6 +93,8 @@
   margin: 0 auto;
   padding-bottom: 1.75rem;
   animation: slideUpIn 1s;
+  position: relative;
+  z-index: 1;
 }
 
 .left-container {
@@ -202,19 +204,6 @@
 .hljs {
   font-family: "consolas";
   font-size: 1rem;
-}
-
-/* 分页 */
-.n-pagination-item:hover,
-.n-pagination-item--active {
-  color: var(--grey-0) !important;
-  background-image: linear-gradient(
-    to right,
-    var(--color-pink) 0,
-    var(--color-orange) 100%
-  ) !important;
-  box-shadow: 0 0 0.75rem var(--color-pink-a3) !important;
-  border: none !important;
 }
 
 .pagination {

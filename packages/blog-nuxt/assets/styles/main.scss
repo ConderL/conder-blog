@@ -1,6 +1,7 @@
 @import "./theme.css";
 @import "./transition.scss";
 @import "./common.scss";
+@import "./ui-components.scss";
 
 *,
 :after,
@@ -334,4 +335,24 @@ img {
 
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 分页器样式 */
+.pagination-wrapper {
+  margin: 1.5rem 0;
+}
+
+/* 渐变背景样式 */
+button:hover.hover\:bg-gradient-pink-orange, .bg-gradient-pink-orange {
+  color: var(--grey-0) !important;
+  background-image: linear-gradient(
+    to right,
+    var(--color-pink) 0,
+    var(--color-orange) 100%
+  ) !important;
+  box-shadow: 0 0 0.75rem var(--color-pink-a3) !important;
+  border: none !important;
+  .svg-icon {
+    color: var(--grey-0) !important;
+  }
 }

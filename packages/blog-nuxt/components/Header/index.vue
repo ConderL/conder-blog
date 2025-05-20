@@ -12,53 +12,64 @@
         </ClientOnly>
       </li>
       <li class="item">
-        <svg-icon style="cursor: pointer;" icon-class="search" @click="app.searchFlag = true"></svg-icon>
+        <ClientOnly>
+          <svg-icon style="cursor: pointer;" icon-class="search" @click="app.searchFlag = true"></svg-icon>
+        </ClientOnly>
       </li>
     </ul>
   </header>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, defineComponent, onMounted } from 'vue';
+<script setup>
+import { ref, watch, onMounted } from 'vue';
 import { useDark, useScroll, useToggle } from "@vueuse/core";
 import { useAppStore } from "../../composables/useStores";
-// 使用组件注册自动导入，不再直接导入组件
-// import Toggle from './Toggle.vue';
-// import NavBar from './NavBar.vue';
 
 const app = useAppStore();
-// 检查是否在客户端环境中
-const windowObj = typeof window !== 'undefined' ? window : null;
-const { y } = useScroll(windowObj);
+// 使用 Nuxt 兼容的写法处理客户端对象
+const y = ref(0);
+
+// 在客户端上使用 useScroll
+onMounted(() => {
+  if (process.client) {
+    const { y: scrollY } = useScroll(window);
+    watch(scrollY, (val) => {
+      y.value = val;
+    });
+  }
+});
+
 const isDark = useDark({
-	selector: 'html',
-	attribute: 'theme',
-	valueDark: 'dark',
-	valueLight: 'light',
-})
+  selector: 'html',
+  attribute: 'theme',
+  valueDark: 'dark',
+  valueLight: 'light',
+});
 const toggle = useToggle(isDark);
 const fixedClass = ref("");
 
 // 确保在客户端初始化时同步主题
 onMounted(() => {
-  // 如果存储的主题是dark，但当前HTML属性不是dark，则同步
-  if (app.theme === 'dark' && document.documentElement.getAttribute('theme') !== 'dark') {
-    isDark.value = true;
-  } else if (app.theme === 'light' && document.documentElement.getAttribute('theme') !== 'light') {
-    isDark.value = false;
+  if (process.client) {
+    // 如果存储的主题是dark，但当前HTML属性不是dark，则同步
+    if (app.theme === 'dark' && document.documentElement.getAttribute('theme') !== 'dark') {
+      isDark.value = true;
+    } else if (app.theme === 'light' && document.documentElement.getAttribute('theme') !== 'light') {
+      isDark.value = false;
+    }
   }
 });
 
 watch(y, (newValue, oldValue) => {
-	if (newValue > 0) {
-		if (newValue < oldValue) {
-			fixedClass.value = "show up";
-		} else {
-			fixedClass.value = "show down";
-		}
-	} else {
-		fixedClass.value = "";
-	}
+  if (newValue > 0) {
+    if (newValue < oldValue) {
+      fixedClass.value = "show up";
+    } else {
+      fixedClass.value = "show down";
+    }
+  } else {
+    fixedClass.value = "";
+  }
 });
 
 // 监听主题变化，更新app的theme状态
@@ -66,8 +77,7 @@ watch(isDark, (value) => {
   app.switchTheme(value ? 'dark' : 'light');
 });
 
-// 使用defineComponent解决默认导出问题
-defineComponent({
+defineExpose({
   name: 'Header'
 });
 </script>
