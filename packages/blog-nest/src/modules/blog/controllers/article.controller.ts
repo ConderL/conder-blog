@@ -97,7 +97,7 @@ export class ArticleController {
     @Query() query: any,
     @Request() req,
   ): Promise<ResultDto<{ recordList: Article[]; count: number }>> {
-    const { page = 1, limit = 10, keyword, categoryId, tagId, status, articleType } = query;
+    const { current = 1, size = 10, keyword, categoryId, tagId, status, articleType } = query;
 
     // 获取用户角色
     const userRole = req.user?.roleId;
@@ -110,8 +110,8 @@ export class ArticleController {
     }
 
     const result = await this.articleService.findAll(
-      +page,
-      +limit,
+      +current,
+      +size,
       keyword,
       categoryId ? +categoryId : undefined,
       tagId ? +tagId : undefined,
