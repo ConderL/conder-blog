@@ -1,5 +1,8 @@
 <template>
   <div class="app-wrapper">
+    <!-- 注入全局Provider -->
+    <Provider />
+    
     <!-- 头部导航 -->
     <Header />
     
@@ -10,14 +13,20 @@
     
     <!-- 页脚 -->
     <Footer />
+    
+    <!-- 抽屉菜单 -->
+    <ClientOnly>
+      <Drawer />
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useAppStore, useBlogStore } from '../composables/useStores';
-// 使用自动注册的组件，而不是直接导入
-// Nuxt已经在nuxt.config.ts中配置了自动导入组件
+// 由于组件已注册，不需要导入
+// import Drawer from '../components/Layout/Drawer.vue';
+// import Provider from '../components/Provider/index.vue';
 
 // 获取store
 const app = useAppStore();
@@ -26,7 +35,7 @@ const blog = useBlogStore();
 // 在客户端侧加载主题
 onMounted(() => {
   // 设置主题
-  if (app.theme && typeof window !== 'undefined') {
+  if (typeof window !== 'undefined') {
     document.documentElement.setAttribute('theme', app.theme);
   }
 });

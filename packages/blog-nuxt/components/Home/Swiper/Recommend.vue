@@ -27,43 +27,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { getArticleRecommend } from '../../../api/article';
+import { formatDate } from '../../../utils/date';
+import type { ArticleRecommend } from '../../../api/article/types';
 
-interface ArticleRecommend {
-	id: string;
-	articleTitle: string;
-	articleCover: string;
-	createTime: string;
-}
-
-// 格式化日期
-const formatDate = (date: string) => {
-	if (!date) return '';
-	const d = new Date(date);
-	return d.toLocaleDateString();
-};
-
-// 模拟数据，实际项目中应该从API获取
-const articleList = ref<ArticleRecommend[]>([
-	{
-		id: '1',
-		articleTitle: 'Nuxt.js 3.0 服务端渲染指南',
-		articleCover: 'https://picsum.photos/id/100/1200/800',
-		createTime: '2023-10-15T12:00:00Z'
-	},
-	{
-		id: '2',
-		articleTitle: 'Vue 3 组合式API最佳实践',
-		articleCover: 'https://picsum.photos/id/101/1200/800',
-		createTime: '2023-10-20T14:30:00Z'
-	},
-	{
-		id: '3',
-		articleTitle: 'TypeScript高级类型技巧',
-		articleCover: 'https://picsum.photos/id/102/1200/800',
-		createTime: '2023-11-05T09:15:00Z'
-	}
-]);
-
+const articleList = ref<ArticleRecommend[]>([]);
 const currentIndex = ref(0);
 let intervalId: any = null;
 
@@ -80,11 +48,13 @@ const startCarousel = () => {
 
 // 切换到下一张
 const nextSlide = () => {
+	if (articleList.value.length === 0) return;
 	currentIndex.value = (currentIndex.value + 1) % articleList.value.length;
 };
 
 // 切换到上一张
 const prevSlide = () => {
+	if (articleList.value.length === 0) return;
 	currentIndex.value = currentIndex.value === 0 
 		? articleList.value.length - 1 
 		: currentIndex.value - 1;
@@ -95,16 +65,24 @@ const changeSlide = (index: number) => {
 	currentIndex.value = index;
 };
 
-onMounted(() => {
-	// 在实际项目中应该从API获取数据
-	// const nuxtApp = useNuxtApp();
-	// nuxtApp.$api.article.getRecommended().then((data) => {
-	//   articleList.value = data;
-	//   startCarousel();
-	// });
+// 获取推荐文章数据
+const fetchRecommendedArticles = async () => {
+	try {
+		const { data } = await getArticleRecommend();
+		if (data && data.code === 200 && Array.isArray(data.data)) {
+			articleList.value = data.data;
+			// 获取数据后启动轮播
+			if (articleList.value.length > 0) {
+				startCarousel();
+			}
+		}
+	} catch (error) {
+		console.error('获取推荐文章失败:', error);
+	}
+};
 
-	// 使用模拟数据
-	startCarousel();
+onMounted(() => {
+	fetchRecommendedArticles();
 });
 
 onUnmounted(() => {

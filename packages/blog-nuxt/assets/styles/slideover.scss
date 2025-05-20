@@ -1,0 +1,32 @@
+/* 优化Slideover组件样式 */
+.ui-slideover {
+  /* 覆盖默认过渡效果 */
+  &-overlay {
+    backdrop-filter: blur(4px);
+    transition: opacity 300ms cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  &-content {
+    transition: transform 300ms cubic-bezier(0.33, 1, 0.68, 1);
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+  }
+
+  /* 覆盖默认动画类 */
+  &-content[data-state="open"] {
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &-content[data-state="closed"] {
+    animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+  }
+}
+
+/* 补充扩展Slideover组件的过渡动画时间 */
+.data-\[state\=open\]\:animate-\[slide-in-from-right_200ms_ease-in-out\],
+.data-\[state\=closed\]\:animate-\[slide-out-to-right_200ms_ease-in-out\] {
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+} 

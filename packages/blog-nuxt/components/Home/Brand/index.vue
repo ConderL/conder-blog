@@ -10,9 +10,9 @@
 			</div>
 		</div>
 		<!-- 波浪 -->
-		<ClientOnly>
-			<WavesComponent />
-		</ClientOnly>
+		<client-only>
+			<Waves></Waves>
+		</client-only>
 		<!-- 向下按钮 -->
 		<svg-icon
 			class="arrow-down"
@@ -26,8 +26,7 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted } from 'vue';
 import { useBlogStore } from '../../../composables/useStores';
-import EasyTyper from 'easy-typer-js';
-import WavesComponent from '../../Waves/index.vue';
+import Waves from '../../Waves/index.vue';
 
 const blog = useBlogStore();
 const obj = reactive({
@@ -40,24 +39,35 @@ const obj = reactive({
 	backSpeed: 10,
 	sentencePause: false,
 });
+
 const brandRef = ref<HTMLElement>();
 const scrollDown = () => {
 	nextTick(() => {
-		if (typeof window !== 'undefined') {
-			window.scrollTo({
-				behavior: "smooth",
-				top: brandRef.value?.clientHeight,
-			});
-		}
+    if (brandRef.value) {
+      window.scrollTo({
+        behavior: "smooth",
+        top: brandRef.value.clientHeight,
+      });
+    }
 	});
 };
+
 const fetchData = () => {
-	fetch("https://v1.hitokoto.cn")
+	fetch("http://v1.hitokoto.cn")
 		.then((res) => {
 			return res.json();
 		})
 		.then(({ hitokoto, from }) => {
-			new EasyTyper(obj, `${hitokoto} —— ${from}`, fetchData, () => {});
+			// 动态导入，避免SSR问题
+			import('easy-typer-js').then(({ default: EasyTyper }) => {
+				new EasyTyper(obj, `${hitokoto} —— ${from}`, fetchData, () => {});
+			});
+		})
+		.catch(() => {
+			// 如果API请求失败，使用默认文字
+			import('easy-typer-js').then(({ default: EasyTyper }) => {
+				new EasyTyper(obj, "让思想在文字中流淌，让灵感在记录中延伸。", fetchData, () => {});
+			});
 		});
 };
 
@@ -74,23 +84,25 @@ defineExpose({
 <style lang="scss" scoped>
 .brand-container {
 	display: flex;
-	align-items: center;
 	justify-content: center;
+	align-items: center;
 	flex-direction: column;
 	position: relative;
 	width: 100%;
 	height: 100vh;
 	min-height: 10rem;
 	color: var(--header-text-color);
+	overflow: hidden;
 }
 
 .brand {
 	display: flex;
-	align-items: center;
 	justify-content: center;
+	align-items: center;
 	flex-direction: column;
-	position: fixed;
-	z-index: 1;
+	position: relative;
+	z-index: 100;
+	text-align: center;
 
 	.artboard {
 		font-family: "Fredericka the Great", Mulish, -apple-system,
@@ -98,18 +110,24 @@ defineExpose({
 		font-size: 3.5em;
 		line-height: 1.2;
 		animation: titleScale 1s;
+		color: var(--brand-color);
+		text-shadow: 0 0 .4em var(--brand-color-shadow);
+		letter-spacing: 10px;
+		font-weight: 500;
+		margin-bottom: 10px;
 	}
 
 	.title {
 		letter-spacing: 0.1em;
+		color: var(--brand-color);
+		text-align: center;
+		font-size: 1.2em;
 	}
 }
 
 .easy-typed-cursor {
 	margin-left: 0.625rem;
 	opacity: 1;
-	-webkit-animation: blink 0.7s infinite;
-	-moz-animation: blink 0.7s infinite;
 	animation: blink 0.7s infinite;
 }
 
@@ -117,9 +135,9 @@ defineExpose({
 	cursor: pointer;
 	position: absolute;
 	bottom: 70px;
-	-webkit-animation: arrow-shake 1.5s ease-out infinite;
 	animation: arrow-shake 1.5s ease-out infinite;
 	z-index: 8;
+	fill: var(--box-shadow-hover);
 }
 
 @media (max-width: 767px) {
@@ -158,6 +176,17 @@ defineExpose({
 
 	100% {
 		opacity: 1;
+	}
+}
+
+@keyframes titleScale {
+	0% {
+		opacity: 0;
+		transform: scale(0.7);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
 	}
 }
 </style> 

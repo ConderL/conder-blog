@@ -29,11 +29,23 @@ declare module '@vue/runtime-core' {
 
 // 扩展Window接口以支持全局消息系统
 interface Window {
-  $message?: {
-    success: (message: string) => void;
-    error: (message: string) => void;
-    warning: (message: string) => void;
-    info: (message: string) => void;
+  $message: {
+    success: (content: string) => void;
+    error: (content: string) => void;
+    warning: (content: string) => void;
+    info: (content: string) => void;
+  };
+  $dialog: {
+    success: (options: any) => void;
+    warning: (options: any) => void;
+    error: (options: any) => void;
+    info: (options: any) => void;
+  };
+  $notification: {
+    success: (options: any) => void;
+    error: (options: any) => void;
+    warning: (options: any) => void;
+    info: (options: any) => void;
   };
 }
 
@@ -56,6 +68,14 @@ declare global {
   const watch: typeof import('vue')['watch'];
   const onMounted: typeof import('vue')['onMounted'];
   const nextTick: typeof import('vue')['nextTick'];
+  
+  // Nuxt UI API
+  const useUI: () => {
+    toast: {
+      add: (options: any) => void;
+    };
+    confirm: (message: string, options?: any) => Promise<boolean>;
+  };
 }
 
 export {}; 

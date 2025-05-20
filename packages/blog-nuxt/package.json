@@ -10,9 +10,12 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
+    "@juggle/resize-observer": "^3.4.0",
+    "@nuxt/ui": "^2.14.2",
     "@pinia/nuxt": "^0.5.1",
     "@vueuse/core": "^10.7.0",
     "axios": "^1.6.0",
+    "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.10",
     "easy-typer-js": "^2.1.0",
     "js-cookie": "^3.0.5",
@@ -26,10 +29,16 @@
     "vue": "^3.4.0"
   },
   "devDependencies": {
+    "@heroicons/vue": "^2.2.0",
+    "@iconify-json/heroicons": "^1.2.2",
+    "@iconify-json/lucide": "^1.2.44",
+    "@iconify/json": "^2.2.340",
     "@nuxt/devtools": "latest",
+    "@nuxt/icon": "^1.13.0",
     "@nuxt/image": "^1.10.0",
     "@nuxt/types": "^2.18.1",
     "@nuxtjs/composition-api": "^0.34.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^18.19.100",
     "@types/nprogress": "^0.2.3",
