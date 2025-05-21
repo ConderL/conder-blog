@@ -71,6 +71,12 @@ interface ApiType {
     getDetail: (id: string) => Promise<any>;
     getArticles: (id: string, params: any) => Promise<any>;
   };
+  talk: {
+    getList: (params: any) => Promise<any>;
+    getDetail: (id: string) => Promise<any>;
+    getHomeList: () => Promise<any>;
+    like: (id: string) => Promise<any>;
+  };
   [key: string]: any;
 }
 

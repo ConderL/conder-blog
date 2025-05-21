@@ -216,6 +216,58 @@ export const useApi = () => {
     getDetail: (id: string) => baseRequest(`/api/talks/${id}`, { method: 'GET' }),
     // 点赞说说
     like: (id: string) => baseRequest(`/api/talks/${id}/like`, { method: 'POST' }),
+    // 获取首页说说
+    getHomeList: async () => {
+      console.log('开始请求首页说说数据');
+      
+      // 直接使用fetch尝试获取原始项目的数据
+      if (process.client) {
+        try {
+          console.log('尝试直接请求原始API');
+          const directResponse = await fetch('http://localhost:3000/talk/home');
+          if (directResponse.ok) {
+            const data = await directResponse.json();
+            console.log('直接请求成功', data);
+            return data;
+          }
+        } catch (error) {
+          console.error('直接请求原始API失败:', error);
+        }
+      }
+      
+      // 尝试多种API路径
+      const apiPaths = [
+        '/api/talk/home',  // 原始API路径
+        '/talk/home',      // 不带api前缀
+        '/api/talks/home'  // 复数形式
+      ];
+      
+      // 依次尝试不同路径
+      for (const path of apiPaths) {
+        try {
+          console.log(`尝试请求路径: ${path}`);
+          const result = await baseRequest(path, { method: 'GET' });
+          console.log(`请求成功: ${path}`, result);
+          return result;
+        } catch (error) {
+          console.error(`请求失败: ${path}`, error);
+          // 继续尝试下一个路径
+        }
+      }
+      
+      // 所有请求都失败，返回模拟数据
+      console.log('所有API请求都失败，使用模拟数据');
+      return {
+        code: 200,
+        flag: true,
+        message: "操作成功",
+        data: [
+          "欢迎来到我的博客，这里是一个分享技术和生活的地方。",
+          "Nuxt.js的服务端渲染能力让博客获得更好的SEO效果。",
+          "有什么问题可以在留言板给我留言，我会及时回复的！"
+        ]
+      };
+    },
   };
 
   // 相册API

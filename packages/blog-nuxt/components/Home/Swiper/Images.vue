@@ -10,19 +10,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { getCarouselList } from '../../../api/carousel';
+import type { Carousel } from '../../../api/carousel/types';
 
-interface Carousel {
-  id: number;
-  imgUrl: string;
-}
-
-const carouselList = ref<Carousel[]>([
-  { id: 1, imgUrl: '/images/carousel/1.jpg' },
-  { id: 2, imgUrl: '/images/carousel/2.jpg' },
-  { id: 3, imgUrl: '/images/carousel/3.jpg' },
-  { id: 4, imgUrl: '/images/carousel/4.jpg' },
-  { id: 5, imgUrl: '/images/carousel/5.jpg' }
-]);
+const carouselList = ref<Carousel[]>([]);
 const currentIndex = ref(0);
 let intervalId: any = null;
 
@@ -43,9 +34,10 @@ const startIteration = () => {
 };
 
 onMounted(() => {
-  // 真实项目中，应该从API获取轮播图数据
-  // getCarouselList()
-  startIteration();
+  getCarouselList().then(({data}) => {
+    carouselList.value = data.data;
+    startIteration();
+  });
 });
 
 onUnmounted(() => {
