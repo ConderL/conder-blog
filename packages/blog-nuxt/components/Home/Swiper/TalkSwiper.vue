@@ -1,7 +1,7 @@
 <template>
 	<ClientOnly>
-		<NuxtLink to="/talk" class="talk-swiper" v-if="talkList.length > 0">
-			<svg-icon icon-class="laba" size="1.25rem"></svg-icon>
+	<NuxtLink to="/talk" class="talk-swiper" v-if="talkList.length > 0">
+		<svg-icon icon-class="laba" size="1.25rem"></svg-icon>
 			<swiper
 				class="swiper-container"
 				:direction="'vertical'"
@@ -15,8 +15,8 @@
 					<div class="slide-content" v-html="talk"></div>
 				</swiper-slide>
 			</swiper>
-			<svg-icon icon-class="right-arrow" class="arrow"></svg-icon>
-		</NuxtLink>
+		<svg-icon icon-class="right-arrow" class="arrow"></svg-icon>
+	</NuxtLink>
 		
 		<template #fallback>
 			<div class="talk-swiper-loading">加载中...</div>
@@ -65,9 +65,9 @@ const fetchTalkHomeList = async () => {
     console.error('获取说说数据失败:', error);
     // 使用默认数据作为备用
     talkList.value = [
-      "欢迎来到我的博客，这里是一个分享技术和生活的地方。",
-      "Nuxt.js的服务端渲染能力让博客获得更好的SEO效果。",
-      "有什么问题可以在留言板给我留言，我会及时回复的！"
+  "欢迎来到我的博客，这里是一个分享技术和生活的地方。",
+  "Nuxt.js的服务端渲染能力让博客获得更好的SEO效果。",
+  "有什么问题可以在留言板给我留言，我会及时回复的！"
     ];
   }
 };
