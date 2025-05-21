@@ -1,6 +1,6 @@
 import { useUserStore } from "../composables/useStores";
-import axios, { AxiosError } from "axios";
-import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
+import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getToken, token_prefix } from "./token";
 
 // 使用环境变量获取基础URL

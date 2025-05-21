@@ -14,7 +14,7 @@
     "@nuxt/ui": "^2.14.2",
     "@pinia/nuxt": "^0.5.1",
     "@vueuse/core": "^10.7.0",
-    "axios": "^1.6.0",
+    "axios": "^1.6.7",
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.10",
     "easy-typer-js": "^2.1.0",
@@ -26,6 +26,7 @@
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^2.4.0",
     "prismjs": "^1.29.0",
+    "swiper": "^8.4.7",
     "vue": "^3.4.0"
   },
   "devDependencies": {

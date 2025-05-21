@@ -101,8 +101,9 @@ defineExpose({
 	align-items: center;
 	flex-direction: column;
 	position: relative;
-	z-index: 100;
-	text-align: center;
+	text-align: center;	
+	position: fixed;
+	z-index: -1;
 
 	.artboard {
 		font-family: "Fredericka the Great", Mulish, -apple-system,
