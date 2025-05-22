@@ -59,3 +59,29 @@ export function searchArticle(
 		},
 	});
 } 
+
+/**
+ * 点赞文章
+ * @param articleId 文章id
+ */
+export function likeArticle(
+	articleId: number
+): AxiosPromise<Result<null>> {
+	return request({
+		url: `/articles/${articleId}/like`,
+		method: "post",
+	});
+}
+
+/**
+ * 取消点赞文章
+ * @param articleId 文章id
+ */
+export function unlikeArticle(
+	articleId: number
+): AxiosPromise<Result<null>> {
+	return request({
+		url: `/articles/${articleId}/unlike`,
+		method: "post",
+	});
+} 

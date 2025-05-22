@@ -4,24 +4,19 @@ export default defineNuxtConfig({
   ssr: true,
   compatibilityDate: '2025-05-16',
   modules: [
-    '@nuxt/icon', // 图标模块放在前面优先加载
     '@nuxt/ui',
     '@unocss/nuxt',
     '@pinia/nuxt',
     '@nuxt/image',
-    'nuxt-svgo',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
+    '@nuxtjs/robots',
+    'nuxt-simple-sitemap',
+  ],
+
+  buildModules: [
   ],
   
-  // 图标配置
-  icon: {
-    // 图标服务器端配置
-    serverBundle: {
-      // 只包含使用到的图标集合，减小打包体积
-      collections: ['heroicons', 'lucide']
-    }
-  },
   // Tailwind CSS 配置
   tailwindcss: {
     cssPath: '~/assets/css/tailwind.css',
@@ -31,16 +26,16 @@ export default defineNuxtConfig({
   },
   // Nuxt UI 配置
   ui: {
-    icons: ['heroicons', 'lucide'],
     safelistColors: ['primary', 'gray', 'green', 'red', 'yellow', 'blue', 'pink', 'orange'],
     global: true,
     prefix: 'U',
+    icons: false,
   },
   pinia: {
     autoImports: ['defineStore', 'acceptHMRUpdate', 'storeToRefs'],
   },
   imports: {
-    dirs: ['stores', 'composables'],
+    dirs: ['stores', 'composables', 'utils'],
     // 自动导入Nuxt组合API
     presets: [
       {
@@ -52,7 +47,8 @@ export default defineNuxtConfig({
   css: [
     '@/assets/styles/main.scss',
     '@/assets/styles/animations.scss',
-    '@/assets/styles/slideover.scss'
+    '@/assets/styles/slideover.scss',
+    '@/assets/styles/icons.scss'
   ],
   app: {
     head: {
@@ -85,12 +81,14 @@ export default defineNuxtConfig({
     }
   },
   runtimeConfig: {
+    // 私有配置，不暴露给客户端
+    apiSecret: '',
+    // 公共配置，可在客户端使用
     public: {
       baseURL: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
-      // 公共变量
-      iconPrefix: 'icon',
-      // 本地SVG图标集合配置
-      iconLocalPrefix: 'icon-local',
+      apiBase: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
+      // 网站URL，用于SEO和分享
+      siteUrl: process.env.SITE_URL || 'http://localhost:3334',
     }
   },
   nitro: {
@@ -100,6 +98,13 @@ export default defineNuxtConfig({
         target: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
         changeOrigin: true,
         prependPath: true
+      }
+    },
+    routeRules: {
+      '/api/**': { 
+        proxy: process.env.VITE_SERVICE_BASE_URL 
+          ? `${process.env.VITE_SERVICE_BASE_URL}/api/**` 
+          : 'http://localhost:3000/api/**'
       }
     }
   },
@@ -113,21 +118,20 @@ export default defineNuxtConfig({
     port: 3334
   },
   build: {
-    transpile: ['easy-typer-js', '@heroicons/vue', '@nuxt/icon']
+    transpile: ['easy-typer-js']
   },
   components: {
     global: true,
     dirs: [
-    {
-      path: '~/components',
-      pathPrefix: false,
-      extensions: ['.vue'],
+      {
+        path: '~/components',
+        pathPrefix: false,
+        extensions: ['.vue'],
         priority: 1 // 设置优先级高于默认值
-    }
+      }
     ]
   },
   
-  // 图标配置已移至 UI 配置中
   image: {
     provider: 'ipx',
     dir: 'public',
@@ -140,12 +144,6 @@ export default defineNuxtConfig({
       xxl: 1536
     }
   },
-  svgo: {
-    autoImportPath: './assets/icons/svg/',
-    defaultImport: 'component',
-    query: '?raw',
-    import: 'default'
-  },
   experimental: {
     payloadExtraction: false,
     inlineSSRStyles: false,
@@ -155,30 +153,53 @@ export default defineNuxtConfig({
   // 路由选项
   routeRules: {
     // 首页和常用页面使用服务端渲染(SSR)
-    '/': { ssr: true },
-    '/article/**': { ssr: true },
+    '/': { 
+      ssr: true,
+      prerender: true,
+      cache: {
+        maxAge: 60 * 60 // 1小时缓存
+      }
+    },
+    '/article/**': { 
+      ssr: true,
+      swr: 600 // 10分钟缓存刷新
+    },
     '/category/**': { ssr: true },
     '/tag/**': { ssr: true },
-    '/about': { ssr: true },
+    '/about': { 
+      ssr: true,
+      prerender: true,
+    },
     '/archive': { ssr: true },
     '/talk': { ssr: true },
     // 测试页面使用客户端渲染(CSR)
     '/test': { ssr: false },
     // 非关键页面使用客户端渲染(CSR)
     '/user/**': { ssr: false },
-    '/admin/**': { ssr: false }
+    '/admin/**': { ssr: false },
+    // 首页缓存5分钟，自动更新
+    '/': { isr: 300 },
+    // 文章页缓存10分钟，可手动更新
+    '/article/**': { isr: 600 },
+    // 标签页和分类页缓存15分钟
+    '/tag/**': { isr: 900 },
+    '/category/**': { isr: 900 },
   },
   vite: {
     css: {
       preprocessorOptions: {
         scss: {
           // 不使用全局scss变量，避免与CSS变量冲突
-          additionalData: '',
+          additionalData: '@import "@/assets/styles/mixin.scss";',
           api: "modern-compiler",
           silenceDeprecations: ["legacy-js-api", "import"]
         }
       }
     },
+    // 添加 SVG Loader 插件
+    plugins: [
+      require('vite-svg-loader')()
+    ],
     // 优化构建性能
     optimizeDeps: {
       include: ['vue', 'vue-router', 'pinia', '@vueuse/core']
@@ -189,6 +210,28 @@ export default defineNuxtConfig({
     }
   },
   colorMode: {
-    classSuffix: ''
+    preference: 'system',
+    fallback: 'light',
+    hid: 'nuxt-color-mode-script',
+    globalName: '__NUXT_COLOR_MODE__',
+    componentName: 'ColorScheme',
+    classPrefix: '',
+    classSuffix: '',
+    storageKey: 'nuxt-color-mode',
+  },
+  sitemap: {
+    urls: [],
+    xsl: false,
+    cacheTime: 1000 * 60 * 60 * 24, // 24小时
+    siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3334',
+    autoLastmod: true,
+  },
+  robots: {
+    rules: {
+      UserAgent: '*',
+      Allow: '/',
+      Sitemap: 'sitemap.xml'
+    },
+    configPath: '~/robots.config',
   },
 }) 

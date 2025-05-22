@@ -10,10 +10,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useAppStore } from "../../composables/useStores";
-
 const app = useAppStore();
-
 const drawerVisible = computed(() => (value) => value ? "toggle close" : "toggle");
 
 // 默认导出

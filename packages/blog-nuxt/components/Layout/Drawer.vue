@@ -7,50 +7,50 @@
       <!-- 使用简单的CSS类控制抽屉面板的滑入滑出 -->
       <div class="drawer-panel" :class="{ 'open': isOpen }">
         <div class="drawer-content">
-          <div class="author-container">
+        <div class="author-container">
             <img class="author-avatar" :src="blog.blogInfo.siteConfig.authorAvatar" />
             <p class="author-name">{{ blog.blogInfo.siteConfig.siteAuthor }}</p>
             <div class="site-desc">{{ blog.blogInfo.siteConfig.siteIntro }}</div>
-          </div>
-          <LazyBlogInfo />
-          <LazySocialList />
-          <ul class="side-menu">
+        </div>
+        <LazyBlogInfo />
+        <LazySocialList />
+        <ul class="side-menu">
             <template v-for="(menu, index) of menuList">
               <li v-if="!menu.children" :key="index" class="item" :class="{ active: route.path === menu.path }">
                 <NuxtLink :to="menu.path" @click="closeDrawer">
-                  <SvgIcon :icon-class="menu.icon" /> {{ menu.name }}
+                  <component :is="getIconComponent(menu.icon)" class="menu-icon" /> {{ menu.name }}
                 </NuxtLink>
-              </li>
+            </li>
               <li v-else :key="`menu-${index}`" class="item dropdown" :class="{ expand: isExpanded(menu.children) }">
-                <a><SvgIcon :icon-class="menu.icon" /> {{ menu.name }} </a>
-                <ul class="submenu">
+                <a><component :is="getIconComponent(menu.icon)" class="menu-icon" /> {{ menu.name }} </a>
+              <ul class="submenu">
                   <li class="item" v-for="(submenu, subIndex) of menu.children" :key="subIndex"
-                    :class="{ active: route.path === submenu.path }">
+                  :class="{ active: route.path === submenu.path }">
                     <NuxtLink :to="submenu.path" @click="closeDrawer">
-                      <SvgIcon :icon-class="submenu.icon" /> {{ submenu.name }}
-                    </NuxtLink>
-                  </li>
-                </ul>
-              </li>
-            </template>
+                      <component :is="getIconComponent(submenu.icon)" class="menu-icon" /> {{ submenu.name }}
+                  </NuxtLink>
+                </li>
+              </ul>
+            </li>
+          </template>
             <li class="item" v-if="!user.userInfo.id">
               <a @click="loginAndClose">
-                <SvgIcon icon-class="user" /> 登录
+                <UserIcon class="menu-icon" /> 登录
               </a>
+          </li>
+          <template v-else>
+            <li class="item" :class="{ active: route.path === '/user' }">
+              <NuxtLink to="/user" @click="closeDrawer">
+                  <AuthorIcon class="menu-icon" /> 个人中心
+              </NuxtLink>
             </li>
-            <template v-else>
-              <li class="item" :class="{ active: route.path === '/user' }">
-                <NuxtLink to="/user" @click="closeDrawer">
-                  <SvgIcon icon-class="author" /> 个人中心
-                </NuxtLink>
-              </li>
-              <li class="item">
+            <li class="item">
                 <a @click="logout">
-                  <SvgIcon icon-class="logout" /> 退出
+                  <LogoutIcon class="menu-icon" /> 退出
                 </a>
-              </li>
-            </template>
-          </ul>
+            </li>
+          </template>
+        </ul>
         </div>
       </div>
     </ClientOnly>
@@ -59,7 +59,22 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useAppStore, useBlogStore, useUserStore } from '../../composables/useStores';
+// 导入所有需要的SVG图标
+import HomeIcon from '~/assets/icons/home.svg';
+import ArticleIcon from '~/assets/icons/article.svg';
+import ArchivesIcon from '~/assets/icons/archives.svg';
+import CategoryIcon from '~/assets/icons/category.svg';
+import TagIcon from '~/assets/icons/tag.svg';
+import FunIcon from '~/assets/icons/fun.svg';
+import TalkIcon from '~/assets/icons/talk.svg';
+import AlbumIcon from '~/assets/icons/album.svg';
+import UploadIcon from '~/assets/icons/upload.svg';
+import FriendIcon from '~/assets/icons/friend.svg';
+import MessageIcon from '~/assets/icons/message.svg';
+import PlaneIcon from '~/assets/icons/plane.svg';
+import UserIcon from '~/assets/icons/user.svg';
+import AuthorIcon from '~/assets/icons/author.svg';
+import LogoutIcon from '~/assets/icons/logout.svg';
 
 // 获取路由和store
 const route = useRoute();
@@ -67,6 +82,30 @@ const router = useRouter();
 const app = useAppStore();
 const blog = useBlogStore();
 const user = useUserStore();
+
+// 图标组件映射
+const iconComponents = {
+  'home': HomeIcon,
+  'article': ArticleIcon,
+  'archives': ArchivesIcon,
+  'category': CategoryIcon,
+  'tag': TagIcon,
+  'fun': FunIcon,
+  'talk': TalkIcon,
+  'album': AlbumIcon,
+  'upload': UploadIcon,
+  'friend': FriendIcon,
+  'message': MessageIcon,
+  'plane': PlaneIcon,
+  'user': UserIcon,
+  'author': AuthorIcon,
+  'logout': LogoutIcon
+};
+
+// 获取图标组件的方法
+const getIconComponent = (name) => {
+  return iconComponents[name] || 'div';
+};
 
 // 创建本地状态，避免直接依赖store
 const isOpen = ref(false);
@@ -249,127 +288,126 @@ function logout() {
   right: 0;
   bottom: 0;
   width: 280px;
-  background-color: var(--grey-1);
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-  z-index: 100;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform; // 启用硬件加速
+  background-color: var(--bg-color);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
   
   &.open {
     transform: translateX(0);
   }
 }
 
-// 抽屉内容
 .drawer-content {
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: 0 0.5rem;
+  padding: 1.25rem;
 }
 
-// 作者容器
 .author-container {
-  margin: 1.5rem 0;
-  text-align: center;
-  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .author-avatar {
-  width: 6rem;
-  height: 6rem;
+  width: 6.25rem;
+  height: 6.25rem;
   border-radius: 50%;
-  margin: 0 auto;
-  display: block;
+  margin-bottom: 0.9375rem;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-  
-  &:hover {
-    transform: rotate(360deg);
-  }
+  border: 0.125rem solid var(--grey-1);
+  background-color: var(--bg-color);
 }
 
 .author-name {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-top: 0.75rem;
-  color: var(--text-color);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--header-text-color);
+  margin-bottom: 0.625rem;
 }
 
 .site-desc {
-  font-size: 0.9rem;
-  color: var(--text-color-2);
-  margin-top: 0.5rem;
-  padding: 0 1rem;
-  line-height: 1.5;
+  font-size: 0.875rem;
+  color: var(--grey-5);
+  text-align: center;
+  line-height: 1.4;
 }
 
-// 侧边菜单
+// 侧边菜单样式
 .side-menu {
-  padding: 0.5rem 0.5rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   
   .item {
     position: relative;
-    color: var(--grey-5);
-    border-radius: 0.9375rem;
-    margin-bottom: 0.625rem;
-    transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-    cursor: pointer;
     
     a {
-      display: block;
-      padding: 0.5rem 1rem;
-      line-height: 1.5;
-    }
-    
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-      color: var(--text-color);
-    }
-    
-    &.active {
-      color: var(--grey-0);
-      background-image: linear-gradient(to right, var(--color-pink) 0, var(--color-orange) 100%);
-      box-shadow: 0 0 0.75rem var(--color-pink-a3);
+      display: flex;
+      align-items: center;
+      padding: 0.625rem 0.9375rem;
+      color: var(--header-text-color);
+      border-radius: 0.3125rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
       
       &:hover {
-        color: var(--grey-0);
-        box-shadow: 0 0 0.75rem var(--color-pink);
+        background-color: var(--grey-1);
       }
+    }
+    
+    &.active > a {
+      background-color: var(--color-pink-a1);
+      color: var(--color-pink);
     }
   }
   
+  // 下拉菜单样式
   .dropdown {
-    .submenu {
-      margin-top: 0.25rem;
-      margin-bottom: 0.5rem;
-      display: none;
-      
-      .item {
-        margin-left: 1rem;
-        font-size: 0.9rem;
-      }
+    > a::after {
+      content: "\f105";
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-left: auto;
+      transition: transform 0.3s ease;
     }
     
-    &.expand, &:hover {
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      list-style: none;
+      padding-left: 1.25rem;
+      transition: max-height 0.3s ease;
+    }
+    
+    &.expand {
+      > a::after {
+        transform: rotate(90deg);
+      }
+      
       .submenu {
-        display: block;
+        max-height: 12.5rem;
       }
     }
   }
 }
 
-// 暗色模式调整
-:global(.dark) {
-  .side-menu .item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  
+.menu-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.625rem;
+}
+
+@media (max-width: 767px) {
   .drawer-panel {
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 320px;
   }
 }
 </style> 

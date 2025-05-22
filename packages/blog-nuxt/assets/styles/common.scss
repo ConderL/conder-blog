@@ -1,3 +1,5 @@
+@import "./mixin.scss";
+
 /* 通用混合器 */
 @mixin flex {
   display: flex;
@@ -469,4 +471,36 @@
 
 .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
   left: 0 !important;
+}
+
+/* 动画 */
+@keyframes slideUpIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes titleScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes blur {
+  0% {
+    filter: blur(10px);
+  }
+  100% {
+    filter: blur(0);
+  }
 } 

@@ -14,19 +14,17 @@
 			<Waves></Waves>
 		</client-only>
 		<!-- 向下按钮 -->
-		<svg-icon
+		<DownIcon
 			class="arrow-down"
-			icon-class="down"
-			size="32px"
 			@click="scrollDown"
-		></svg-icon>
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted } from 'vue';
-import { useBlogStore } from '../../../composables/useStores';
 import Waves from '../../Waves/index.vue';
+import DownIcon from '~/assets/icons/down.svg';
 
 const blog = useBlogStore();
 const obj = reactive({
@@ -139,6 +137,8 @@ defineExpose({
 	animation: arrow-shake 1.5s ease-out infinite;
 	z-index: 8;
 	fill: var(--box-shadow-hover);
+  width: 32px;
+  height: 32px;
 }
 
 @media (max-width: 767px) {

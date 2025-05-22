@@ -8,7 +8,7 @@
     
     <div class="bg">
       <div class="main-container">
-        <div class="left-container" :class="app.sideFlag ? 'test' : ''">
+        <div class="left-container" :class="app?.sideFlag ? 'test' : ''">
           <!-- 说说 -->
           <TalkSwiper></TalkSwiper>
           <!-- 推荐文章 -->
@@ -17,7 +17,7 @@
           <ArticleItem></ArticleItem>
         </div>
         
-        <div class="right-container" :class="app.sideFlag ? 'temp' : ''">
+        <div class="right-container" :class="app?.sideFlag ? 'temp' : ''">
           <!-- 作者信息 -->
           <div class="side-card">
             <AuthorInfo />
@@ -41,7 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore, useBlogStore } from '../composables/useStores';
 import { getBlogInfo } from '../api/blogInfo';
 import { onServerPrefetch } from 'vue';
 
@@ -56,7 +55,7 @@ import AuthorInfo from '../components/SideBar/AuthorInfo.vue';
 import NoticeInfo from '../components/SideBar/NoticeInfo.vue';
 import RecentComment from '../components/SideBar/RecentComment.vue';
 
-// 获取store实例
+// 获取store实例 (使用Nuxt自动导入)
 const app = useAppStore();
 const blog = useBlogStore();
 

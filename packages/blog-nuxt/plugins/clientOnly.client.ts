@@ -1,4 +1,3 @@
-import { useBlogStore } from '../composables/useStores';
 import { getBlogInfo } from '../api/blogInfo';
 import type { BlogInfo } from '../api/blogInfo/types';
 import type { BlogInfo as StoreBlogInfo } from '../stores/blog';

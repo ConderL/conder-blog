@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="notice-title">
-      <svg-icon class="trumpet" icon-class="trumpet" size="1.1875rem" color="#FF5CA1"></svg-icon>
+      <TrumpetIcon class="trumpet" style="color: #FF5CA1;" />
       公告
     </div>
     <div class="notice-content" v-html="blog.blogInfo.siteConfig.siteNotice || '暂无公告'"></div>
@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { defineComponent } from 'vue';
-import { useBlogStore } from "../../composables/useStores";
+import TrumpetIcon from '~/assets/icons/trumpet.svg';
 
 // 获取博客信息
 const blog = useBlogStore();
@@ -35,6 +35,8 @@ defineComponent({
 }
 
 .trumpet {
+  width: 1.1875rem;
+  height: 1.1875rem;
   margin-right: 0.5rem;
   animation: trumpet-shake 1s linear infinite;
 }

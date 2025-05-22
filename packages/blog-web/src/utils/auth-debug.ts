@@ -67,7 +67,6 @@ export async function testLikeComment(commentId: number, isUnlike: boolean = fal
  * 初始化调试工具，添加到window对象以便浏览器控制台使用
  */
 export function initAuthDebug() {
-	// @ts-ignore
 	window.authDebug = {
 		checkStatus: checkAuthStatus,
 		likeComment: (id: number) => testLikeComment(id, false),

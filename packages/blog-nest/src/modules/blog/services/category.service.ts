@@ -183,7 +183,6 @@ export class CategoryService {
       if (category.parentId === parentId) {
         const children = this.buildTree(categories, category.id);
         if (children.length > 0) {
-          // @ts-expect-error 分类树子节点不在实体定义中
           category.children = children;
         }
         result.push(category);

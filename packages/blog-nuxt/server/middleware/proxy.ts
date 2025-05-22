@@ -1,12 +1,16 @@
-import { defineEventHandler, proxyRequest, getRequestURL } from 'h3';
+import { defineEventHandler, proxyRequest } from 'h3';
 import { useRuntimeConfig } from '#imports';
+import { parseURL } from 'ufo';
 
 export default defineEventHandler(async (event) => {
+  // 获取配置
   const config = useRuntimeConfig();
-  const url = getRequestURL(event);
+  
+  // 解析URL
+  const url = parseURL(event.node.req.url || '');
   
   // 只处理API请求
-  if (!url.pathname.startsWith('/api/')) {
+  if (!url.pathname || !url.pathname.startsWith('/api/')) {
     return;
   }
 

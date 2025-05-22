@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { defineNuxtPlugin } from '#app';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 

@@ -22,15 +22,51 @@ export interface BlogInfo {
     recordNumber?: string;
     authorAvatar?: string;
     siteAddress?: string;
+    weiXinCode?: string;
+    aliCode?: string;
+    isReward?: boolean;
+    isEmailNotice?: boolean;
+    isCommentReview?: boolean;
+    isMessageReview?: boolean;
+    socialUrlList?: any[];
+    qq?: string;
+    github?: string;
+    gitee?: string;
+    bilibili?: string;
   };
   [key: string]: any;
 }
 
 // 使用不同的函数名以避免重复声明
-export const blogStore = defineStore('blog', () => {
+export const useBlogStore = defineStore('blog', () => {
   // 使用空对象初始化，与blog-web保持一致
   const blogInfo = ref<BlogInfo>({
-    siteConfig: {}
+    articleCount: 0,
+    categoryCount: 0,
+    tagCount: 0,
+    viewCount: 0,
+    commentCount: 0,
+    userCount: 0,
+    siteConfig: {
+      siteName: '个人博客',
+      siteAuthor: '@ConderL',
+      siteIntro: '这是一个个人博客网站',
+      siteNotice: '欢迎访问我的博客！',
+      createSiteTime: '2023-01-01',
+      siteAvatar: '',
+      touristAvatar: '',
+      weiXinCode: '',
+      aliCode: '',
+      isReward: true,
+      isEmailNotice: true,
+      isCommentReview: false,
+      isMessageReview: false,
+      socialUrlList: [],
+      qq: '',
+      github: '',
+      gitee: '',
+      bilibili: ''
+    }
   } as BlogInfo);
 
   function setBlogInfo(data: BlogInfo) {

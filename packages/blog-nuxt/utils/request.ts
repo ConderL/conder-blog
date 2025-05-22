@@ -1,4 +1,3 @@
-import { useUserStore } from "../composables/useStores";
 import axios from "axios";
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getToken, token_prefix } from "./token";

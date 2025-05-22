@@ -1,7 +1,7 @@
 <template>
 	<ClientOnly>
 	<NuxtLink to="/talk" class="talk-swiper" v-if="talkList.length > 0">
-		<svg-icon icon-class="laba" size="1.25rem"></svg-icon>
+		<LabaIcon class="laba-icon" />
 			<swiper
 				class="swiper-container"
 				:direction="'vertical'"
@@ -15,7 +15,7 @@
 					<div class="slide-content" v-html="talk"></div>
 				</swiper-slide>
 			</swiper>
-		<svg-icon icon-class="right-arrow" class="arrow"></svg-icon>
+		<RightArrowIcon class="arrow" />
 	</NuxtLink>
 		
 		<template #fallback>
@@ -29,6 +29,8 @@ import { ref, onMounted } from 'vue';
 import { Autoplay } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { useApi } from '../../../composables/useApi';
+import LabaIcon from '~/assets/icons/laba.svg';
+import RightArrowIcon from '~/assets/icons/right-arrow.svg';
 
 // 导入Swiper样式
 import 'swiper/css';
@@ -122,8 +124,16 @@ onMounted(() => {
 	text-overflow: ellipsis;
 }
 
+.laba-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+}
+
 .arrow {
 	animation: 1.5s passing infinite;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 @keyframes passing {

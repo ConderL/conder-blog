@@ -42,7 +42,8 @@
     "./**/*",
     "./types/**/*.d.ts",
     "./types/**/*.ts",
-    "./.nuxt/nuxt.d.ts"
+    "./.nuxt/nuxt.d.ts",
+    "./types/auto-imports.d.ts"
   ],
   "exclude": [
     "node_modules",

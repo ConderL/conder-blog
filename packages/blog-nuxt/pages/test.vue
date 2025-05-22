@@ -7,11 +7,28 @@
         <h1 class="title">组件测试页面</h1>
         
         <div class="card">
-          <h2>SvgIcon组件测试</h2>
+          <h2>图标组件测试（SVG Loader）</h2>
           <div class="icon-demo">
-            <SvgIcon icon-class="home" size="2rem" color="var(--color-pink)" />
-            <SvgIcon icon-class="tag" size="2rem" color="var(--color-blue)" />
-            <SvgIcon icon-class="category" size="2rem" color="var(--color-green)" />
+            <div class="icon-group">
+              <HomeIcon class="colored-icon" />
+              <p>home</p>
+            </div>
+            <div class="icon-group">
+              <TagIcon class="colored-icon" />
+              <p>tag</p>
+            </div>
+            <div class="icon-group">
+              <CategoryIcon class="colored-icon" />
+              <p>category</p>
+            </div>
+            <div class="icon-group">
+              <CloseIcon class="colored-icon" />
+              <p>close</p>
+            </div>
+            <div class="icon-group">
+              <HeartIcon class="colored-icon" />
+              <p>heart</p>
+            </div>
           </div>
         </div>
         
@@ -73,12 +90,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useUserStore } from '../stores/user';
-import { useBlogStore } from '../stores/blog';
-// Nuxt会自动导入组件，不需要手动导入ReplyBox
+// 导入SVG图标
+import HomeIcon from '~/assets/icons/home.svg';
+import TagIcon from '~/assets/icons/tag.svg';
+import CategoryIcon from '~/assets/icons/category.svg';
+import CloseIcon from '~/assets/icons/close.svg';
+import HeartIcon from '~/assets/icons/heart.svg';
 
 // 页面标题设置
-// @ts-ignore - Nuxt自动导入
 useHead({
   title: '组件测试页面 - 博客网站',
   meta: [
@@ -91,9 +110,7 @@ const currentPage = ref(1);
 const totalPages = ref(10);
 const userStore = useUserStore();
 const blogStore = useBlogStore();
-// @ts-ignore - Nuxt自动导入
 const route = useRoute();
-// @ts-ignore - Nuxt自动导入
 const config = useRuntimeConfig();
 
 // 处理页码变化
@@ -184,7 +201,36 @@ const handleReload = () => {
 
 .icon-demo {
   display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
+  
+  .icon-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    p {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .colored-icon {
+    width: 2rem;
+    height: 2rem;
+    
+    &:nth-child(1) {
+      color: var(--color-pink);
+    }
+    
+    &:nth-child(2) {
+      color: var(--color-blue);
+    }
+    
+    &:nth-child(3) {
+      color: var(--color-green);
+    }
+  }
 }
 
 .btn {

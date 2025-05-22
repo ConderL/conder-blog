@@ -23,10 +23,6 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useAppStore, useBlogStore } from '../composables/useStores';
-// 由于组件已注册，不需要导入
-// import Drawer from '../components/Layout/Drawer.vue';
-// import Provider from '../components/Provider/index.vue';
 
 // 获取store
 const app = useAppStore();

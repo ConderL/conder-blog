@@ -8,4 +8,7 @@ export class Category extends BaseEntity {
 
   @Column({ name: 'parent_id', default: 0 })
   parentId: number;
+
+  // 虚拟字段
+  children: any[];
 }

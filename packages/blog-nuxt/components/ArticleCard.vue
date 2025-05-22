@@ -9,15 +9,15 @@
         <p class="article-summary">{{ article.summary }}</p>
         <div class="article-meta">
           <div class="meta-item">
-            <SvgIcon icon-class="calendar" size="14px" />
+            <CalendarIcon class="meta-icon" />
             <span class="meta-text">{{ article.createTime }}</span>
           </div>
           <div class="meta-item">
-            <SvgIcon icon-class="category" size="14px" />
+            <CategoryIcon class="meta-icon" />
             <span class="meta-text">{{ article.categoryName }}</span>
           </div>
           <div class="meta-item">
-            <SvgIcon icon-class="view" size="14px" />
+            <EyeIcon class="meta-icon" />
             <span class="meta-text">{{ article.viewCount }} 阅读</span>
           </div>
         </div>
@@ -36,6 +36,10 @@
 </template>
 
 <script setup lang="ts">
+import CalendarIcon from '~/assets/icons/calendar.svg';
+import CategoryIcon from '~/assets/icons/category.svg';
+import EyeIcon from '~/assets/icons/eye.svg';
+
 defineProps<{
   article: {
     id: number;
@@ -125,10 +129,12 @@ defineProps<{
 .meta-item {
   display: flex;
   align-items: center;
-  
-  .svg-icon {
-    margin-right: 5px;
-  }
+}
+
+.meta-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
 }
 
 .article-tags {

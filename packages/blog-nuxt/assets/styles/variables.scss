@@ -84,26 +84,66 @@ $spacing-large: 2rem;
   textColorDark: $text-color-dark;
   bgColor: $bg-color;
   bgColorDark: $bg-color-dark;
-} 
-$footer-text-color: #FFFFFF;
+}
 
-// 暗黑模式颜色
-$dark-bg-color: #1E1E1E;
-$dark-text-color: #E0E0E0;
-$dark-border-color: #444444;
-$dark-card-bg: #2D2D2D;
+/* 定义CSS变量 */
+:root {
+  --primary-color: #e9546b;
+  --primary-hover-color: #d03e52;
+  --primary-color-dark: #ff7c91;
+  --primary-hover-color-dark: #ff96a8;
+  
+  --color-pink: #e9546b;
+  --color-red: #d03e52;
+  --color-red-a1: rgba(230, 71, 100, 0.1);
+  --color-orange: #fc8c23;
+  
+  --grey-0: #fff;
+  --grey-1: #f7f7f7;
+  --grey-2: #efefef;
+  --grey-3: #e6e6e6;
+  --grey-4: #d6d6d6;
+  --grey-5: #b4b4b4;
+  --grey-6: #7e7e7e;
+  --grey-7: #4e4e4e;
+  --grey-8: #333;
+  --grey-9: #111;
+}
 
-// 间距
-$spacing-unit: 1rem;
-$spacing-small: 0.5rem;
-$spacing-large: 2rem;
+/* 暗色模式 */
+[theme="dark"] {
+  --grey-0: #111;
+  --grey-1: #333;
+  --grey-2: #444;
+  --grey-3: #555;
+  --grey-4: #666;
+  --grey-5: #999;
+  --grey-6: #bbb;
+  --grey-7: #ddd;
+  --grey-8: #eee;
+  --grey-9: #fff;
+  
+  --text-color: var(--grey-7);
+  --text-color-dark: var(--grey-8);
+  --primary-color: var(--primary-color-dark);
+  --primary-hover-color: var(--primary-hover-color-dark);
+}
 
-// 导出变量
-:export {
-  primaryColor: $primary-color;
-  primaryColorDark: $primary-color-dark;
-  textColor: $text-color;
-  textColorDark: $text-color-dark;
-  bgColor: $bg-color;
-  bgColorDark: $bg-color-dark;
+/* 混合器 */
+@mixin text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin multi-ellipsis($line: 2) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $line;
+  overflow: hidden;
+}
+
+/* 导出颜色处理函数 */
+@function alpha-color($color, $opacity: 0.5) {
+  @return color.adjust($color, $alpha: -$opacity);
 } 
