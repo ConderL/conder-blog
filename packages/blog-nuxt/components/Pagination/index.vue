@@ -13,12 +13,12 @@
     >
       <template #prev>
         <button class="hover:bg-gradient-pink-orange">
-          <SvgIcon icon-class="angle-left" size="0.85rem"></SvgIcon>
+          <AngleLeftIcon class="pagination-icon" />
         </button>
       </template>
       <template #next>
         <button class="hover:bg-gradient-pink-orange">
-          <SvgIcon class="hover:bg-gradient-pink-orange" icon-class="angle-right" size="0.85rem"></SvgIcon>
+          <AngleRightIcon class="pagination-icon" />
         </button>
       </template>
     </UPagination>
@@ -27,6 +27,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import AngleLeftIcon from '~/assets/icons/angle-left.svg';
+import AngleRightIcon from '~/assets/icons/angle-right.svg';
 
 const emit = defineEmits(["update:current"]);
 const props = defineProps({
@@ -68,6 +70,11 @@ const handlePageChange = (page: number) => {
   width: auto;
   display: flex;
   justify-content: center;
+}
+
+.pagination-icon {
+  width: 0.85rem;
+  height: 0.85rem;
 }
 
 :deep(.pagination button) {

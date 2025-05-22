@@ -17,20 +17,11 @@
       <div class="article-meta">
         <!-- 置顶 -->
         <span class="top" v-if="article.isTop == 1">
-          <svg-icon
-            icon-class="top"
-            size="0.85rem"
-            style="margin-right: 0.15rem"
-          ></svg-icon
-          >置顶</span
+          <TopIcon class="icon-small" />置顶</span
         >
         <!-- 发表时间 -->
         <span class="meta-item ml-3.75">
-          <svg-icon
-            icon-class="calendar"
-            size="0.9rem"
-            style="margin-right: 0.15rem"
-          ></svg-icon>
+          <CalendarIcon class="icon-medium" />
           {{ formatArticleDate(article.createTime) }}
         </span>
         <!-- 文章标签 -->
@@ -40,12 +31,7 @@
           v-for="tag in article.tagVOList"
           :key="tag.id"
         >
-          <svg-icon
-            icon-class="tag"
-            size="0.9rem"
-            style="margin-right: 0.15rem"
-          ></svg-icon
-          >{{ tag.tagName }}
+          <TagIcon class="icon-medium" />{{ tag.tagName }}
         </NuxtLink>
       </div>
       <!-- 文章标题 -->
@@ -58,11 +44,7 @@
       <div class="article-content">{{ article.articleDesc }}</div>
       <!-- 文章分类 -->
       <div class="article-category">
-        <svg-icon
-          icon-class="qizhi"
-          size="0.85rem"
-          style="margin-right: 0.15rem"
-        ></svg-icon>
+        <QizhiIcon class="icon-medium" />
         <NuxtLink :to="`/category/${article.category.id}`">{{
           article.category.categoryName
         }}</NuxtLink>
@@ -91,6 +73,10 @@ import { getArticleList } from "../../api/article";
 import type { Article } from "../../api/article/types";
 import type { PageQuery } from "../../model";
 import { formatDate } from "../../utils/date";
+import TopIcon from '~/assets/icons/top.svg';
+import CalendarIcon from '~/assets/icons/calendar.svg';
+import TagIcon from '~/assets/icons/tag.svg';
+import QizhiIcon from '~/assets/icons/qizhi.svg';
 
 const articleList = ref<Article[]>([]);
 const count = ref(0);
@@ -376,5 +362,17 @@ defineExpose({
       }
     }
   }
+}
+
+.icon-small {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-right: 0.15rem;
+}
+
+.icon-medium {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-right: 0.15rem;
 }
 </style> 

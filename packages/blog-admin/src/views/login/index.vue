@@ -151,11 +151,9 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
         loginForm.password = password;
       }
       try {
-        // @ts-ignore 确保方法存在
         await userStore.LogIn(loginForm);
         console.log("登录成功");
         // 获取用户信息
-        // @ts-ignore 确保方法存在
         await userStore.GetInfo();
         // 生成路由
         const accessRoutes = await permissionStore.generateRoutes();

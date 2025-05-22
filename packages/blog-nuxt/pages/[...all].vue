@@ -13,8 +13,6 @@ definePageMeta({
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:color';
-
 .not-found {
   display: flex;
   flex-direction: column;
@@ -50,14 +48,14 @@ definePageMeta({
   }
 }
 
-[theme="dark"] {
+:global([data-theme="dark"]) {
   .not-found {
     p {
-      color: var(--text-color-dark);
+      color: var(--grey-7);
     }
 
     .home-link {
-      background-color: var(--primary-color-dark);
+      background-color: var(--primary-color);
 
       &:hover {
         background-color: var(--primary-hover-color-dark);

@@ -1,4 +1,3 @@
-// @ts-ignore
 import { defineNuxtPlugin } from 'nuxt/app';
 
 // 全局错误处理

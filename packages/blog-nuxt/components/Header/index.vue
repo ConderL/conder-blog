@@ -8,12 +8,19 @@
     <ul class="right">
       <li class="item">
         <ClientOnly>
-          <svg-icon style="cursor: pointer;" :icon-class="isDark ? 'moon' : 'sun'" @click="toggle()"></svg-icon>
+          <component 
+            :is="isDark ? MoonIcon : SunIcon" 
+            class="clickable-icon"
+            @click="toggle()" 
+          />
         </ClientOnly>
       </li>
       <li class="item">
         <ClientOnly>
-          <svg-icon style="cursor: pointer;" icon-class="search" @click="app.searchFlag = true"></svg-icon>
+          <SearchIcon 
+            class="clickable-icon"
+            @click="app.searchFlag = true" 
+          />
         </ClientOnly>
       </li>
     </ul>
@@ -23,7 +30,9 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import { useDark, useScroll, useToggle } from "@vueuse/core";
-import { useAppStore } from "../../composables/useStores";
+import MoonIcon from '~/assets/icons/moon.svg';
+import SunIcon from '~/assets/icons/sun.svg';
+import SearchIcon from '~/assets/icons/search.svg';
 
 const app = useAppStore();
 // 使用 Nuxt 兼容的写法处理客户端对象
@@ -122,6 +131,17 @@ defineExpose({
 	.item {
 		padding: 0.625rem 0.5rem;
 	}
+}
+
+.clickable-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 
 @media (max-width: 991px) {

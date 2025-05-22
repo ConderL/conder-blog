@@ -11,8 +11,6 @@
 
 <script setup lang="ts">
 import { defineComponent } from 'vue';
-import { useBlogStore } from "../../composables/useStores";
-
 // 获取博客信息
 const blog = useBlogStore();
 

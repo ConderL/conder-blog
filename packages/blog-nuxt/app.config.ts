@@ -2,23 +2,22 @@
 export default defineAppConfig({
   ui: {
     icons: {
-      // 默认图标配置
-      arrowLeft: 'heroicons:arrow-left',
-      arrowRight: 'heroicons:arrow-right',
-      check: 'heroicons:check',
-      chevronDoubleLeft: 'heroicons:chevrons-left',
-      chevronDoubleRight: 'heroicons:chevrons-right',
-      chevronDown: 'heroicons:chevron-down',
-      chevronLeft: 'heroicons:chevron-left',
-      chevronRight: 'heroicons:chevron-right',
-      chevronUp: 'heroicons:chevron-up',
-      close: 'heroicons:x-mark',
-      ellipsis: 'heroicons:ellipsis-horizontal',
-      external: 'heroicons:arrow-top-right-on-square',
-      loading: 'heroicons:arrow-path',
-      minus: 'heroicons:minus',
-      plus: 'heroicons:plus',
-      search: 'heroicons:magnifying-glass'
+      arrowLeft: 'i-svg-angle-left',
+      arrowRight: 'i-svg-angle-right',
+      check: 'i-svg-check',
+      chevronDoubleLeft: 'i-svg-angle-left',
+      chevronDoubleRight: 'i-svg-angle-right',
+      chevronDown: 'i-svg-down',
+      chevronLeft: 'i-svg-angle-left',
+      chevronRight: 'i-svg-angle-right',
+      chevronUp: 'i-svg-up',
+      close: 'i-svg-close',
+      ellipsis: 'i-svg-more',
+      external: 'i-svg-link',
+      loading: 'i-svg-loading',
+      minus: 'i-svg-minus',
+      plus: 'i-svg-plus',
+      search: 'i-svg-search'
     },
     // 分页组件配置
     pagination: {

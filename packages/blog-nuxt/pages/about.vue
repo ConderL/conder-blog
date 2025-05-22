@@ -79,7 +79,6 @@
 
 <script setup lang="ts">
 // SEO优化
-// @ts-ignore - Nuxt自动导入
 useHead({
   title: '关于博客',
   meta: [

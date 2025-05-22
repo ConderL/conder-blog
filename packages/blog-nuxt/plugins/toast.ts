@@ -11,7 +11,7 @@ export default defineNuxtPlugin(() => {
       $ui?.toast.add({
         title: message,
         color: 'green',
-        icon: 'i-heroicons-check-circle'
+        icon: 'i-svg-check-circle'
       });
     },
     
@@ -23,7 +23,7 @@ export default defineNuxtPlugin(() => {
       $ui?.toast.add({
         title: message,
         color: 'red',
-        icon: 'i-heroicons-x-circle'
+        icon: 'i-svg-x-circle'
       });
     },
     
@@ -35,7 +35,7 @@ export default defineNuxtPlugin(() => {
       $ui?.toast.add({
         title: message,
         color: 'yellow',
-        icon: 'i-heroicons-exclamation-triangle'
+        icon: 'i-svg-exclamation-triangle'
       });
     },
     
@@ -47,7 +47,7 @@ export default defineNuxtPlugin(() => {
       $ui?.toast.add({
         title: message,
         color: 'blue',
-        icon: 'i-heroicons-information-circle'
+        icon: 'i-svg-information-circle'
       });
     }
   };

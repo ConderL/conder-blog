@@ -11,8 +11,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useBlogStore } from "../../composables/useStores";
-
 const blog = useBlogStore();
 
 // 全部使用固定值作为默认值，确保服务端和客户端渲染完全一致

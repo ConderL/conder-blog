@@ -2,18 +2,28 @@
   <div class="reply-box" v-if="show">
     <div class="box-normal">
       <div class="reply-box-avatar">
-        <img
-          class="avatar"
-          v-if="userStore.userInfo?.avatar"
-          :src="userStore.userInfo.avatar"
-          alt="用户头像"
-        />
-        <img
-          class="avatar"
-          v-else
-          :src="blogStore.blogInfo.siteConfig.touristAvatar"
-          alt="游客头像"
-        />
+        <ClientOnly>
+          <img
+            class="avatar"
+            v-if="userStore.userInfo?.avatar"
+            :src="userStore.userInfo.avatar"
+            alt="用户头像"
+          />
+          <img
+            class="avatar"
+            v-else
+            :src="blogStore.blogInfo.siteConfig.touristAvatar || 'https://img.conder.top/config/default_avatar.jpg'"
+            alt="游客头像"
+          />
+          
+          <template #fallback>
+            <img
+              class="avatar"
+              src="https://img.conder.top/config/default_avatar.jpg"
+              alt="默认头像"
+            />
+          </template>
+        </ClientOnly>
       </div>
       <div class="reply-box-warp">
         <textarea
@@ -61,9 +71,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, toRefs } from 'vue';
-import { useUserStore } from '../../stores/user';
-import { useBlogStore } from '../../stores/blog';
-import { useAppStore } from '../../stores/app';
 import { processEmoji } from '../../utils/emojiProcessor';
 
 // 使用Store

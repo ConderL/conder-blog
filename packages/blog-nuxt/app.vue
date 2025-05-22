@@ -43,7 +43,9 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "~/assets/styles/icons.scss";
+
 *,
 :after,
 :before {

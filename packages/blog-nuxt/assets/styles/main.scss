@@ -1,6 +1,10 @@
+@import './reset.scss';
+@import './variables.scss';
+@import './common.scss';
+@import './icons.scss';
+
 @import "./theme.css";
 @import "./transition.scss";
-@import "./common.scss";
 @import "./ui-components.scss";
 
 *,
@@ -97,6 +101,7 @@ a {
 }
 
 html {
+  scroll-behavior: smooth;
   font-size: 16px;
   line-height: 1.6;
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -355,4 +360,30 @@ button:hover.hover\:bg-gradient-pink-orange, .bg-gradient-pink-orange {
   .svg-icon {
     color: var(--grey-0) !important;
   }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--grey-1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--grey-4);
+  border-radius: 4px;
+  
+  &:hover {
+    background: var(--grey-5);
+  }
+}
+
+/* 文本选择样式 */
+::selection {
+  background: var(--color-red-a1);
+  color: var(--color-red);
 }

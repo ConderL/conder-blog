@@ -28,7 +28,7 @@
     <!-- 最新文章 -->
     <div class="sidebar-card">
       <h3 class="card-title">
-        <svg-icon icon-class="new" size="1rem"></svg-icon>
+        <NewIcon class="card-icon" />
         最新文章
       </h3>
       <div class="article-list">
@@ -46,7 +46,7 @@
     <!-- 分类 -->
     <div class="sidebar-card">
       <h3 class="card-title">
-        <svg-icon icon-class="category" size="1rem"></svg-icon>
+        <CategoryIcon class="card-icon" />
         分类
       </h3>
       <div class="category-list">
@@ -64,7 +64,7 @@
     <!-- 标签云 -->
     <div class="sidebar-card">
       <h3 class="card-title">
-        <svg-icon icon-class="tag" size="1rem"></svg-icon>
+        <TagIcon class="card-icon" />
         标签云
       </h3>
       <div class="tag-cloud">
@@ -83,7 +83,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useBlogStore } from '../../composables/useStores';
+import NewIcon from '~/assets/icons/new.svg';
+import CategoryIcon from '~/assets/icons/category.svg';
+import TagIcon from '~/assets/icons/tag.svg';
 
 // 使用博客信息store
 const blogStore = useBlogStore();

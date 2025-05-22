@@ -14,10 +14,9 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, defineComponent } from 'vue';
-import { useBlogStore, useAppStore } from '../../composables/useStores';
 import { formatDate } from '../../utils/date';
 
-// @ts-ignore - Nuxt自动导入
+// Nuxt自动导入
 const route = useRoute();
 const blogStore = useBlogStore();
 const appStore = useAppStore();

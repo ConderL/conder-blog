@@ -1,7 +1,6 @@
 // 在Nuxt 3中，useRuntimeConfig和useFetch都是Nuxt自动导入的组合式函数
 // 不需要显式导入
 
-// @ts-ignore - 添加这个注释以忽略TypeScript错误，Nuxt会自动导入这些函数
 export const useApi = () => {
   const config = useRuntimeConfig();
   
@@ -125,6 +124,76 @@ export const useApi = () => {
     getArchives: () => baseRequest('/api/articles/archives', { method: 'GET' }),
     // 点赞文章
     like: (id: string) => baseRequest(`/api/articles/${id}/like`, { method: 'POST' }),
+    // 取消点赞
+    unlike: (id: string) => baseRequest(`/api/articles/${id}/unlike`, { method: 'POST' }),
+    // 获取文章详情 - 与原始项目API保持一致
+    getArticle: (id: number) => {
+      console.log('获取文章详情', id);
+      // 这里应该调用实际的API，先用模拟数据
+      return Promise.resolve({
+        data: {
+          flag: true,
+          data: {
+            id: id,
+            articleTitle: 'Nuxt 3 服务端渲染与SEO优化实践',
+            articleContent: '<h2 id="introduction">引言</h2><p>本文介绍Nuxt 3服务端渲染与SEO优化实践...</p><h2 id="what-is-ssr">什么是服务端渲染</h2><p>服务端渲染是指...</p>',
+            articleCover: 'https://picsum.photos/id/1/1200/600',
+            createTime: '2023-10-01T10:00:00Z',
+            updateTime: '2023-10-10T15:30:00Z',
+            viewCount: 256,
+            likeCount: 42,
+            articleType: 1,
+            category: {
+              id: 1,
+              categoryName: '前端开发'
+            },
+            tagVOList: [
+              { id: 1, tagName: 'Nuxt' },
+              { id: 2, tagName: 'SEO' },
+              { id: 3, tagName: 'Vue' }
+            ],
+            lastArticle: {
+              id: id - 1,
+              articleTitle: '上一篇文章标题',
+              articleCover: 'https://picsum.photos/id/2/1200/600'
+            },
+            nextArticle: {
+              id: id + 1,
+              articleTitle: '下一篇文章标题',
+              articleCover: 'https://picsum.photos/id/3/1200/600'
+            }
+          }
+        }
+      });
+    },
+    // 获取推荐文章 - 与原始项目API保持一致
+    getArticleRecommend: () => {
+      return Promise.resolve({
+        data: {
+          flag: true,
+          data: [
+            {
+              id: 2,
+              articleTitle: 'Vue 3组合式API最佳实践',
+              articleCover: 'https://picsum.photos/id/4/800/600',
+              createTime: '2023-09-15T14:30:00Z'
+            },
+            {
+              id: 3,
+              articleTitle: 'SEO优化指南：提高网站可见性',
+              articleCover: 'https://picsum.photos/id/5/800/600',
+              createTime: '2023-09-20T09:45:00Z'
+            },
+            {
+              id: 4,
+              articleTitle: '如何构建高性能Web应用',
+              articleCover: 'https://picsum.photos/id/6/800/600',
+              createTime: '2023-09-25T16:20:00Z'
+            }
+          ]
+        }
+      });
+    }
   };
   
   // 用户相关API

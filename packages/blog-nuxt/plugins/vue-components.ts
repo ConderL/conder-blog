@@ -1,7 +1,6 @@
 // 这个插件用于全局注册组件或添加全局功能
 // Nuxt会自动导入defineNuxtPlugin，不需要显式导入
 
-// @ts-ignore - Nuxt自动导入
 export default defineNuxtPlugin((nuxtApp) => {
   // 这里可以注册全局组件或添加全局功能
   // 例如：

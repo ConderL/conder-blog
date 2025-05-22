@@ -1,7 +1,7 @@
 <template>
   <!-- 标题 -->
   <div class="comment-title">
-    <svg-icon icon-class="comment" size="1.1875rem"></svg-icon>
+    <CommentIcon class="title-icon" />
     最新评论
   </div>
   
@@ -52,6 +52,7 @@ import { getRecentComment } from '../../api/comment';
 import type { RecentComment } from '../../api/comment/types';
 import { formatDate } from '../../utils/date';
 import { cleanupContent } from '../../utils/emojiProcessor';
+import CommentIcon from '~/assets/icons/comment.svg';
 
 const commentList = ref<RecentComment[]>([]);
 const loading = ref(true);
@@ -107,6 +108,14 @@ defineComponent({
 <style lang="scss" scoped>
 .comment-title {
   font-size: 1.2em;
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 1.1875rem;
+  height: 1.1875rem;
+  margin-right: 0.5rem;
 }
 
 .comment-name {
