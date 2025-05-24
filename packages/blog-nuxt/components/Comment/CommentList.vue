@@ -9,7 +9,7 @@
 			:comment-type="commentType"
 			:type-id="typeId"
 		></ReplyBox>
-		<div v-if="count > 0 && reFresh">
+		<div v-if="count > 0 && reFresh" ref="commentListRef">
 			<div
 				class="reply-item"
 				v-for="(comment, index) of commentList"
@@ -35,7 +35,7 @@
 							formatDateTime(comment.createTime)
 						}}</span>
 						<span class="reply-like" @click="like(comment)">
-							<HeartIcon
+							<LikeIcon
 								class="icon"
 								:class="isLike(comment.id)"
 							/>
@@ -81,7 +81,7 @@
 								formatDateTime(reply.createTime)
 							}}</span>
 							<span class="reply-like" @click="like(reply)">
-								<HeartIcon
+								<LikeIcon
 									class="icon"
 									:class="isLike(reply.id)"
 								/>
@@ -146,9 +146,10 @@ import { useAppStore } from '~/stores/app';
 import { useUserStore } from '~/stores/user';
 import { ClickDebouncer } from '~/utils/debounce';
 import { cleanupContent } from '~/utils/emojiProcessor';
+import { useAutoAnimate } from '@formkit/auto-animate/vue';
 import ChatIcon from '~/assets/icons/comment.svg';
 import BadgeIcon from '~/assets/icons/badge.svg';
-import HeartIcon from '~/assets/icons/heart.svg';
+import LikeIcon from '~/assets/icons/like.svg';
 
 // 创建点赞防抖器实例，设置800ms防抖时间
 const likeDebouncer = new ClickDebouncer(800);
@@ -158,6 +159,12 @@ const route = useRoute();
 const replyRef = ref<any>([]);
 const pageRef = ref<any>([]);
 const readMoreRef = ref<any>([]);
+
+// 使用AutoAnimate添加评论列表动画
+const [commentListRef] = useAutoAnimate({
+	duration: 300,
+	easing: 'ease-in-out'
+});
 
 const props = defineProps({
 	commentType: {
@@ -191,15 +198,15 @@ const { count, reFresh, queryParams, commentList } = toRefs(data);
 
 // 格式化时间
 const formatDateTime = (dateString: string) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+	if (!dateString) return '';
+	const date = new Date(dateString);
+	return date.toLocaleDateString('zh-CN', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit'
+	});
 };
 
 // 处理评论内容

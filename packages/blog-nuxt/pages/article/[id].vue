@@ -36,168 +36,175 @@
         </div>
       </div>
       <img v-if="data.article.articleCover" class="page-cover" :src="data.article.articleCover" alt="" />
+      <Waves></Waves>
     </div>
     <div class="bg">
       <div v-if="data.article" class="main-container">
-        <div class="left-container" :class="{ 'w-full': data.sideFlag }">
-          <div class="article-container">
-            <!-- 使用Nuxt的ClientOnly组件包裹需要客户端渲染的内容 -->
-            <ClientOnly>
-              <MdPreview
-                v-if="data.articleLoaded"
-                editorId="preview-only"
-                :modelValue="data.article.articleContent"
-                class="md-preview-custom"
-              />
-            </ClientOnly>
-            
-            <div class="article-post">
-              <div class="tag-share">
-                <NuxtLink
-                  v-for="tag in data.article.tagVOList || data.article.tags"
-                  :key="tag.id"
-                  :to="`/tag/${tag.id}`"
-                  class="article-tag"
-                >
-                  <TagIcon class="tag-icon" />
-                  {{ tag.tagName }}
-                </NuxtLink>
-                
-                <!-- 分享按钮 - 客户端专用 -->
-                <ClientOnly>
-                  <div class="share-info">
-                    <ShareButtons
-                      :url="articleUrl"
-                      :title="data.article.articleTitle"
-                    />
-                  </div>
-                </ClientOnly>
-              </div>
+        <div v-auto-animate="{duration: 300}" class="flex w-full">
+          <div class="bg-white rounded-lg" key="main">
+            <div class="article-container">
+              <!-- 仅MdPreview组件需要客户端渲染 -->
+              <ClientOnly>
+                <MdPreview
+                  v-if="data.articleLoaded"
+                  editorId="preview-only"
+                  :modelValue="data.article.articleContent"
+                  class="md-preview-custom"
+                />
+              </ClientOnly>
               
-              <div class="reward">
-                <button class="btn" :class="data.isLiked ? 'like-btn-active' : 'like-btn'" @click="like">
-                  <HeartIcon class="btn-icon" />
-                  点赞
-                  <span>{{ data.article.likeCount || 0 }}</span>
-                </button>
+              <div class="article-post">
+                <div class="tag-share">
+                  <NuxtLink
+                    v-for="tag in data.article.tagVOList || data.article.tags"
+                    :key="tag.id"
+                    :to="`/tag/${tag.id}`"
+                    class="article-tag"
+                  >
+                    <TagIcon class="tag-icon" />
+                    {{ tag.tagName }}
+                  </NuxtLink>
+                  
+                  <!-- 分享按钮 - 客户端专用 -->
+                  <ClientOnly>
+                    <div class="share-info">
+                      <ShareButtons
+                        :url="articleUrl"
+                        :title="data.article.articleTitle"
+                      />  
+                    </div>
+                  </ClientOnly>
+                </div>
                 
-                <ClientOnly v-if="data.isReward">
-                  <div class="reward-container">
-                    <button class="btn reward-btn" @click="showReward = !showReward">
-                      <QrCodeIcon class="btn-icon" />
-                      打赏
-                    </button>
-                    
-                    <div v-if="showReward" class="reward-popup">
-                      <div class="reward-all">
-                        <span>
-                          <img
-                            class="reward-img"
-                            :src="data.weiXinCode"
-                            alt="微信打赏"
-                          />
-                          <div class="reward-desc">微信</div>
-                        </span>
-                        <span style="margin-left: 0.3rem">
-                          <img
-                            class="reward-img"
-                            :src="data.aliCode"
-                            alt="支付宝打赏"
-                          />
-                          <div class="reward-desc">支付宝</div>
-                        </span>
+                <div class="reward">
+                  <button class="btn" :class="data.isLiked ? 'like-btn-active' : 'like-btn'" @click="like">
+                    <LikeIcon class="btn-icon" />
+                    点赞
+                    <span>{{ data.article.likeCount || 0 }}</span>
+                  </button>
+                  
+                  <ClientOnly v-if="data.isReward">
+                    <div class="reward-container">
+                      <button class="btn reward-btn" @click="showReward = !showReward">
+                        <QrCodeIcon class="btn-icon" />
+                        打赏
+                      </button>
+                      
+                      <div v-if="showReward" class="reward-popup">
+                        <div class="reward-all">
+                          <span>
+                            <img
+                              class="reward-img"
+                              :src="data.weiXinCode"
+                              alt="微信打赏"
+                            />
+                            <div class="reward-desc">微信</div>
+                          </span>
+                          <span style="margin-left: 0.3rem">
+                            <img
+                              class="reward-img"
+                              :src="data.aliCode"
+                              alt="支付宝打赏"
+                            />
+                            <div class="reward-desc">支付宝</div>
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <p class="tea">请我喝[茶]~(￣▽￣)~*</p>
+                  </ClientOnly>
+                </div>
+                
+                <div class="copyright">
+                  <ul>
+                    <li class="author">
+                      <UserIcon class="copyright-icon" />
+                      <strong>本文作者： </strong>{{ data.siteAuthor }}
+                    </li>
+                    <li class="link">
+                      <ArticleLinkIcon class="copyright-icon" />
+                      <strong>本文链接：</strong>
+                      <a :href="articleUrl">
+                        {{ articleUrl }}
+                      </a>
+                    </li>
+                    <li class="license">
+                      <CopyIcon class="copyright-icon" />
+                      <strong>版权声明： </strong>本站所有文章除特别声明外，均采用
+                      <a
+                        href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"
+                        target="_blank"
+                      >CC BY-NC-SA 4.0</a>
+                      许可协议。转载请注明文章出处！
+                    </li>
+                  </ul>
+                </div>
+                
+                <!-- 上下文 -->
+                <div class="post-nav">
+                  <div v-if="data.article.lastArticle?.id" class="item">
+                    <NuxtLink
+                      :to="`/article/${data.article.lastArticle.id}`"
+                      class="post-cover"
+                      :style="articleCover(data.article.lastArticle.articleCover)"
+                    >
+                      <span class="post-last-next">上一篇</span>
+                      <h3 class="post-title">
+                        {{ data.article.lastArticle.articleTitle }}
+                      </h3>
+                    </NuxtLink>
                   </div>
-                  <p class="tea">请我喝[茶]~(￣▽￣)~*</p>
+                  <div v-if="data.article.nextArticle?.id" class="item">
+                    <NuxtLink
+                      :to="`/article/${data.article.nextArticle.id}`"
+                      class="post-cover"
+                      :style="articleCover(data.article.nextArticle.articleCover)"
+                    >
+                      <span class="post-last-next">下一篇</span>
+                      <h3 class="post-title">
+                        {{ data.article.nextArticle.articleTitle }}
+                      </h3>
+                    </NuxtLink>
+                  </div>
+                </div>
+                
+                <!-- 评论区 -->
+                <CommentList :comment-type="data.commentType" />
+              </div>
+            </div>
+          </div>
+          
+          <div v-if="!data.sideFlag" :class="data.sideFlag ? '!w-0' : ''">
+            <!-- 仅在侧边栏打开时显示 -->
+            <div class="ml-4 w-[300px] right-container" key="sidebar">
+              <div class="side-card" key="catalog">
+                <CategoryIcon class="side-icon" />
+                目录
+                <!-- 仅目录组件需要客户端渲染 -->
+                <ClientOnly>
+                  <MdCatalog
+                    v-if="data.articleLoaded && isMounted"
+                    editorId="preview-only"
+                    :scrollElement="scrollElement"
+                  />
                 </ClientOnly>
               </div>
               
-              <div class="copyright">
-                <ul>
-                  <li class="author">
-                    <UserIcon class="copyright-icon" />
-                    <strong>本文作者： </strong>{{ data.siteAuthor }}
-                  </li>
-                  <li class="link">
-                    <ArticleLinkIcon class="copyright-icon" />
-                    <strong>本文链接：</strong>
-                    <a :href="articleUrl">
-                      {{ articleUrl }}
-                    </a>
-                  </li>
-                  <li class="license">
-                    <CopyIcon class="copyright-icon" />
-                    <strong>版权声明： </strong>本站所有文章除特别声明外，均采用
-                    <a
-                      href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"
-                      target="_blank"
-                    >CC BY-NC-SA 4.0</a>
-                    许可协议。转载请注明文章出处！
-                  </li>
-                </ul>
-              </div>
-              
-              <!-- 上下文 -->
-              <div class="post-nav">
-                <div v-if="data.article.lastArticle?.id" class="item">
-                  <NuxtLink
-                    :to="`/article/${data.article.lastArticle.id}`"
-                    class="post-cover"
-                    :style="articleCover(data.article.lastArticle.articleCover)"
+              <!-- 推荐文章 -->
+              <div v-if="data.recommendedArticles.length > 0" class="side-card" key="recommended">
+                <TopIcon class="side-icon" />
+                推荐文章
+                <div class="recommend-list">
+                  <NuxtLink 
+                    v-for="rec in data.recommendedArticles" 
+                    :key="rec.id" 
+                    :to="`/article/${rec.id}`" 
+                    class="recommend-item"
                   >
-                    <span class="post-last-next">上一篇</span>
-                    <h3 class="post-title">
-                      {{ data.article.lastArticle.articleTitle }}
-                    </h3>
-                  </NuxtLink>
-                </div>
-                <div v-if="data.article.nextArticle?.id" class="item">
-                  <NuxtLink
-                    :to="`/article/${data.article.nextArticle.id}`"
-                    class="post-cover"
-                    :style="articleCover(data.article.nextArticle.articleCover)"
-                  >
-                    <span class="post-last-next">下一篇</span>
-                    <h3 class="post-title">
-                      {{ data.article.nextArticle.articleTitle }}
-                    </h3>
+                    <span class="recommend-title">{{ rec.articleTitle }}</span>
                   </NuxtLink>
                 </div>
               </div>
-              
-              <!-- 评论区 -->
-              <CommentList :comment-type="data.commentType" />
-            </div>
-          </div>
-        </div>
-        
-        <div class="right-container" :class="{ 'hidden': data.sideFlag }">
-          <div class="side-card">
-            <CategoryIcon class="side-icon" />
-            目录
-            <ClientOnly>
-              <MdCatalog
-                v-if="data.articleLoaded && isMounted"
-                editorId="preview-only"
-                :scrollElement="scrollElement"
-              />
-            </ClientOnly>
-          </div>
-          
-          <!-- 推荐文章 -->
-          <div v-if="data.recommendedArticles.length > 0" class="side-card">
-            <TopIcon class="side-icon" />
-            推荐文章
-            <div class="recommend-list">
-              <NuxtLink 
-                v-for="rec in data.recommendedArticles" 
-                :key="rec.id" 
-                :to="`/article/${rec.id}`" 
-                class="recommend-item"
-              >
-                <span class="recommend-title">{{ rec.articleTitle }}</span>
-              </NuxtLink>
             </div>
           </div>
         </div>
@@ -207,7 +214,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, reactive } from 'vue';
 import { getArticle, likeArticle, unlikeArticle } from '~/api/article';
 import { MdCatalog, MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
@@ -219,12 +226,15 @@ import ArticleIcon from '~/assets/icons/article.svg';
 import ClockIcon from '~/assets/icons/clock.svg';
 import CategoryIcon from '~/assets/icons/category.svg';
 import TagIcon from '~/assets/icons/tag.svg';
-import HeartIcon from '~/assets/icons/heart.svg';
+import LikeIcon from '~/assets/icons/like.svg';
 import QrCodeIcon from '~/assets/icons/qr_code.svg';
 import UserIcon from '~/assets/icons/user.svg';
 import ArticleLinkIcon from '~/assets/icons/article_link.svg';
 import CopyIcon from '~/assets/icons/copy.svg';
 import TopIcon from '~/assets/icons/top.svg';
+
+// 在store初始化之前获取侧边栏状态
+const initialSideFlag = ref(false);
 
 // 使用store
 const user = useUserStore();
@@ -269,7 +279,7 @@ const data = reactive({
   formattedCreateTime: '',
   formattedUpdateTime: '',
   isLiked: false,
-  sideFlag: app.sideFlag,
+  sideFlag: initialSideFlag.value, // 使用独立的ref作为初始值
   weiXinCode: '',
   aliCode: '',
   isReward: false,
@@ -446,6 +456,14 @@ onMounted(() => {
   scrollElement.value = document.documentElement;
   isMounted.value = true;
   
+  // 使用setTimeout确保获取到正确的app.sideFlag
+  setTimeout(() => {
+    // 更新初始状态
+    initialSideFlag.value = app.sideFlag;
+    // 同步侧边栏状态
+    data.sideFlag = app.sideFlag;
+  }, 0);
+  
   // 获取文章数据
   fetchArticleData();
   
@@ -462,6 +480,11 @@ onMounted(() => {
   });
 });
 
+// 监听侧边栏状态变化
+watch(() => app.sideFlag, (newValue) => {
+  data.sideFlag = newValue;
+});
+
 // 监听路由参数变化，重新获取文章数据
 watch(() => route.params.id, (newId) => {
   if (newId && Number(newId) !== articleId) {
@@ -473,14 +496,40 @@ watch(() => route.params.id, (newId) => {
     fetchArticleData();
   }
 });
+
+// 设置路由meta信息
+definePageMeta({
+  title: '文章'
+});
 </script>
 
 <style lang="scss" scoped>
 @import "~/assets/styles/mixin.scss";
 
+/* 添加主容器样式 */
+.main-container {
+  display: flex !important;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  position: relative;
+  padding-bottom: 1.75rem;
+  min-height: 100vh; /* 确保容器有足够的高度让sticky生效 */
+}
+
+/* 左侧容器样式 */
+.left-container {
+  flex: 1 !important;
+  width: calc(100% - 300px) !important;
+  
+  &.w-full {
+    width: 100% !important;
+  }
+}
+
 .article-container {
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: visible !important;
   box-shadow: 0 0 1rem var(--box-bg-shadow);
 }
 
@@ -659,6 +708,58 @@ watch(() => route.params.id, (newId) => {
   .reward-img {
     width: 105px;
     height: 105px;
+  }
+  
+  /* 响应式布局调整 */
+  .main-container {
+    flex-direction: column;
+    padding: 0 0.5rem;
+  }
+  
+  .left-container {
+    width: 100% !important;
+  }
+}
+
+/* 右侧侧边栏样式（仅保留卡片样式） */
+.right-container {
+  .side-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background: var(--card-bg-color);
+    box-shadow: 0 0 0.5rem var(--box-bg-shadow);
+    
+    .side-icon {
+      margin-right: 0.5rem;
+      width: 1rem;
+      height: 1rem;
+      vertical-align: -0.15em;
+    }
+    
+    .recommend-list {
+      margin-top: 0.5rem;
+      
+      .recommend-item {
+        display: block;
+        margin: 0.5rem 0;
+        padding: 0.25rem 0;
+        color: var(--text-color);
+        transition: all 0.2s ease;
+        border-bottom: 1px dashed var(--grey-3);
+        
+        &:hover {
+          color: var(--primary-color);
+        }
+        
+        .recommend-title {
+          display: block;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
   }
 }
 

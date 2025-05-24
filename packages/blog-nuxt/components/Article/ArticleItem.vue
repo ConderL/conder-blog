@@ -1,5 +1,5 @@
 <template>
-  <div class="article-container">
+  <div class="article-container" ref="listRef">
     <div
       class="article-item"
       v-animate="['slideUpBigIn']"
@@ -73,6 +73,7 @@ import { getArticleList } from "../../api/article";
 import type { Article } from "../../api/article/types";
 import type { PageQuery } from "../../model";
 import { formatDate } from "../../utils/date";
+import { useAutoAnimate } from "~/composables/useAutoAnimate";
 import TopIcon from '~/assets/icons/top.svg';
 import CalendarIcon from '~/assets/icons/calendar.svg';
 import TagIcon from '~/assets/icons/tag.svg';
@@ -83,6 +84,12 @@ const count = ref(0);
 const queryParams = reactive<PageQuery>({
   current: 1,
   size: 5,
+});
+
+// 使用AutoAnimate为列表添加动画
+const { parent: listRef } = useAutoAnimate({
+  duration: 300,
+  easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
 });
 
 // 安全的日期格式化
