@@ -21,7 +21,7 @@ export default defineAppConfig({
         close: 'icon-local:close',
         ellipsis: 'icon-local:more',
         external: 'icon-local:link',
-        loading: 'icon-local:loading',
+        loading: 'icon-local:update',
         minus: 'icon-local:minus',
         plus: 'icon-local:plus',
         search: 'icon-local:search',
@@ -33,7 +33,18 @@ export default defineAppConfig({
         'comments': 'icon-local:comments',
         'up': 'icon-local:up',
         // emoji图标
-        'emoji': 'icon-local:emoji'
+        'emoji': 'icon-local:emoji',
+        // 登录相关图标
+        'user': 'icon-local:user',
+        'author': 'icon-local:author',
+        'logout': 'icon-local:logout',
+        'github': 'icon-local:github',
+        'gitee': 'icon-local:gitee',
+        'qq': 'icon-local:qq',
+        // 常用操作图标
+        'update': 'icon-local:update',
+        'message': 'icon-local:message',
+        'i-lucide-x': 'icon-local:close'
       }
     },
     
@@ -68,9 +79,28 @@ export default defineAppConfig({
         }
       },
       slots: {
-        content: 'w-63 mh-200',
+        content: 'w-80 mh-350',
         arrow: 'fill-default'
       }
-    } 
+    },
+    modal: {
+      slots: {
+        overlay: 'fixed inset-0 bg-black/50 backdrop-blur-sm',
+        content: '!w-[446px] max-w-[calc(100vw-32px)] !p-2 bg-white dark:bg-gray-900 flex flex-col focus:outline-none rounded-md shadow-lg',
+        header: 'min-h-0 border-none',
+        wrapper: '',
+        body: 'flex-1 overflow-y-auto p-4 sm:p-6',
+        footer: 'flex items-center gap-1.5 p-4 sm:px-6',
+        title: 'text-lg font-semibold',
+        description: 'mt-1 text-sm text-gray-500 dark:text-gray-400',
+        close: 'absolute top-4 end-4'
+      }
+    },
+    input: {
+      slots: {
+        root: 'w-full',
+        base: 'h-10 placeholder:text-[var(--grey-4)]'
+      }
+    }
   }
 }) 

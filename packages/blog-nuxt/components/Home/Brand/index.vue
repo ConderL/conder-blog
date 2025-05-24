@@ -2,7 +2,7 @@
 	<div ref="brandRef" class="brand-container">
 		<div class="brand">
 			<!-- 标题 -->
-			<p class="artboard">{{ blog.blogInfo.siteConfig.siteName }}</p>
+			<p class="artboard">{{ blog.blogInfo.siteConfig?.siteName || '个人博客' }}</p>
 			<!-- 打字机 -->
 			<div class="title">
 				{{ obj.output }}

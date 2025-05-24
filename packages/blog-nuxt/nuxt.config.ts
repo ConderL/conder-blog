@@ -24,7 +24,7 @@ export default defineNuxtConfig({
   ],
   
   css: [
-    '@/assets/styles/main.css',
+    '~/assets/styles/main.css',
     '~/assets/styles/index.scss'
   ],
 
@@ -60,12 +60,12 @@ export default defineNuxtConfig({
   ui: {
     global: true,
     icons: {
-      // 完全禁用图标自动加载
-      resolver: false,
-      // 不使用heroicons图标库
+      // 启用图标自动加载
+      resolver: true,
+      // 使用heroicons图标库
       collections: {
-        // 禁用默认图标集
-        heroicons: false,
+        // 启用默认图标集
+        heroicons: true,
         lucide: false
       }
     },
@@ -129,7 +129,8 @@ export default defineNuxtConfig({
     apiSecret: '',
     // 公共配置，可在客户端使用
     public: {
-      baseURL: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
+      baseURL: process.env.VITE_BASE_URL || '/',
+      serviceBaseUrl: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
       apiBase: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
       // 网站URL，用于SEO和分享
       siteUrl: process.env.SITE_URL || 'http://localhost:3334',
@@ -279,6 +280,7 @@ export default defineNuxtConfig({
   },
 
   plugins: [
-    '~/plugins/auto-animate.ts'
+    '~/plugins/auto-animate.ts',
+    '~/plugins/icon-resolver.ts'
   ],
 })

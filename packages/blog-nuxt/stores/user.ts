@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getSafeStorage, useStorage } from '~/utils/storage';
+import { getUserInfo } from '~/api/login';
+import { getToken, removeToken, setToken as setTokenUtil } from '~/utils/token';
 
 export interface UserInfo {
   id: string;
@@ -28,6 +30,7 @@ export const useUserStore = defineStore('user', () => {
   function setToken(newToken: string) {
     token.value = newToken;
     isLogin.value = !!newToken;
+    setTokenUtil(newToken);
   }
 
   function setUserInfo(info: UserInfo) {
@@ -54,13 +57,32 @@ export const useUserStore = defineStore('user', () => {
     articleLikeSet.value = [];
     commentLikeSet.value = [];
     talkLikeSet.value = [];
+    removeToken();
   }
 
   function loadToken() {
-    const storage = useStorage();
-    const storedToken = storage.getItem('user-token');
+    const storedToken = getToken();
     if (storedToken) {
       setToken(storedToken);
+    }
+  }
+
+  // 获取用户信息
+  async function fetchUserInfo() {
+    if (!token.value) return;
+    
+    try {
+      const res = await getUserInfo();
+      if (res.data.flag) {
+        setUserInfo(res.data.data);
+      } else {
+        // 如果获取用户信息失败，可能是token已过期
+        logout();
+      }
+    } catch (error) {
+      console.error('获取用户信息失败', error);
+      // 如果发生错误，也可能是token无效
+      logout();
     }
   }
 
@@ -112,6 +134,7 @@ export const useUserStore = defineStore('user', () => {
     setUserInfo,
     logout,
     loadToken,
+    fetchUserInfo,
     articleLike,
     commentLike,
     talkLike

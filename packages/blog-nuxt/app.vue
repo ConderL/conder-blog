@@ -14,44 +14,25 @@
   </UApp>
 </template>
 
-<script>
-// 引入Provider组件
-import Provider from '~/components/Provider/index.vue';
-
-// 直接在<script>标签中使用，不使用setup
-// 这样可以避免TS问题
-export default {
-  components: {
-    Provider
-  },
-  setup() {
-    // 设置默认的站点元数据，确保服务端和客户端渲染一致
-    useHead({
-      title: "Conder's blog",
-      titleTemplate: '%s - 技术与生活分享',
-      meta: [
-        { name: 'description', content: '一个基于Nuxt.js的服务端渲染博客系统' },
-        { name: 'keywords', content: 'Nuxt,Vue,SSR,博客,Blog' },
-        { name: 'author', content: '@ConderL' },
-        { name: 'robots', content: 'index, follow' },
-        { property: 'og:type', content: 'website' },
-        { property: 'og:title', content: "Conder's blog - 技术与生活分享" },
-        { property: 'og:description', content: '一个使用Nuxt.js构建的博客网站，提供优质的技术文章和生活分享' },
-        { property: 'og:site_name', content: "Conder's blog" }
-      ]
-    });
-  }
-}
+<script setup>
+// 设置默认的站点元数据，确保服务端和客户端渲染一致
+useHead({
+  title: "Conder's blog",
+  titleTemplate: '%s - 技术与生活分享',
+  meta: [
+    { name: 'description', content: '一个基于Nuxt.js的服务端渲染博客系统' },
+    { name: 'keywords', content: 'Nuxt,Vue,SSR,博客,Blog' },
+    { name: 'author', content: '@ConderL' },
+    { name: 'robots', content: 'index, follow' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: "Conder's blog - 技术与生活分享" },
+    { property: 'og:description', content: '一个使用Nuxt.js构建的博客网站，提供优质的技术文章和生活分享' },
+    { property: 'og:site_name', content: "Conder's blog" }
+  ]
+});
 </script>
 
 <style lang="scss">
-*,
-:after,
-:before {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
 
 html {
   scroll-behavior: smooth; /* 添加平滑滚动 */
