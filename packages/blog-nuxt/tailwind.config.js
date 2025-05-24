@@ -1,31 +1,23 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     './components/**/*.{js,vue,ts}',
     './layouts/**/*.vue',
     './pages/**/*.vue',
     './plugins/**/*.{js,ts}',
     './app.vue',
-    './error.vue',
+    './app.config.ts',
+    './nuxt.config.ts',
+    './node_modules/@nuxt/ui/dist/**/*.{js,vue,ts}',
   ],
   theme: {
-    extend: {
-      colors: {
-        // 基础色调
-        primary: {
-          50: '#e3f2fd',
-          100: '#bbdefb',
-          200: '#90caf9',
-          300: '#64b5f6',
-          400: '#42a5f5',
-          500: '#2196f3',
-          600: '#1e88e5',
-          700: '#1976d2',
-          800: '#1565c0',
-          900: '#0d47a1',
-        },
-      }
-    },
+    extend: {},
   },
   plugins: [],
+  // Tailwind CSS 4 配置
+  darkMode: ['class', '[data-mode="dark"]'],
+  future: {
+    respectDefaultRingColorOpacity: true,
+    disableColorOpacityUtilitiesByDefault: true,
+  },
 } 

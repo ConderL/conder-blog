@@ -6,12 +6,16 @@
 
 <script setup>
 import { onMounted } from 'vue';
+// 移除手动导入，使用Nuxt UI自动导入功能
 
 // 在客户端挂载后注入全局方法
 onMounted(() => {
   try {
-    // 获取 Nuxt UI 的全局方法
-    const { toast, confirm } = useUI();
+    // 直接使用 Nuxt UI 的 composables，通过自动导入机制
+    const toast = useToast();
+    
+    // 注意这里使用的是我们自定义的useConfirm
+    const confirm = useConfirm();
     
     // 在 window 对象上注册全局方法，保持与原项目一致的 API
     if (typeof window !== 'undefined') {
@@ -51,23 +55,31 @@ onMounted(() => {
         })
       };
       
-      // 对话框
+      // 对话框，使用我们自定义的useConfirm
       window.$dialog = {
-        info: (options) => confirm(options.content, { 
-          ...options,
-          type: 'info' 
+        info: (options) => confirm.info({
+          title: options.title || '信息',
+          message: options.content,
+          confirmLabel: options.positiveText || '确定',
+          onConfirm: options.onPositiveClick
         }),
-        success: (options) => confirm(options.content, { 
-          ...options,
-          type: 'success' 
+        success: (options) => confirm.success({
+          title: options.title || '成功',
+          message: options.content,
+          confirmLabel: options.positiveText || '确定',
+          onConfirm: options.onPositiveClick
         }),
-        warning: (options) => confirm(options.content, { 
-          ...options,
-          type: 'warning' 
+        warning: (options) => confirm.warning({
+          title: options.title || '警告',
+          message: options.content,
+          confirmLabel: options.positiveText || '确定',
+          onConfirm: options.onPositiveClick
         }),
-        error: (options) => confirm(options.content, { 
-          ...options,
-          type: 'danger' 
+        error: (options) => confirm.danger({
+          title: options.title || '错误',
+          message: options.content,
+          confirmLabel: options.positiveText || '确定',
+          onConfirm: options.onPositiveClick
         })
       };
     }

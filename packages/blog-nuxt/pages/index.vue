@@ -1,38 +1,38 @@
 <template>
   <div>
-    <!-- 背景轮播 -->
-    <Images></Images>
-    
-    <!-- 品牌 -->
-    <Brand></Brand>
-    
-    <div class="bg">
-      <div class="main-container">
-        <div class="left-container" :class="app?.sideFlag ? 'test' : ''">
-          <!-- 说说 -->
-          <TalkSwiper></TalkSwiper>
-          <!-- 推荐文章 -->
-          <Recommend></Recommend>
-          <!-- 文章列表 -->
-          <ArticleItem></ArticleItem>
+  <!-- 背景轮播 -->
+  <Images></Images>
+  
+  <!-- 品牌 -->
+  <Brand></Brand>
+  
+  <div class="bg">
+    <div class="main-container">
+      <div class="left-container" :class="app?.sideFlag ? 'test' : ''">
+        <!-- 说说 -->
+        <TalkSwiper></TalkSwiper>
+        <!-- 推荐文章 -->
+        <Recommend></Recommend>
+        <!-- 文章列表 -->
+        <ArticleItem></ArticleItem>
+      </div>
+      
+      <div class="right-container" :class="app?.sideFlag ? 'temp' : ''">
+        <!-- 作者信息 -->
+        <div class="side-card">
+          <AuthorInfo />
+          <!-- 博客信息 -->
+          <BlogInfo />
         </div>
         
-        <div class="right-container" :class="app?.sideFlag ? 'temp' : ''">
-          <!-- 作者信息 -->
-          <div class="side-card">
-            <AuthorInfo />
-            <!-- 博客信息 -->
-            <BlogInfo />
-          </div>
-          
-          <!-- 公告 -->
-          <div class="side-card">
-            <NoticeInfo />
-          </div>
-          
-          <!-- 最新评论 -->
-          <div class="side-card">
-            <RecentComment />
+        <!-- 公告 -->
+        <div class="side-card">
+          <NoticeInfo />
+        </div>
+        
+        <!-- 最新评论 -->
+        <div class="side-card">
+          <RecentComment />
           </div>
         </div>
       </div>

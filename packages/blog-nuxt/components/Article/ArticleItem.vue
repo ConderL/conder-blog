@@ -1,66 +1,66 @@
 <template>
   <div class="article-container">
-  <div
-    class="article-item"
-    v-animate="['slideUpBigIn']"
-    v-for="article of articleList"
-    :key="article.id"
-  >
-    <!-- 文章缩略图 -->
-    <div class="article-cover">
-      <NuxtLink :to="`/article/${article.id}`">
-        <img class="cover" :src="article.articleCover" />
-      </NuxtLink>
-    </div>
-    <!-- 文章信息 -->
-    <div class="article-info">
-      <div class="article-meta">
-        <!-- 置顶 -->
-        <span class="top" v-if="article.isTop == 1">
-          <TopIcon class="icon-small" />置顶</span
-        >
-        <!-- 发表时间 -->
-        <span class="meta-item ml-3.75">
-          <CalendarIcon class="icon-medium" />
-          {{ formatArticleDate(article.createTime) }}
-        </span>
-        <!-- 文章标签 -->
-        <NuxtLink
-          class="meta-item ml-3.75"
-          :to="`/tag/${tag.id}`"
-          v-for="tag in article.tagVOList"
-          :key="tag.id"
-        >
-          <TagIcon class="icon-medium" />{{ tag.tagName }}
-        </NuxtLink>
-      </div>
-      <!-- 文章标题 -->
-      <h3 class="article-title">
+    <div
+      class="article-item"
+      v-animate="['slideUpBigIn']"
+      v-for="article of articleList"
+      :key="article.id"
+    >
+      <!-- 文章缩略图 -->
+      <div class="article-cover">
         <NuxtLink :to="`/article/${article.id}`">
-          {{ article.articleTitle }}
+          <img class="cover" :src="article.articleCover" />
         </NuxtLink>
-      </h3>
-      <!-- 文章内容 -->
-      <div class="article-content">{{ article.articleDesc }}</div>
-      <!-- 文章分类 -->
-      <div class="article-category">
-        <QizhiIcon class="icon-medium" />
-        <NuxtLink :to="`/category/${article.category.id}`">{{
-          article.category.categoryName
-        }}</NuxtLink>
       </div>
-      <!-- 阅读按钮 -->
-      <NuxtLink class="article-btn" :to="`/article/${article.id}`"
-        >more...</NuxtLink
-      >
+      <!-- 文章信息 -->
+      <div class="article-info">
+        <div class="article-meta">
+          <!-- 置顶 -->
+          <span class="top" v-if="article.isTop == 1">
+            <TopIcon class="icon-small" />置顶</span
+          >
+          <!-- 发表时间 -->
+          <span class="meta-item ml-3.75">
+            <CalendarIcon class="icon-medium" />
+            {{ formatArticleDate(article.createTime) }}
+          </span>
+          <!-- 文章标签 -->
+          <NuxtLink
+            class="meta-item ml-3.75"
+            :to="`/tag/${tag.id}`"
+            v-for="tag in article.tagVOList"
+            :key="tag.id"
+          >
+            <TagIcon class="icon-medium" />{{ tag.tagName }}
+          </NuxtLink>
+        </div>
+        <!-- 文章标题 -->
+        <h3 class="article-title">
+          <NuxtLink :to="`/article/${article.id}`">
+            {{ article.articleTitle }}
+          </NuxtLink>
+        </h3>
+        <!-- 文章内容 -->
+        <div class="article-content">{{ article.articleDesc }}</div>
+        <!-- 文章分类 -->
+        <div class="article-category">
+          <QizhiIcon class="icon-medium" />
+          <NuxtLink :to="`/category/${article.category.id}`">{{
+            article.category.categoryName
+          }}</NuxtLink>
+        </div>
+        <!-- 阅读按钮 -->
+        <NuxtLink class="article-btn" :to="`/article/${article.id}`"
+          >more...</NuxtLink
+        >
+      </div>
     </div>
-  </div>
-  <!-- 分页器 -->
-  <div class="pagination-container" v-if="count > 5">
+    <!-- 分页器 -->
+    <div class="pagination-container" v-if="count > 5">
       <Pagination 
         :current="queryParams.current"
         :total="count"
-        :pageCount="queryParams.size"
+        :perPage="queryParams.size"
         @update:current="changePage"
       />
     </div>

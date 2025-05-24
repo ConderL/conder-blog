@@ -34,7 +34,9 @@
       "#components": ["./.nuxt/components"],
       "~/components/*": ["./components/*"],
       "~/stores": ["./stores"],
-      "~/types/*": ["./types/*"]
+      "~/types/*": ["./types/*"],
+      "@nuxt/ui": ["./node_modules/@nuxt/ui/dist"],
+      "@nuxt/ui/*": ["./node_modules/@nuxt/ui/dist/*"]
     },
     "baseUrl": "."
   },

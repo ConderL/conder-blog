@@ -1,7 +1,7 @@
 import type { Result, PageResult } from "../../model";
 import request from "../../utils/request";
 import type { AxiosPromise } from "axios";
-import type { RecentComment, CommentQuery, Comment } from "./types";
+import type { RecentComment, CommentQuery, Comment, CommentForm, Reply, PageQuery } from "./types";
 
 /**
  * 查看最新评论
@@ -23,7 +23,7 @@ export function getCommentList(
   params: CommentQuery
 ): AxiosPromise<Result<PageResult<Comment[]>>> {
   return request({
-    url: "/comments",
+    url: "/comments/list",
     method: "get",
     params,
   });
@@ -34,19 +34,9 @@ export function getCommentList(
  * @param data 评论信息
  * @returns 添加结果
  */
-export interface AddCommentParams {
-  typeId: number;
-  commentType: number;
-  commentContent: string;
-  replyId?: number;
-  toUid?: number;
-}
-
-export function addComment(
-  data: AddCommentParams
-): AxiosPromise<Result<null>> {
+export function addComment(data: CommentForm): AxiosPromise<Result<null>> {
   return request({
-    url: "/comments",
+    url: "/comments/add",
     method: "post",
     data,
   });
@@ -63,5 +53,39 @@ export function likeComment(
   return request({
     url: `/comments/${commentId}/like`,
     method: "post",
+  });
+}
+
+/**
+ * 取消点赞评论
+ * @param commentId 评论id
+ * @returns 取消点赞结果
+ */
+export function unlikeComment(
+  commentId: number
+): AxiosPromise<Result<null>> {
+  return request({
+    url: `/comments/${commentId}/like`,
+    method: "post",
+    params: {
+      type: "unlike",
+    },
+  });
+}
+
+/**
+ * 获取评论回复列表
+ * @param commentId 评论id
+ * @param params 分页参数
+ * @returns 评论回复列表
+ */
+export function getReplyList(
+  commentId: number,
+  params: PageQuery
+): AxiosPromise<Result<Reply[]>> {
+  return request({
+    url: `/comments/${commentId}/reply`,
+    method: "get",
+    params,
   });
 } 

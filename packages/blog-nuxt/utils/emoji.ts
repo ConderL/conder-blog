@@ -99,7 +99,7 @@ export const emojiList: Record<string, string> = {
 	"[喜欢]":
 		"https://img.conder.top/emoji/8a10a4d73a89f665feff3d46ca56e83dc68f9eb8.png",
 	"[笑哭]":
-		"https://img.conder.top/emoji/485a7e0c01c70707daae53bee4a9e2e31ef1ed.png",
+		"https://img.conder.top/emoji/485a7e0c01c2d70707daae53bee4a9e2e31ef1ed.png",
 	"[吓]": "https://img.conder.top/emoji/9c10c5ebc7bef27ec641b8a1877674e0c65fea5d.png",
 	"[嫌弃]":
 		"https://img.conder.top/emoji/de4c0783aaa60ec03de0a2b90858927bfad7154b.png",

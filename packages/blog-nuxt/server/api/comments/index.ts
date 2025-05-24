@@ -2,32 +2,34 @@ import { getCommentList } from '../../../api/comment';
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-  const articleId = Number(query.articleId);
+  const typeId = Number(query.typeId);
   const commentType = Number(query.commentType) || 1;
+  const current = Number(query.current) || 1;
+  const size = Number(query.size) || 10;
   
-  if (!articleId) {
+  if (!typeId) {
     return {
-      data: {
-        flag: false,
-        message: '文章ID不能为空'
-      }
+      flag: false,
+      message: '类型ID不能为空'
     };
   }
   
   try {
     const response = await getCommentList({
-      current: 1,
-      size: 10,
-      typeId: articleId,
+      current,
+      size,
+      typeId,
       commentType
     });
     return response.data;
   } catch (error) {
     console.error('获取评论列表失败:', error);
     return {
+      flag: false,
+      message: '获取评论列表失败',
       data: {
-        flag: false,
-        message: '获取评论列表失败'
+        recordList: [],
+        count: 0
       }
     };
   }

@@ -1,6 +1,8 @@
 // 客户端插件：模拟naive-ui的全局API
 // 通过定义类似的API保持与原有项目代码的兼容性
 
+// 移除手动导入，依赖Nuxt UI的自动导入功能
+
 // 声明Window类型扩展
 declare global {
   interface Window {
@@ -27,23 +29,22 @@ declare global {
 
 export default defineNuxtPlugin(() => {
   if (process.client) {
+    // 直接使用 Nuxt UI 的 composables
+    const toast = useToast();
+    const confirm = useConfirm();
+
     // 创建全局消息对象
     window.$message = {
       success: (content: string) => {
-        // 使用Nuxt自动导入的useUI组合式API
-        const { toast } = useUI();
         toast.add({ title: content, color: 'green' });
       },
       error: (content: string) => {
-        const { toast } = useUI();
         toast.add({ title: content, color: 'red' });
       },
       warning: (content: string) => {
-        const { toast } = useUI();
         toast.add({ title: content, color: 'yellow' });
       },
       info: (content: string) => {
-        const { toast } = useUI();
         toast.add({ title: content, color: 'blue' });
       }
     };
@@ -51,39 +52,39 @@ export default defineNuxtPlugin(() => {
     // 创建全局对话框对象
     window.$dialog = {
       success: (options: any) => {
-        const { confirm } = useUI();
         if (options.content && options.positiveText) {
-          confirm(options.content, {
-            type: 'success',
+          confirm.success({
+            title: options.title || '成功',
+            message: options.content,
             confirmLabel: options.positiveText,
             onConfirm: options.onPositiveClick
           });
         }
       },
       warning: (options: any) => {
-        const { confirm } = useUI();
         if (options.content && options.positiveText) {
-          confirm(options.content, {
-            type: 'warning',
+          confirm.warning({
+            title: options.title || '警告',
+            message: options.content,
             confirmLabel: options.positiveText,
             onConfirm: options.onPositiveClick
           });
         }
       },
       error: (options: any) => {
-        const { confirm } = useUI();
         if (options.content) {
-          confirm(options.content, {
-            type: 'danger',
+          confirm.danger({
+            title: options.title || '错误',
+            message: options.content,
             confirmLabel: '确定'
           });
         }
       },
       info: (options: any) => {
-        const { confirm } = useUI();
         if (options.content) {
-          confirm(options.content, {
-            type: 'info',
+          confirm.info({
+            title: options.title || '信息',
+            message: options.content,
             confirmLabel: '确定'
           });
         }
@@ -93,7 +94,6 @@ export default defineNuxtPlugin(() => {
     // 创建全局通知对象
     window.$notification = {
       success: (options: any) => {
-        const { toast } = useUI();
         toast.add({ 
           title: options.title || '成功', 
           description: options.content, 
@@ -102,7 +102,6 @@ export default defineNuxtPlugin(() => {
         });
       },
       error: (options: any) => {
-        const { toast } = useUI();
         toast.add({ 
           title: options.title || '错误', 
           description: options.content, 
@@ -111,7 +110,6 @@ export default defineNuxtPlugin(() => {
         });
       },
       warning: (options: any) => {
-        const { toast } = useUI();
         toast.add({ 
           title: options.title || '警告', 
           description: options.content, 
@@ -120,7 +118,6 @@ export default defineNuxtPlugin(() => {
         });
       },
       info: (options: any) => {
-        const { toast } = useUI();
         toast.add({ 
           title: options.title || '信息', 
           description: options.content, 

@@ -145,6 +145,7 @@ import { useRoute } from 'vue-router';
 import { useAppStore } from '~/stores/app';
 import { useUserStore } from '~/stores/user';
 import { ClickDebouncer } from '~/utils/debounce';
+import { cleanupContent } from '~/utils/emojiProcessor';
 import ChatIcon from '~/assets/icons/comment.svg';
 import BadgeIcon from '~/assets/icons/badge.svg';
 import HeartIcon from '~/assets/icons/heart.svg';
@@ -203,8 +204,8 @@ const formatDateTime = (dateString: string) => {
 
 // 处理评论内容
 const processContent = (content: string) => {
-	// 这里可以添加表情处理等逻辑
-	return content;
+	// 使用工具函数处理内容
+	return cleanupContent(content);
 };
 
 const like = (comment: any) => {
@@ -223,7 +224,12 @@ const like = (comment: any) => {
 	// 判断当前是否已点赞
 	if (user.commentLikeSet.indexOf(id) != -1) {
 		// 已点赞，调用取消点赞API
-		$fetch(`/api/comments/${id}/unlike`, { method: 'POST' })
+		$fetch(`/api/comments/${id}/like`, { 
+			method: 'POST',
+			params: {
+				type: 'unlike'
+			}
+		})
 			.then((data: any) => {
 				if (data.flag) {
 					comment.likeCount = Math.max(0, comment.likeCount - 1);
@@ -262,17 +268,8 @@ watch(
 
 // 查看更多评论
 const readMoreComment = (index: number, comment: any) => {
-	$fetch(`/api/comments/${comment.id}/replies`, { 
-		params: { current: 1, size: 5 },
-		// 添加错误处理
-		onResponseError() {
-			// 使用空数组
-			comment.replyVOList = [];
-			// 隐藏查看更多
-			if (readMoreRef.value[index]) {
-				readMoreRef.value[index].style.display = "none";
-			}
-		}
+	$fetch(`/api/comments/${comment.id}/reply`, { 
+		params: { current: 1, size: 5 }
 	})
 	.then((data: any) => {
 		if (data && data.data) {
@@ -289,20 +286,19 @@ const readMoreComment = (index: number, comment: any) => {
 	})
 	.catch(error => {
 		console.warn('获取评论回复失败', error);
+		// 使用空数组
+		comment.replyVOList = [];
+		// 隐藏查看更多
+		if (readMoreRef.value[index]) {
+			readMoreRef.value[index].style.display = "none";
+		}
 	});
 };
 
 // 查看当前页的回复评论
 const getCurrentPage = (current: number, index: number, commentId: number) => {
-	$fetch(`/api/comments/${commentId}/replies`, { 
-		params: { current: current, size: 5 },
-		// 添加错误处理
-		onResponseError() {
-			// 使用空数组
-			if (commentList.value[index]) {
-				commentList.value[index].replyVOList = [];
-			}
-		}
+	$fetch(`/api/comments/${commentId}/reply`, { 
+		params: { current: current, size: 5 }
 	})
 	.then((data: any) => {
 		if (data && data.data && commentList.value[index]) {
@@ -311,6 +307,10 @@ const getCurrentPage = (current: number, index: number, commentId: number) => {
 	})
 	.catch(error => {
 		console.warn('获取评论分页失败', error);
+		// 使用空数组
+		if (commentList.value[index]) {
+			commentList.value[index].replyVOList = [];
+		}
 	});
 };
 
@@ -327,28 +327,8 @@ const handleReply = (index: number, target: any) => {
 };
 
 const getList = () => {
-	$fetch('/api/comments', { 
-		params: queryParams.value,
-		// 添加错误处理
-		onResponseError(error) {
-			console.warn('评论加载失败，使用模拟数据', error);
-			// 使用模拟数据
-			const mockData = {
-				data: {
-					recordList: [],
-					count: 0
-				},
-				flag: true
-			};
-			if (queryParams.value.current == 1) {
-				commentList.value = mockData.data.recordList;
-			} else {
-				commentList.value.push(...mockData.data.recordList);
-			}
-			queryParams.value.current++;
-			count.value = mockData.data.count;
-			emit("getCommentCount", count.value);
-		}
+	$fetch('/api/comments/list', { 
+		params: queryParams.value
 	})
 	.then((data: any) => {
 		if (data && data.data) {
@@ -364,6 +344,22 @@ const getList = () => {
 	})
 	.catch(error => {
 		console.warn('评论加载失败', error);
+		// 使用模拟数据
+		const mockData = {
+			data: {
+				recordList: [],
+				count: 0
+			},
+			flag: true
+		};
+		if (queryParams.value.current == 1) {
+			commentList.value = mockData.data.recordList;
+		} else {
+			commentList.value.push(...mockData.data.recordList);
+		}
+		queryParams.value.current++;
+		count.value = mockData.data.count;
+		emit("getCommentCount", count.value);
 	});
 };
 
@@ -379,21 +375,10 @@ const reloadReplies = (index: number) => {
 		return;
 	}
 	
-	$fetch(`/api/comments/${commentList.value[index].id}/replies`, {
+	$fetch(`/api/comments/${commentList.value[index].id}/reply`, {
 		params: {
 			current: pageRef.value[index].current,
 			size: 5,
-		},
-		// 添加错误处理
-		onResponseError() {
-			// 使用空数组
-			if (commentList.value[index]) {
-				commentList.value[index].replyVOList = [];
-			}
-			// 隐藏回复框
-			if (replyRef.value[index]) {
-				replyRef.value[index].setReply(false);
-			}
 		}
 	})
 	.then((data: any) => {
@@ -419,6 +404,14 @@ const reloadReplies = (index: number) => {
 	})
 	.catch(error => {
 		console.warn('重新加载评论回复失败', error);
+		// 使用空数组
+		if (commentList.value[index]) {
+			commentList.value[index].replyVOList = [];
+		}
+		// 隐藏回复框
+		if (replyRef.value[index]) {
+			replyRef.value[index].setReply(false);
+		}
 	});
 };
 
@@ -438,6 +431,16 @@ onMounted(() => {
 	font-size: 20px;
 	font-weight: 600;
 	line-height: 40px;
+	
+	.icon {
+		margin-right: 5px;
+	}
+}
+
+.reply-box-avatar .shoka-avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
 }
 
 .sub-reply-avatar {
@@ -463,12 +466,6 @@ onMounted(() => {
 	}
 }
 
-.reply-box-avatar .shoka-avatar {
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-}
-
 .user-info {
 	display: flex;
 	align-items: center;
@@ -480,13 +477,10 @@ onMounted(() => {
 		margin-right: 0.3125rem;
 	}
 	
-	.badge-icon {
+	.icon {
 		width: 1rem;
 		height: 1rem;
 		margin-left: 5px;
-		vertical-align: -0.15em;
-		overflow: hidden;
-		fill: currentColor;
 	}
 }
 
@@ -527,17 +521,14 @@ onMounted(() => {
 		margin-right: 17px;
 		cursor: pointer;
 
-		&:hover .like {
+		&:hover .icon {
 			color: var(--color-pink);
 		}
 		
-		.like {
+		.icon {
 			width: 1rem;
 			height: 1rem;
 			margin-right: 5px;
-			vertical-align: -0.15em;
-			overflow: hidden;
-			fill: currentColor;
 		}
 		
 		.like-flag {

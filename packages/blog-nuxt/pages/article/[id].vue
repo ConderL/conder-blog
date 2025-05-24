@@ -37,7 +37,6 @@
       </div>
       <img v-if="data.article.articleCover" class="page-cover" :src="data.article.articleCover" alt="" />
     </div>
-    
     <div class="bg">
       <div v-if="data.article" class="main-container">
         <div class="left-container" :class="{ 'w-full': data.sideFlag }">
@@ -45,6 +44,7 @@
             <!-- 使用Nuxt的ClientOnly组件包裹需要客户端渲染的内容 -->
             <ClientOnly>
               <MdPreview
+                v-if="data.articleLoaded"
                 editorId="preview-only"
                 :modelValue="data.article.articleContent"
                 class="md-preview-custom"
@@ -54,7 +54,7 @@
             <div class="article-post">
               <div class="tag-share">
                 <NuxtLink
-                  v-for="tag in data.article.tagVOList"
+                  v-for="tag in data.article.tagVOList || data.article.tags"
                   :key="tag.id"
                   :to="`/tag/${tag.id}`"
                   class="article-tag"
@@ -67,7 +67,7 @@
                 <ClientOnly>
                   <div class="share-info">
                     <ShareButtons
-                      :url="data.articleUrl"
+                      :url="articleUrl"
                       :title="data.article.articleTitle"
                     />
                   </div>
@@ -81,35 +81,36 @@
                   <span>{{ data.article.likeCount || 0 }}</span>
                 </button>
                 
-                <template v-if="data.isReward">
-                  <UPopover>
-                    <template #trigger>
-                      <button class="btn reward-btn">
-                        <QrCodeIcon class="btn-icon" />
-                        打赏
-                      </button>
-                    </template>
-                    <div class="reward-all">
-                      <span>
-                        <img
-                          class="reward-img"
-                          :src="data.weiXinCode"
-                          alt="微信打赏"
-                        />
-                        <div class="reward-desc">微信</div>
-                      </span>
-                      <span style="margin-left: 0.3rem">
-                        <img
-                          class="reward-img"
-                          :src="data.aliCode"
-                          alt="支付宝打赏"
-                        />
-                        <div class="reward-desc">支付宝</div>
-                      </span>
+                <ClientOnly v-if="data.isReward">
+                  <div class="reward-container">
+                    <button class="btn reward-btn" @click="showReward = !showReward">
+                      <QrCodeIcon class="btn-icon" />
+                      打赏
+                    </button>
+                    
+                    <div v-if="showReward" class="reward-popup">
+                      <div class="reward-all">
+                        <span>
+                          <img
+                            class="reward-img"
+                            :src="data.weiXinCode"
+                            alt="微信打赏"
+                          />
+                          <div class="reward-desc">微信</div>
+                        </span>
+                        <span style="margin-left: 0.3rem">
+                          <img
+                            class="reward-img"
+                            :src="data.aliCode"
+                            alt="支付宝打赏"
+                          />
+                          <div class="reward-desc">支付宝</div>
+                        </span>
+                      </div>
                     </div>
-                  </UPopover>
+                  </div>
                   <p class="tea">请我喝[茶]~(￣▽￣)~*</p>
-                </template>
+                </ClientOnly>
               </div>
               
               <div class="copyright">
@@ -121,8 +122,8 @@
                   <li class="link">
                     <ArticleLinkIcon class="copyright-icon" />
                     <strong>本文链接：</strong>
-                    <a :href="data.articleUrl">
-                      {{ data.articleUrl }}
+                    <a :href="articleUrl">
+                      {{ articleUrl }}
                     </a>
                   </li>
                   <li class="license">
@@ -166,7 +167,7 @@
               </div>
               
               <!-- 评论区 -->
-              <CommentList :comment-type="1" />
+              <CommentList :comment-type="data.commentType" />
             </div>
           </div>
         </div>
@@ -177,7 +178,7 @@
             目录
             <ClientOnly>
               <MdCatalog
-                v-if="isMounted"
+                v-if="data.articleLoaded && isMounted"
                 editorId="preview-only"
                 :scrollElement="scrollElement"
               />
@@ -206,7 +207,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { getArticle, likeArticle, unlikeArticle } from '~/api/article';
 import { MdCatalog, MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
@@ -234,11 +235,46 @@ const blog = useBlogStore();
 const route = useRoute();
 const config = useRuntimeConfig();
 const articleId = Number(route.params.id);
+const articleUrl = computed(() => `${config.public.siteUrl || window.location.origin}/article/${articleId}`);
 
 // 客户端状态
 const isMounted = ref(false);
 const scrollElement = ref(null);
 const likeDebouncer = new ClickDebouncer(800);
+const showReward = ref(false);
+
+// 文章数据
+const data = reactive({
+  articleLoaded: false,
+  wordNum: 0,
+  wordNumFormatted: '0',
+  readTime: 0,
+  commentType: 1,
+  recommendedArticles: [],
+  article: {
+    id: 0,
+    articleCover: "",
+    articleTitle: "",
+    articleContent: "",
+    articleType: 0,
+    viewCount: 0,
+    likeCount: 0,
+    category: {},
+    tagVOList: [],
+    createTime: "",
+    lastArticle: {},
+    nextArticle: {},
+    updateTime: "",
+  },
+  formattedCreateTime: '',
+  formattedUpdateTime: '',
+  isLiked: false,
+  sideFlag: app.sideFlag,
+  weiXinCode: '',
+  aliCode: '',
+  isReward: false,
+  siteAuthor: ''
+});
 
 // 文章封面背景样式
 const articleCover = (cover: string) => {
@@ -278,7 +314,7 @@ const like = async () => {
     return;
   }
   
-  let id = data.value.article.id;
+  let id = data.article.id;
   
   // 使用防抖器检查是否可以点赞，防止快速多次点击
   if (!likeDebouncer.canClick(id)) {
@@ -289,19 +325,19 @@ const like = async () => {
     // 判断当前是否已点赞
     if (user.articleLikeSet.indexOf(id) != -1) {
       // 已点赞，调用取消点赞API
-      const { data: response } = await unlikeArticle(id);
+      const response = await $fetch(`/api/articles/${id}/unlike`, { method: 'POST' });
       if (response.flag) {
-        data.value.article.likeCount = Math.max(0, data.value.article.likeCount - 1);
+        data.article.likeCount = Math.max(0, data.article.likeCount - 1);
         user.articleLike(id);
-        data.value.isLiked = !data.value.isLiked;
+        data.isLiked = !data.isLiked;
       }
     } else {
       // 未点赞，调用点赞API
-      const { data: response } = await likeArticle(id);
+      const response = await $fetch(`/api/articles/${id}/like`, { method: 'POST' });
       if (response.flag) {
-        data.value.article.likeCount += 1;
+        data.article.likeCount += 1;
         user.articleLike(id);
-        data.value.isLiked = !data.value.isLiked;
+        data.isLiked = !data.isLiked;
       }
     }
   } catch (error) {
@@ -309,91 +345,98 @@ const like = async () => {
   }
 };
 
-// 预处理和组合数据 - 服务端数据获取
-const { data } = await useAsyncData(`article-${articleId}`, async () => {
-  // 1. 获取文章详情
-  const articleResponse = await getArticle(articleId);
-  const article = articleResponse.data?.flag ? articleResponse.data.data : null;
-  
-  if (!article) {
-    console.error('获取文章详情失败');
-    return null;
-  }
-  
-  // 2. 计算字数和阅读时间
-  const wordNum = article.articleContent ? deleteHTMLTag(article.articleContent).length : 0;
-  const readTime = Math.round(wordNum / 400) || 1;
-  
-  // 3. 获取推荐文章
-  let recommendedArticles = [];
+// 获取文章数据
+const fetchArticleData = async () => {
   try {
-    const recommendResponse = await $fetch('/api/articles/recommend');
-    if (recommendResponse?.flag) {
-      recommendedArticles = recommendResponse.data || [];
+    // 1. 获取文章详情
+    const articleResponse = await $fetch(`/api/articles/${articleId}`);
+    if (!articleResponse.flag) {
+      console.error('获取文章详情失败');
+      return;
     }
+    
+    // 将API返回的数据映射到我们的数据结构
+    const articleData = articleResponse.data;
+    
+    // 更新文章基本信息
+    data.article = {
+      id: articleData.id,
+      articleCover: articleData.articleCover,
+      articleTitle: articleData.articleTitle,
+      articleContent: articleData.articleContent,
+      articleType: articleData.articleType,
+      viewCount: articleData.viewCount,
+      likeCount: articleData.likeCount,
+      category: articleData.category,
+      tagVOList: articleData.tags, // 注意这里API返回的是tags而不是tagVOList
+      createTime: articleData.createTime,
+      lastArticle: articleData.lastArticle || {}, // 可能不存在
+      nextArticle: articleData.nextArticle || {},
+      updateTime: articleData.updateTime,
+    };
+    
+    // 2. 计算字数和阅读时间
+    data.wordNum = data.article.articleContent ? deleteHTMLTag(data.article.articleContent).length : 0;
+    data.readTime = Math.round(data.wordNum / 400) || 1;
+    data.wordNumFormatted = formatNumber(data.wordNum);
+    
+    // 3. 格式化日期
+    data.formattedCreateTime = data.article.createTime ? formatDateString(data.article.createTime) : '';
+    data.formattedUpdateTime = data.article.updateTime ? formatDateString(data.article.updateTime) : '';
+    
+    // 4. 检查用户是否已点赞此文章
+    data.isLiked = user.articleLikeSet.indexOf(data.article.id) !== -1;
+    
+    // 5. 从博客配置中获取打赏码等信息
+    const siteConfig = blog.blogInfo.siteConfig || {};
+    data.siteAuthor = siteConfig.siteAuthor || '@ConderL';
+    data.weiXinCode = siteConfig.weiXinCode || '';
+    data.aliCode = siteConfig.aliCode || '';
+    data.isReward = !!siteConfig.isReward;
+    
+    // 6. 获取推荐文章
+    try {
+      const recommendResponse = await $fetch('/api/articles/recommend');
+      if (recommendResponse?.flag) {
+        data.recommendedArticles = recommendResponse.data || [];
+      }
+    } catch (error) {
+      console.error('获取推荐文章失败:', error);
+    }
+    
+    data.articleLoaded = true;
+    
+    // 设置文档标题
+    if (data.article.articleTitle) {
+      document.title = `${data.article.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`;
+    }
+    
+    console.log('文章数据加载完成:', data);
   } catch (error) {
-    console.error('获取推荐文章失败:', error);
+    console.error('获取文章数据失败:', error);
   }
-  
-  // 4. 生成完整的文章URL
-  const articleUrl = `${config.public.siteUrl || 'http://localhost:3334'}/article/${articleId}`;
-  
-  // 5. 从博客配置中获取打赏码等信息
-  const siteConfig = blog.blogInfo.siteConfig || {};
-  const siteAuthor = siteConfig.siteAuthor || '@ConderL';
-  const weiXinCode = siteConfig.weiXinCode || '';
-  const aliCode = siteConfig.aliCode || '';
-  const isReward = !!siteConfig.isReward;
-  
-  // 6. 格式化日期
-  const formattedCreateTime = article.createTime ? formatDateString(article.createTime) : '';
-  const formattedUpdateTime = article.updateTime ? formatDateString(article.updateTime) : '';
-  
-  // 7. 检查用户是否已点赞此文章
-  const isLiked = user.articleLikeSet.indexOf(article.id) !== -1;
-  
-  // 8. 格式化字数
-  const wordNumFormatted = formatNumber(wordNum);
-  
-  // 9. 获取侧边栏状态
-  const sideFlag = app.sideFlag;
-  
-  // 返回所有预处理好的数据
-  return {
-    article,
-    wordNum,
-    wordNumFormatted,
-    readTime,
-    recommendedArticles,
-    articleUrl,
-    siteAuthor,
-    weiXinCode,
-    aliCode,
-    isReward,
-    formattedCreateTime,
-    formattedUpdateTime,
-    isLiked,
-    sideFlag
-  };
-});
+};
 
 // SEO优化
 useHead({
-  title: computed(() => data.value?.article 
-    ? `${data.value.article.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`
+  title: computed(() => data.article.articleTitle 
+    ? `${data.article.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`
     : '文章详情'),
   meta: [
     {
       name: 'description',
-      content: computed(() => data.value?.article?.articleContent
-        ? deleteHTMLTag(data.value.article.articleContent).slice(0, 150) + '...'
+      content: computed(() => data.article.articleContent
+        ? deleteHTMLTag(data.article.articleContent).slice(0, 150) + '...'
         : '查看详细文章内容')
     },
     {
       name: 'keywords',
-      content: computed(() => data.value?.article?.tagVOList
-        ? data.value.article.tagVOList.map((tag: any) => tag.tagName).join(',')
-        : '博客,文章,技术')
+      content: computed(() => {
+        const tags = data.article.tagVOList || data.article.tags;
+        return tags?.length
+          ? tags.map((tag: any) => tag.tagName).join(',')
+          : '博客,文章,技术';
+      })
     }
   ]
 });
@@ -403,9 +446,31 @@ onMounted(() => {
   scrollElement.value = document.documentElement;
   isMounted.value = true;
   
-  // 设置文档标题（如果需要）
-  if (data.value?.article?.articleTitle) {
-    document.title = `${data.value.article.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`;
+  // 获取文章数据
+  fetchArticleData();
+  
+  // 添加点击外部关闭打赏弹窗的事件监听
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const rewardBtn = document.querySelector('.reward-btn');
+    const rewardPopup = document.querySelector('.reward-popup');
+    
+    if (showReward.value && rewardBtn && rewardPopup && 
+        !rewardBtn.contains(target) && !rewardPopup.contains(target)) {
+      showReward.value = false;
+    }
+  });
+});
+
+// 监听路由参数变化，重新获取文章数据
+watch(() => route.params.id, (newId) => {
+  if (newId && Number(newId) !== articleId) {
+    // 重新设置文章ID
+    articleId = Number(newId);
+    // 重置数据
+    data.articleLoaded = false;
+    // 重新获取文章数据
+    fetchArticleData();
   }
 });
 </script>
@@ -502,6 +567,24 @@ onMounted(() => {
   text-align: center;
 }
 
+.reward-popup {
+  position: absolute;
+  z-index: 100;
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.reward-container {
+  position: relative;
+  display: inline-block;
+}
+
 .copyright {
   font-size: 0.75em;
   padding: 1rem 2rem;
@@ -578,6 +661,12 @@ onMounted(() => {
     height: 105px;
   }
 }
+
+// 调整UPopover样式
+:deep(.u-popover) {
+  --popover-background-color: var(--color-white);
+  --popover-border-color: var(--color-gray-200);
+}
 </style>
 
 <style lang="scss">
@@ -622,5 +711,13 @@ onMounted(() => {
       }
     }
   }
+}
+
+/* 统一处理SVG图标的垂直对齐 */
+.btn-icon {
+  vertical-align: -0.15em;
+  overflow: hidden;
+  width: 0.9rem;
+  height: 0.9rem;
 }
 </style>

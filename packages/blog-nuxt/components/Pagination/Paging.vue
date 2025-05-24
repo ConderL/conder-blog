@@ -2,25 +2,22 @@
   <div class="view-more-pagination" v-show="show">
     <span class="pagination-page-count">共{{ totalPage }}页</span>
     <span class="pagination-btn" v-if="current !== 1" @click="prePage">上一页</span>
-    <template v-for="(number, index) in visibleNumber" :key="index">
-      <span 
-        @click="changePage(number)" 
-        v-if="typeof number == 'number'" 
-        class="pagination-page-number"
-        :class="current == number ? 'current-page' : ''"
-      >{{ number }}</span>
-      <span class="pagination-page-do" v-else>...</span>
+    <template v-for="(number, index) in visibleNumber">
+      <span :key="`num-${index}`" @click="changePage(number)" v-if="typeof number == 'number'" class="pagination-page-number"
+        :class="current == number ? 'current-page' : ''">{{ number }}</span>
+      <span class="pagination-page-do" v-else :key="`dot-${index}`">...</span>
     </template>
     <span class="pagination-btn" v-if="current !== totalPage" @click="nextPage">下一页</span>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watch } from 'vue';
+
 const current = ref(1);
 const page = ref(5);
 const show = ref(false);
-const emit = defineEmits(["getCurrentPage"]);
-
+const emit = defineEmits(["get-current-page"]);
 const props = defineProps({
   total: {
     type: Number,
@@ -28,11 +25,11 @@ const props = defineProps({
   },
   index: {
     type: Number,
-    required: true
+    required: true,
   },
   commentId: {
     type: Number,
-    required: true
+    required: true,
   },
 });
 
@@ -40,21 +37,12 @@ const totalPage = computed(() => Math.ceil(props.total / page.value));
 
 const visibleNumber = computed(() => {
   if (totalPage.value <= 5) {
-    return Array.from({ length: totalPage.value }, (_, i) => i + 1);
+    return totalPage.value;
   } else {
     if (current.value <= 4) {
       return [1, 2, 3, 4, 5, "...", totalPage.value];
     } else if (current.value >= totalPage.value - 4) {
-      return [
-        1, 
-        "...", 
-        totalPage.value - 5, 
-        totalPage.value - 4, 
-        totalPage.value - 3, 
-        totalPage.value - 2, 
-        totalPage.value - 1, 
-        totalPage.value
-      ];
+      return [1, "...", totalPage.value - 5, totalPage.value - 4, totalPage.value - 3, totalPage.value - 2, totalPage.value - 1, totalPage.value];
     } else {
       return [
         1,
@@ -73,22 +61,34 @@ const visibleNumber = computed(() => {
 
 const prePage = () => {
   current.value -= 1;
-  emit("getCurrentPage", current.value, props.index, props.commentId);
+  emit("get-current-page", current.value, props.index, props.commentId);
 };
 
 const changePage = (number: number) => {
   current.value = number;
-  emit("getCurrentPage", number, props.index, props.commentId);
+  emit("get-current-page", number, props.index, props.commentId);
 };
 
 const nextPage = () => {
   current.value += 1;
-  emit("getCurrentPage", current.value, props.index, props.commentId);
+  emit("get-current-page", current.value, props.index, props.commentId);
 };
 
 const setPaging = (flag: boolean) => {
   show.value = flag;
 };
+
+// 监听总数变化
+watch(
+  () => props.total,
+  (newVal) => {
+    if (newVal > page.value) {
+      show.value = true;
+    } else {
+      show.value = false;
+    }
+  }
+);
 
 defineExpose({ current, setPaging });
 </script>
@@ -97,11 +97,10 @@ defineExpose({ current, setPaging });
 .view-more-pagination {
   font-size: 13px;
   line-height: 1.5;
-  margin-top: 10px;
+  margin-top: 0.5rem;
 
   .pagination-page-count {
     margin-right: 10px;
-    color: var(--grey-6);
   }
 
   .pagination-btn {

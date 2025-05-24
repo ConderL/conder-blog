@@ -1,16 +1,17 @@
 <template>
-  <div>
-    <!-- NuxtLayout包裹所有页面，自动使用layouts/default.vue作为默认布局 -->
-    <NuxtLayout>
-      <!-- NuxtPage渲染当前路由匹配的页面 -->
-      <NuxtPage />
-      
-      <!-- 全局组件 -->
-      <ClientOnly>
-        <Provider />
-      </ClientOnly>
-    </NuxtLayout>
-  </div>
+  <!-- 使用UApp包裹整个应用，确保Nuxt UI组件正常工作 -->
+  <UApp :ui="{ fontSourceSans: false }">
+  <!-- 使用default指定默认布局 -->
+  <NuxtLayout>
+    <!-- NuxtPage渲染当前路由匹配的页面 -->
+    <NuxtPage />
+    
+    <!-- 全局组件 -->
+    <ClientOnly>
+      <Provider />
+    </ClientOnly>
+  </NuxtLayout>
+  </UApp>
 </template>
 
 <script>
@@ -44,8 +45,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~/assets/styles/icons.scss";
-
 *,
 :after,
 :before {
@@ -74,6 +73,7 @@ a,
 button,
 img {
   cursor: url(/icons/link.ico), default !important;
+  display: inline-block;
 }
 
 h1,
@@ -88,13 +88,6 @@ h6 {
   margin: 1.25rem 0 0.9375rem;
 }
 
-button,
-input,
-select,
-textarea {
-  background-color: transparent;
-  border-style: none;
-}
 
 input,
 textarea {
@@ -148,30 +141,14 @@ a {
   box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
 }
 
-/* 全局页面过渡效果 */
-.page-slide-enter-active,
-.page-slide-leave-active {
-  transition: all 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+/* 淡入淡出过渡效果 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.page-slide-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.page-slide-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-/* 布局过渡效果 */
-.layout-fade-enter-active,
-.layout-fade-leave-active {
-  transition: opacity 0.35s cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.layout-fade-enter-from,
-.layout-fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style> 
