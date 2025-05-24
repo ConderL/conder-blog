@@ -30,7 +30,7 @@
 		</template>
 		<div class="menu-item">
 			<ClientOnly>
-				<a v-if="!user.userInfo.id" @click="app.loginDialogVisible = true" class="menu-btn">
+				<a v-if="!user.userInfo.id" @click="app.setLoginFlag(true)" class="menu-btn">
 					<component :is="getIconComponent('user')" class="icon" />
 					登录
 				</a>

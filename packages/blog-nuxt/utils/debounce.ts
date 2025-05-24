@@ -25,6 +25,28 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 /**
+ * 节流函数
+ * @param fn 需要节流的函数
+ * @param delay 延迟时间，默认300ms
+ * @returns 节流后的函数
+ */
+export function throttle<T extends (...args: any[]) => any>(
+	fn: T,
+	delay: number = 300
+): (...args: Parameters<T>) => void {
+	let lastTime = 0;
+	
+	return function(this: any, ...args: Parameters<T>): void {
+		const now = Date.now();
+		
+		if (now - lastTime >= delay) {
+			fn.apply(this, args);
+			lastTime = now;
+		}
+	};
+}
+
+/**
  * 点击防抖 - 跟踪最近点击的ID，防止短时间内对同一ID多次操作
  */
 export class ClickDebouncer {

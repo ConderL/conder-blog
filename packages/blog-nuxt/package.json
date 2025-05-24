@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev --port 3334",
-    "build": "nuxt build",
-    "generate": "nuxt generate",
+    "build": "node scripts/copy-icons.js && nuxt build",
+    "generate": "node scripts/copy-icons.js && nuxt generate",
     "preview": "nuxt preview",
     "clean": "node scripts/clear-cache.js",
-    "dev:clean": "npm run clean && npm run dev"
+    "dev:clean": "npm run clean && npm run dev",
+    "copy-icons": "node scripts/copy-icons.js",
+    "dev:icons": "node scripts/copy-icons.js && nuxt dev --port 3334"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",

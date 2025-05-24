@@ -1,10 +1,6 @@
 <template>
 	<UPopover
 		mode="click"
-		:ui="{ 
-			content: 'p-0 max-h-[300px] overflow-auto',
-			container: 'min-w-[250px]'
-		}"
 		:content="{
 			side: 'right',
 			align: 'start',

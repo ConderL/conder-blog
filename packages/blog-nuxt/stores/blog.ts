@@ -1,6 +1,33 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { getSafeStorage } from '~/utils/storage';
+
+export interface SiteConfig {
+  siteName?: string;
+  siteAuthor?: string;
+  siteIntro?: string;
+  siteUrl?: string;
+  siteAvatar?: string;
+  siteNotice?: string;
+  createSiteTime?: string;
+  touristAvatar?: string;
+  commentCheck?: boolean;
+  recordNumber?: string;
+  authorAvatar?: string;
+  siteAddress?: string;
+  weiXinCode?: string;
+  aliCode?: string;
+  isReward?: boolean;
+  isEmailNotice?: boolean;
+  isCommentReview?: boolean;
+  isMessageReview?: boolean;
+  socialUrlList?: any[];
+  socialLoginList?: string;
+  qq?: string;
+  github?: string;
+  gitee?: string;
+  bilibili?: string;
+}
 
 export interface BlogInfo {
   articleCount: number;
@@ -9,37 +36,12 @@ export interface BlogInfo {
   viewCount: number;
   commentCount: number;
   userCount: number;
-  siteConfig: {
-    siteName?: string;
-    siteAuthor?: string;
-    siteIntro?: string;
-    siteUrl?: string;
-    siteAvatar?: string;
-    siteNotice?: string;
-    createSiteTime?: string;
-    touristAvatar?: string;
-    commentCheck?: boolean;
-    recordNumber?: string;
-    authorAvatar?: string;
-    siteAddress?: string;
-    weiXinCode?: string;
-    aliCode?: string;
-    isReward?: boolean;
-    isEmailNotice?: boolean;
-    isCommentReview?: boolean;
-    isMessageReview?: boolean;
-    socialUrlList?: any[];
-    qq?: string;
-    github?: string;
-    gitee?: string;
-    bilibili?: string;
-  };
+  siteConfig: SiteConfig;
   [key: string]: any;
 }
 
 // 使用不同的函数名以避免重复声明
 export const useBlogStore = defineStore('blog', () => {
-  // 使用空对象初始化，与blog-web保持一致
   const blogInfo = ref<BlogInfo>({
     articleCount: 0,
     categoryCount: 0,
@@ -62,24 +64,33 @@ export const useBlogStore = defineStore('blog', () => {
       isCommentReview: false,
       isMessageReview: false,
       socialUrlList: [],
+      socialLoginList: 'qq,github,gitee',
       qq: '',
       github: '',
       gitee: '',
       bilibili: ''
     }
-  } as BlogInfo);
-
-  // 添加侧边栏标志
-  const sideFlag = ref(false);
-
-  function setBlogInfo(data: BlogInfo) {
-    blogInfo.value = data;
+  });
+  
+  // 站点信息
+  const siteConfig = computed(() => blogInfo.value?.siteConfig || {});
+  
+  // 社交登录列表
+  const loginList = computed(() => {
+    const list = siteConfig.value?.socialLoginList?.split(',') || [];
+    return list.filter(item => item);
+  });
+  
+  // 更新博客信息
+  function setBlogInfo(info: BlogInfo) {
+    blogInfo.value = info;
   }
-
+  
   return {
     blogInfo,
+    siteConfig,
+    loginList,
     setBlogInfo,
-    sideFlag
   };
 }, {
   persist: {

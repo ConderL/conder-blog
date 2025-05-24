@@ -1,38 +1,69 @@
 /**
- * Nuxt3中安全使用localStorage的工具函数
+ * 获取安全的存储对象
+ * 在SSR环境下提供一个兼容的存储对象
  */
-export const useStorage = () => {
-  const setItem = (key: string, value: any) => {
-    if (import.meta.client) {
-      window.localStorage.setItem(key, JSON.stringify(value));
-    }
-  };
-
-  const getItem = (key: string) => {
-    if (import.meta.client) {
-      const value = window.localStorage.getItem(key);
-      return value ? JSON.parse(value) : null;
-    }
-    return null;
-  };
-
-  const removeItem = (key: string) => {
-    if (import.meta.client) {
-      window.localStorage.removeItem(key);
-    }
-  };
-
+export const getSafeStorage = () => {
+  // 在客户端使用localStorage
+  if (process.client) {
+    return localStorage;
+  }
+  
+  // 在服务端提供一个模拟的存储对象
   return {
-    setItem,
-    getItem,
-    removeItem
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
+    key: () => null,
+    length: 0,
   };
 };
 
-// 安全获取存储对象
-export const getSafeStorage = (): Storage | undefined => {
-  if (import.meta.client) {
-    return window.localStorage;
+/**
+ * 使用响应式存储
+ * @param key 存储键名
+ * @param initialValue 初始值
+ * @returns 响应式的存储值和修改方法
+ */
+export const useStorage = <T>(key: string, initialValue: T) => {
+  // 在SSR环境下，直接返回初始值
+  if (!process.client) {
+    return {
+      value: ref(initialValue),
+      setValue: (newValue: T) => {},
+      removeValue: () => {},
+    };
   }
-  return undefined;
+  
+  const storedValue = ref<T>(initialValue);
+  
+  // 尝试从localStorage获取值
+  try {
+    const item = localStorage.getItem(key);
+    if (item) {
+      storedValue.value = JSON.parse(item);
+    }
+  } catch (error) {
+    console.error('Error reading from localStorage', error);
+  }
+  
+  // 监听值变化，更新localStorage
+  watch(storedValue, (newValue) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(newValue));
+    } catch (error) {
+      console.error('Error writing to localStorage', error);
+    }
+  }, { deep: true });
+  
+  return {
+    value: storedValue,
+    setValue: (newValue: T) => {
+      storedValue.value = newValue;
+    },
+    removeValue: () => {
+      localStorage.removeItem(key);
+      storedValue.value = initialValue;
+    },
+  };
 };
