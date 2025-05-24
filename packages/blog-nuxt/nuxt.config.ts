@@ -1,42 +1,95 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from "@tailwindcss/vite";
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: true,
   compatibilityDate: '2025-05-16',
   modules: [
     '@nuxt/ui',
-    '@unocss/nuxt',
     '@pinia/nuxt',
     '@nuxt/image',
-    '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
     '@nuxtjs/robots',
     'nuxt-simple-sitemap',
   ],
 
+  // 明确禁用任何可能的字体模块
+  disableModules: [
+    '@nuxt/fonts',
+    '@nuxtjs/google-fonts',
+  ],
+
   buildModules: [
   ],
   
+  css: [
+    '@/assets/styles/main.css',
+    '~/assets/styles/index.scss'
+  ],
+
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          // 不使用全局scss变量，避免与CSS变量冲突
+          additionalData: '@import "~/assets/styles/mixin.scss";',
+          silenceDeprecations: ["legacy-js-api", "import"]
+        }
+      }
+    },
+    plugins: [
+      tailwindcss(),
+      require('vite-svg-loader')()
+    ],
+    // 优化构建性能
+    optimizeDeps: {
+      include: ['vue', 'vue-router', 'pinia', '@vueuse/core'],
+      exclude: ['lightningcss', '@tailwindcss/oxide']
+    },
+    // 减少构建警告
+    build: {
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        external: ['lightningcss', '@tailwindcss/oxide']
+      }
+    }
+  },
+
+  // 更新Nuxt UI配置，确保正确加载组件
+  ui: {
+    global: true,
+    icons: {
+      // 完全禁用图标自动加载
+      resolver: false,
+      // 不使用heroicons图标库
+      collections: {
+        // 禁用默认图标集
+        heroicons: false,
+        lucide: false
+      }
+    },
+    safelistColors: ['primary', 'gray', 'pink', 'blue', 'green', 'yellow', 'red'],
+    fonts: false,
+    theme: {
+      transitions: true,
+    },
+  },
+
   // Tailwind CSS 配置
   tailwindcss: {
-    cssPath: '~/assets/css/tailwind.css',
-    configPath: '~/tailwind.config.js',
-    exposeConfig: true,
+    cssPath: '~/assets/styles/main.css',
+    configPath: 'tailwind.config.js',
+    exposeConfig: false,
     viewer: false,
   },
-  // Nuxt UI 配置
-  ui: {
-    safelistColors: ['primary', 'gray', 'green', 'red', 'yellow', 'blue', 'pink', 'orange'],
-    global: true,
-    prefix: 'U',
-    icons: false,
-  },
+  
   pinia: {
     autoImports: ['defineStore', 'acceptHMRUpdate', 'storeToRefs'],
   },
   imports: {
     dirs: ['stores', 'composables', 'utils'],
-    // 自动导入Nuxt组合API
+    global: true,
     presets: [
       {
         from: 'vue',
@@ -44,12 +97,6 @@ export default defineNuxtConfig({
       }
     ]
   },
-  css: [
-    '@/assets/styles/main.scss',
-    '@/assets/styles/animations.scss',
-    '@/assets/styles/slideover.scss',
-    '@/assets/styles/icons.scss'
-  ],
   app: {
     head: {
       title: "Conder's blog",
@@ -70,15 +117,12 @@ export default defineNuxtConfig({
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' }
       ]
     },
-    // 全局页面和布局过渡效果
+    // 更新页面和布局过渡效果，使用简单的淡入淡出，避免复杂过渡带来的问题
     pageTransition: {
-      name: 'page-slide',
+      name: 'fade',
       mode: 'out-in'
     },
-    layoutTransition: {
-      name: 'layout-fade',
-      mode: 'out-in'
-    }
+    layoutTransition: false // 禁用布局过渡以避免嵌套过渡问题
   },
   runtimeConfig: {
     // 私有配置，不暴露给客户端
@@ -89,6 +133,10 @@ export default defineNuxtConfig({
       apiBase: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
       // 网站URL，用于SEO和分享
       siteUrl: process.env.SITE_URL || 'http://localhost:3334',
+      // 禁用一些在线服务
+      offline: true,
+      // 禁用 Google Fonts
+      googleFontsDisabled: true,
     }
   },
   nitro: {
@@ -123,11 +171,12 @@ export default defineNuxtConfig({
   components: {
     global: true,
     dirs: [
+      // 自定义组件
       {
         path: '~/components',
         pathPrefix: false,
         extensions: ['.vue'],
-        priority: 1 // 设置优先级高于默认值
+        priority: 1
       }
     ]
   },
@@ -185,30 +234,6 @@ export default defineNuxtConfig({
     '/tag/**': { isr: 900 },
     '/category/**': { isr: 900 },
   },
-  vite: {
-    css: {
-      preprocessorOptions: {
-        scss: {
-          // 不使用全局scss变量，避免与CSS变量冲突
-          additionalData: '@import "@/assets/styles/mixin.scss";',
-          api: "modern-compiler",
-          silenceDeprecations: ["legacy-js-api", "import"]
-        }
-      }
-    },
-    // 添加 SVG Loader 插件
-    plugins: [
-      require('vite-svg-loader')()
-    ],
-    // 优化构建性能
-    optimizeDeps: {
-      include: ['vue', 'vue-router', 'pinia', '@vueuse/core']
-    },
-    // 减少构建警告
-    build: {
-      chunkSizeWarningLimit: 1000
-    }
-  },
   colorMode: {
     preference: 'system',
     fallback: 'light',
@@ -226,6 +251,7 @@ export default defineNuxtConfig({
     siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3334',
     autoLastmod: true,
   },
+  // 解决 robots 与 sitemap 的冲突
   robots: {
     rules: {
       UserAgent: '*',
@@ -233,5 +259,22 @@ export default defineNuxtConfig({
       Sitemap: 'sitemap.xml'
     },
     configPath: '~/robots.config',
+    moduleConfig: {
+      // 指示 robots 模块不修改 sitemap 相关配置
+      sitemap: false
+    }
   },
-}) 
+  // 禁用Google Fonts自动加载
+  googleFonts: {
+    download: false,
+    families: {}
+  },
+  // 配置字体处理
+  fonts: false,
+  
+  // 配置本地SVG图标 - 直接使用vite-svg-loader更直观
+  icon: {
+    size: '24px',
+    class: 'icon',
+  },
+})

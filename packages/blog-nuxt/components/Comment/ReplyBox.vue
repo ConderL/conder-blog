@@ -4,13 +4,13 @@
       <div class="reply-box-avatar">
         <ClientOnly>
           <img
-            class="avatar"
+            class="shoka-avatar"
             v-if="userStore.userInfo?.avatar"
             :src="userStore.userInfo.avatar"
             alt="用户头像"
           />
           <img
-            class="avatar"
+            class="shoka-avatar"
             v-else
             :src="blogStore.blogInfo.siteConfig.touristAvatar || 'https://img.conder.top/config/default_avatar.jpg'"
             alt="游客头像"
@@ -18,7 +18,7 @@
           
           <template #fallback>
             <img
-              class="avatar"
+              class="shoka-avatar"
               src="https://img.conder.top/config/default_avatar.jpg"
               alt="默认头像"
             />
@@ -43,28 +43,7 @@
       </div>
     </div>
     <div class="box-expand">
-      <div class="emoji-container">
-        <div class="emoji-tabs">
-          <span 
-            v-for="(tab, index) in emojiTabs" 
-            :key="index"
-            :class="{ active: emojiType === index }"
-            @click="handleType(index)"
-          >
-            {{ tab }}
-          </span>
-        </div>
-        <div class="emoji-list">
-          <span 
-            v-for="emoji in getEmojiList()"
-            :key="emoji"
-            class="emoji-item"
-            @click="handleEmoji(emoji)"
-          >
-            {{ emoji }}
-          </span>
-        </div>
-      </div>
+      <Emoji @addEmoji="handleEmoji" @chooseType="handleType"></Emoji>
     </div>
   </div>
 </template>
@@ -124,27 +103,10 @@ const data = reactive({
 // 解构状态
 const { nickname, sendActive, show, commentContent, emojiType, commentForm } = toRefs(data);
 
-// 表情选项卡
-const emojiTabs = ['常用', '表情', '动物'];
-
 // 计算属性：placeholder文本
 const placeholderText = computed(() =>
   nickname.value ? `回复 @${nickname.value}：` : "发一条友善的评论"
 );
-
-// 根据类型获取表情列表
-function getEmojiList() {
-  switch (emojiType.value) {
-    case 0: // 常用
-      return ['😊', '😢', '😃', '😛', '❤️', '👍', '🎉', '🔥'];
-    case 1: // 表情
-      return ['😄', '😭', '🤔', '😡', '😱', '🤣', '😴', '🥰'];
-    case 2: // 动物
-      return ['🐶', '🐱', '🐼', '🐰', '🦊', '🐻', '🐨', '🦁'];
-    default:
-      return [];
-  }
-}
 
 // 处理输入变化
 function inputActive() {
@@ -152,14 +114,14 @@ function inputActive() {
 }
 
 // 处理添加表情
-function handleEmoji(emoji: string) {
-  commentContent.value += emoji;
+function handleEmoji(key: string) {
+  commentContent.value += key;
   sendActive.value = true;
 }
 
 // 处理切换表情类型
-function handleType(type: number) {
-  emojiType.value = type;
+function handleType(key: number) {
+  emojiType.value = key;
 }
 
 // 处理添加评论
@@ -170,7 +132,7 @@ function handleAdd() {
   }
   
   if (commentContent.value.trim() === "") {
-    alert("评论不能为空");
+    window.$message?.error("评论不能为空");
     return;
   }
 
@@ -180,21 +142,37 @@ function handleAdd() {
     emojiType.value,
   );
 
-  // 在实际项目中调用API发送评论
-  // 这里模拟API调用
-  setTimeout(() => {
-    sendActive.value = false;
-    commentContent.value = "";
-    
-    if (blogStore.blogInfo.siteConfig.commentCheck) {
-      alert("评论成功，正在审核中");
-    } else {
-      alert("评论成功");
+  // 调用API发送评论
+  $fetch('/api/comments/add', {
+    method: 'POST',
+    body: {
+      typeId: commentForm.value.typeId,
+      commentType: commentForm.value.commentType,
+      commentContent: commentForm.value.commentContent,
+      replyId: commentForm.value.replyId,
+      toUid: commentForm.value.toUid,
+      parentId: commentForm.value.parentId
     }
-    
-    // 重新加载评论列表
-    emit("reload");
-  }, 500);
+  })
+  .then((response: any) => {
+    if (response.flag) {
+      sendActive.value = false;
+      commentContent.value = "";
+      
+      if (blogStore.blogInfo.siteConfig.commentCheck) {
+        window.$message?.warning("评论成功，正在审核中");
+      } else {
+        window.$message?.success("评论成功");
+      }
+      
+      // 重新加载评论列表
+      emit("reload");
+    }
+  })
+  .catch(error => {
+    console.error("评论提交失败:", error);
+    window.$message?.error("评论提交失败，请稍后再试");
+  });
 }
 
 // 设置回复状态
@@ -207,97 +185,4 @@ defineExpose({ commentForm, nickname, setReply });
 </script>
 
 <style lang="scss" scoped>
-.reply-box {
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  background-color: var(--card-bg);
-  
-  .box-normal {
-    display: flex;
-    padding: 1rem;
-    
-    .reply-box-avatar {
-      margin-right: 1rem;
-      
-      .avatar {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-    }
-    
-    .reply-box-warp {
-      flex: 1;
-      
-      .reply-box-textarea {
-        width: 100%;
-        min-height: 5rem;
-        padding: 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background-color: var(--card-bg);
-        resize: vertical;
-        transition: all 0.3s;
-        
-        &:focus {
-          outline: none;
-          border-color: var(--color-pink);
-        }
-      }
-    }
-    
-    .reply-box-send {
-      margin-left: 1rem;
-      align-self: flex-end;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      background-color: var(--grey-4);
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s;
-      
-      &.send-active {
-        background-color: var(--color-pink);
-      }
-    }
-  }
-  
-  .box-expand {
-    padding: 0 1rem 1rem;
-    
-    .emoji-container {
-      .emoji-tabs {
-        display: flex;
-        margin-bottom: 0.5rem;
-        
-        span {
-          padding: 0.25rem 0.75rem;
-          cursor: pointer;
-          border-radius: 4px;
-          
-          &.active {
-            background-color: var(--grey-1);
-          }
-        }
-      }
-      
-      .emoji-list {
-        display: flex;
-        flex-wrap: wrap;
-        
-        .emoji-item {
-          padding: 0.5rem;
-          font-size: 1.5rem;
-          cursor: pointer;
-          transition: transform 0.2s;
-          
-          &:hover {
-            transform: scale(1.2);
-          }
-        }
-      }
-    }
-  }
-}
 </style> 

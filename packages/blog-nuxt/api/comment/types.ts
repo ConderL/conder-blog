@@ -11,7 +11,7 @@ export interface RecentComment {
   /**
    * 昵称
    */
-  nickname: string;
+  nickname: number;
   /**
    * 头像
    */
@@ -126,4 +126,34 @@ export interface Comment {
    * 评论时间
    */
   createTime: string;
+}
+
+/**
+ * 评论表单
+ */
+export interface CommentForm {
+  /**
+   * 类型id
+   */
+  typeId?: number;
+  /**
+   * 评论类型 (1文章 2友链 3说说)
+   */
+  commentType: number;
+  /**
+   * 父评论id
+   */
+  parentId?: number;
+  /**
+   * 被回复评论id
+   */
+  replyId?: number;
+  /**
+   * 被回复用户id
+   */
+  toUid?: number;
+  /**
+   * 评论内容
+   */
+  commentContent: string;
 } 
