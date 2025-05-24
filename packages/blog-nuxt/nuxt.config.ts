@@ -277,4 +277,8 @@ export default defineNuxtConfig({
     size: '24px',
     class: 'icon',
   },
+
+  plugins: [
+    '~/plugins/auto-animate.ts'
+  ],
 })

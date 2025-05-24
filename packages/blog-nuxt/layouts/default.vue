@@ -14,6 +14,7 @@
       <!-- 抽屉菜单 -->
       <ClientOnly>
         <Drawer />
+        <Tool />
       </ClientOnly>
     </div>
 </template>

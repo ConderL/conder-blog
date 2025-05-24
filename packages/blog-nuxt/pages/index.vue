@@ -8,7 +8,7 @@
   
   <div class="bg">
     <div class="main-container">
-      <div class="left-container" :class="app?.sideFlag ? 'test' : ''">
+      <div class="left-container" :class="app?.sideFlag ? 'test' : ''" v-auto-animate>
         <!-- 说说 -->
         <TalkSwiper></TalkSwiper>
         <!-- 推荐文章 -->
@@ -17,7 +17,7 @@
         <ArticleItem></ArticleItem>
       </div>
       
-      <div class="right-container" :class="app?.sideFlag ? 'temp' : ''">
+      <div class="right-container" :class="app?.sideFlag ? 'temp' : ''" v-auto-animate>
         <!-- 作者信息 -->
         <div class="side-card">
           <AuthorInfo />

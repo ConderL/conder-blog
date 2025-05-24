@@ -15,13 +15,13 @@
       @update:page="handlePageChange"
     >
       <template #first>
-        <UButton class="!pl-[6px] !bg-transparent text-[var(--grey-5)]">
+        <UButton class="!bg-transparent text-[var(--grey-5)]">
           <AngleLeft class="pagination-icon" />
-          <AngleLeft class="pagination-icon !ml-[-13px]" />
+          <AngleLeft class="pagination-icon !ml-[-8px]" />
         </UButton>
       </template>
       <template #prev>
-        <UButton class="!pl-[10px] !bg-transparent text-[var(--grey-5)]">
+        <UButton class="!bg-transparent text-[var(--grey-5)]">
           <AngleLeft class="pagination-icon" />
         </UButton>
       </template>
@@ -29,14 +29,14 @@
         <span class="pagination-ellipsis">...</span>
       </template>
       <template #next>
-        <UButton class="!pl-[10px] !bg-transparent text-[var(--grey-5)]">
+        <UButton class="!bg-transparent text-[var(--grey-5)]">
           <AngleRight class="pagination-icon" />
         </UButton>
       </template>
       <template #last>
-        <UButton class="!pl-[6px] !bg-transparent text-[var(--grey-5)]">
+        <UButton class="!bg-transparent text-[var(--grey-5)]">
           <AngleRight class="pagination-icon" />
-          <AngleRight class="pagination-icon !ml-[-13px]" />
+          <AngleRight class="pagination-icon !ml-[-8px]" />
         </UButton>
       </template>
     </UPagination>

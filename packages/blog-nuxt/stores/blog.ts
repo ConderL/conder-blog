@@ -69,13 +69,17 @@ export const useBlogStore = defineStore('blog', () => {
     }
   } as BlogInfo);
 
+  // 添加侧边栏标志
+  const sideFlag = ref(false);
+
   function setBlogInfo(data: BlogInfo) {
     blogInfo.value = data;
   }
 
   return {
     blogInfo,
-    setBlogInfo
+    setBlogInfo,
+    sideFlag
   };
 }, {
   persist: {
