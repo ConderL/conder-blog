@@ -53,7 +53,7 @@
               v-show="!captchaLoading"
             />
             <div v-show="captchaLoading" class="w-full h-full flex items-center justify-center">
-              <UIcon name="update" class="animate-spin" />
+              <UIcon name="icon:update" class="animate-spin" />
             </div>
           </div>
           <div
@@ -61,7 +61,7 @@
             class="w-32 h-10 flex-shrink-0 flex items-center justify-center cursor-pointer"
             @click="initCaptcha"
           >
-            <UIcon name="update" class="animate-spin" />
+            <UIcon name="icon:update" class="animate-spin" />
           </div>
         </div>
       </UFormField>

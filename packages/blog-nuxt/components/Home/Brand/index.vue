@@ -14,17 +14,13 @@
 			<Waves></Waves>
 		</client-only>
 		<!-- 向下按钮 -->
-		<DownIcon
-			class="arrow-down"
-			@click="scrollDown"
-		/>
+		<UIcon name="icon:down" class="arrow-down" @click="scrollDown" />
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted } from 'vue';
 import Waves from '../../Waves/index.vue';
-import DownIcon from '~/assets/icons/down.svg';
 
 const blog = useBlogStore();
 const obj = reactive({

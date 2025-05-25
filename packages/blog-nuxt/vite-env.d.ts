@@ -1,5 +1,4 @@
 /// <reference types="vite/client" />
-/// <reference types="vite-svg-loader" />
 
 // 声明SVG模块，使其可以作为Vue组件导入
 declare module '*.svg' {

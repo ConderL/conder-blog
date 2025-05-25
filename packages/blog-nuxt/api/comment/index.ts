@@ -1,6 +1,6 @@
+import type { AxiosPromise } from "axios";
 import type { Result, PageResult } from "../../model";
 import request from "../../utils/request";
-import type { AxiosPromise } from "axios";
 import type { RecentComment, CommentQuery, Comment, CommentForm, Reply, PageQuery } from "./types";
 
 /**

@@ -16,13 +16,13 @@
     >
       <template #first>
         <UButton class="!bg-transparent text-[var(--grey-5)]">
-          <AngleLeft class="pagination-icon" />
-          <AngleLeft class="pagination-icon !ml-[-8px]" />
+          <UIcon name="icon:angle-left" class="pagination-icon" />
+          <UIcon name="icon:angle-left" class="pagination-icon !ml-[-8px]" />
         </UButton>
       </template>
       <template #prev>
         <UButton class="!bg-transparent text-[var(--grey-5)]">
-          <AngleLeft class="pagination-icon" />
+          <UIcon name="icon:angle-left" class="pagination-icon" />
         </UButton>
       </template>
       <template #ellipsis>
@@ -30,13 +30,13 @@
       </template>
       <template #next>
         <UButton class="!bg-transparent text-[var(--grey-5)]">
-          <AngleRight class="pagination-icon" />
+          <UIcon name="icon:angle-right" class="pagination-icon" />
         </UButton>
       </template>
       <template #last>
         <UButton class="!bg-transparent text-[var(--grey-5)]">
-          <AngleRight class="pagination-icon" />
-          <AngleRight class="pagination-icon !ml-[-8px]" />
+          <UIcon name="icon:angle-right" class="pagination-icon" />
+          <UIcon name="icon:angle-right" class="pagination-icon !ml-[-8px]" />
         </UButton>
       </template>
     </UPagination>
@@ -45,8 +45,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import AngleLeft from '~/assets/icons/angle-left.svg'
-import AngleRight from '~/assets/icons/angle-right.svg'
 
 const emit = defineEmits(["update:current"]);
 const props = defineProps({

@@ -1,5 +1,4 @@
 <template>
-  <div>
   <!-- 背景轮播 -->
   <Images></Images>
   
@@ -8,7 +7,7 @@
   
   <div class="bg">
     <div class="main-container">
-      <div class="left-container" :class="app?.sideFlag ? 'test' : ''" v-auto-animate>
+      <div v-auto-animate class="left-container" :class="app?.sideFlag ? 'test' : ''">
         <!-- 说说 -->
         <TalkSwiper></TalkSwiper>
         <!-- 推荐文章 -->
@@ -17,7 +16,7 @@
         <ArticleItem></ArticleItem>
       </div>
       
-      <div class="right-container" :class="app?.sideFlag ? 'temp' : ''" v-auto-animate>
+      <div v-auto-animate class="right-container" :class="app?.sideFlag ? 'temp' : ''">
         <!-- 作者信息 -->
         <div class="side-card">
           <AuthorInfo />
@@ -33,7 +32,6 @@
         <!-- 最新评论 -->
         <div class="side-card">
           <RecentComment />
-          </div>
         </div>
       </div>
     </div>
@@ -41,8 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { getBlogInfo } from '../api/blogInfo';
 import { onServerPrefetch } from 'vue';
+import { getBlogInfo } from '../api/blogInfo';
 
 // 导入组件
 import Images from '../components/Home/Swiper/Images.vue';

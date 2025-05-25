@@ -1,5 +1,5 @@
-import { defineNuxtPlugin } from '#app';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import { defineNuxtPlugin } from '#app';
 
 /**
  * 持久化存储插件

@@ -3,30 +3,30 @@ import { ref, computed } from 'vue';
 import { getSafeStorage } from '~/utils/storage';
 
 export interface SiteConfig {
-  siteName?: string;
-  siteAuthor?: string;
-  siteIntro?: string;
-  siteUrl?: string;
-  siteAvatar?: string;
-  siteNotice?: string;
-  createSiteTime?: string;
-  touristAvatar?: string;
-  commentCheck?: boolean;
-  recordNumber?: string;
-  authorAvatar?: string;
-  siteAddress?: string;
-  weiXinCode?: string;
-  aliCode?: string;
-  isReward?: boolean;
-  isEmailNotice?: boolean;
-  isCommentReview?: boolean;
-  isMessageReview?: boolean;
-  socialUrlList?: any[];
+    siteName?: string;
+    siteAuthor?: string;
+    siteIntro?: string;
+    siteUrl?: string;
+    siteAvatar?: string;
+    siteNotice?: string;
+    createSiteTime?: string;
+    touristAvatar?: string;
+    commentCheck?: boolean;
+    recordNumber?: string;
+    authorAvatar?: string;
+    siteAddress?: string;
+    weiXinCode?: string;
+    aliCode?: string;
+    isReward?: boolean;
+    isEmailNotice?: boolean;
+    isCommentReview?: boolean;
+    isMessageReview?: boolean;
+    socialUrlList?: any[];
   socialLoginList?: string;
-  qq?: string;
-  github?: string;
-  gitee?: string;
-  bilibili?: string;
+    qq?: string;
+    github?: string;
+    gitee?: string;
+    bilibili?: string;
 }
 
 export interface BlogInfo {
@@ -74,18 +74,18 @@ export const useBlogStore = defineStore('blog', () => {
   
   // 站点信息
   const siteConfig = computed(() => blogInfo.value?.siteConfig || {});
-  
+
   // 社交登录列表
   const loginList = computed(() => {
     const list = siteConfig.value?.socialLoginList?.split(',') || [];
     return list.filter(item => item);
   });
-  
+
   // 更新博客信息
   function setBlogInfo(info: BlogInfo) {
     blogInfo.value = info;
   }
-  
+
   return {
     blogInfo,
     siteConfig,

@@ -36,7 +36,7 @@
               v-show="!captchaLoading"
             />
             <div v-show="captchaLoading" class="w-full h-full flex items-center justify-center">
-              <UIcon name="update" class="animate-spin" />
+              <UIcon name="icon:update" class="animate-spin" />
             </div>
           </div>
           <div
@@ -44,7 +44,7 @@
             class="w-32 h-10 flex-shrink-0 flex items-center justify-center cursor-pointer"
             @click="initCaptcha"
           >
-            <UIcon name="update" class="animate-spin" />
+            <UIcon name="icon:update" class="animate-spin" />
           </div>
         </div>
       </UFormField>
@@ -74,13 +74,13 @@
         </div>
         <div class="flex justify-center gap-6 mt-3">
           <div v-if="showLogin('qq')" @click="qqLogin" class="cursor-pointer hover:opacity-80 transition-opacity">
-            <UIcon name="qq" class="text-[#00aaee] w-8 h-8 hover:scale-110 transition-transform" />
+            <UIcon name="icon:qq" class="text-[#00aaee] w-8 h-8 hover:scale-110 transition-transform" />
           </div>
           <div v-if="showLogin('gitee')" @click="giteeLogin" class="cursor-pointer hover:opacity-80 transition-opacity">
-            <UIcon name="gitee" class="w-8 h-8 hover:scale-110 transition-transform" />
+            <UIcon name="icon:gitee" class="w-8 h-8 hover:scale-110 transition-transform" />
           </div>
           <div v-if="showLogin('github')" @click="githubLogin" class="cursor-pointer hover:opacity-80 transition-opacity">
-            <UIcon name="github" class="w-8 h-8 hover:scale-110 transition-transform" />
+            <UIcon name="icon:github" class="w-8 h-8 hover:scale-110 transition-transform" />
           </div>
         </div>
       </div>

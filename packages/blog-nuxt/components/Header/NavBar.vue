@@ -8,20 +8,20 @@
 		<template v-for="menu of menuList" :key="menu.name">
 			<div v-if="!menu.children" class="menu-item" :class="{ active: route.meta.title === menu.name }">
 				<NuxtLink :to="menu.path" class="menu-btn">
-					<component :is="getIconComponent(menu.icon)" class="icon" />
+					<UIcon :name="`i-icon-${menu.icon}`" class="icon" />
 					{{ menu.name }}
 				</NuxtLink>
 			</div>
 			<div v-else class="menu-item dropdown">
 				<a class="menu-btn drop">
-					<component :is="getIconComponent(menu.icon)" class="icon" />
+					<UIcon :name="`i-icon-${menu.icon}`" class="icon" />
 					{{ menu.name }}
 				</a>
 				<ul class="submenu">
 					<li class="subitem" v-for="submenu of menu.children" :key="submenu.name"
 						:class="{ active: route.meta.title === submenu.name }">
 						<NuxtLink class="link" :to="submenu.path">
-							<component :is="getIconComponent(submenu.icon)" class="icon" />
+							<UIcon :name="`i-icon-${submenu.icon}`" class="icon" />
 							{{ submenu.name }}
 						</NuxtLink>
 					</li>
@@ -31,7 +31,7 @@
 		<div class="menu-item">
 			<ClientOnly>
 				<a v-if="!user.userInfo.id" @click="app.setLoginFlag(true)" class="menu-btn">
-					<component :is="getIconComponent('user')" class="icon" />
+					<UIcon name="i-icon-user" class="icon" />
 					登录
 				</a>
 				<template v-else>
@@ -39,13 +39,13 @@
 					<ul class="submenu">
 						<li class="subitem" :class="{ active: route.meta.title === '个人中心' }">
 							<NuxtLink to="/user" class="link">
-								<component :is="getIconComponent('author')" class="icon" />
+								<UIcon name="i-icon-user" class="icon" />
 								个人中心
 							</NuxtLink>
 						</li>
 						<li class="subitem">
 							<a class="link" @click="logout">
-								<component :is="getIconComponent('logout')" class="icon" />
+								<UIcon name="i-icon-logout" class="icon" />
 								退出
 							</a>
 						</li>
@@ -58,22 +58,6 @@
 
 <script setup>
 import { computed, ref, onMounted } from 'vue';
-// 导入SVG图标
-import HomeIcon from '~/assets/icons/home.svg';
-import ArticleIcon from '~/assets/icons/article.svg';
-import ArchivesIcon from '~/assets/icons/archives.svg';
-import CategoryIcon from '~/assets/icons/category.svg';
-import TagIcon from '~/assets/icons/tag.svg';
-import FunIcon from '~/assets/icons/fun.svg';
-import TalkIcon from '~/assets/icons/talk.svg';
-import AlbumIcon from '~/assets/icons/album.svg';
-import FriendIcon from '~/assets/icons/friend.svg';
-import MessageIcon from '~/assets/icons/message.svg';
-import PlaneIcon from '~/assets/icons/plane.svg';
-import UserIcon from '~/assets/icons/user.svg';
-import AuthorIcon from '~/assets/icons/author.svg';
-import LogoutIcon from '~/assets/icons/logout.svg';
-
 const user = useUserStore();
 const app = useAppStore();
 const blog = useBlogStore();
@@ -95,27 +79,6 @@ onMounted(() => {
   }
 });
 
-// 根据图标名称获取对应的图标组件
-const getIconComponent = (iconName) => {
-  const iconMap = {
-    'home': HomeIcon,
-    'article': ArticleIcon,
-    'archives': ArchivesIcon,
-    'category': CategoryIcon,
-    'tag': TagIcon,
-    'fun': FunIcon,
-    'talk': TalkIcon,
-    'album': AlbumIcon,
-    'friend': FriendIcon,
-    'message': MessageIcon,
-    'plane': PlaneIcon,
-    'user': UserIcon,
-    'author': AuthorIcon,
-    'logout': LogoutIcon
-  };
-  
-  return iconMap[iconName] || null;
-};
 
 const menuList = [
 	{

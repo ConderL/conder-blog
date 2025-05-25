@@ -1,6 +1,6 @@
 // plugins/auto-animate.ts
-import { defineNuxtPlugin } from '#app'
 import autoAnimate from '@formkit/auto-animate'
+import { defineNuxtPlugin } from '#app'
 
 export default defineNuxtPlugin((nuxtApp) => {
   // 添加 v-auto-animate 指令

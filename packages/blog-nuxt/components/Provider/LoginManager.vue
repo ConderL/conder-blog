@@ -1,6 +1,6 @@
 <template>
   <!-- 使用Nuxt UI的Modal组件 -->
-  <UModal v-model:open="app.loginFlag" :ui="modalUI" closeIcon="close">
+  <UModal v-model:open="app.loginFlag" :ui="modalUI" close-icon="close">
     <template #body>
       <!-- 使用Dialog/Login组件 -->
       <Login 
@@ -13,18 +13,6 @@
   
   <!-- 注册对话框 -->
   <UModal v-model:open="app.registerFlag" :ui="modalUI">
-    <template #header>
-      <div class="flex items-center justify-between w-full">
-        <div class="text-xl font-semibold">注册</div>
-        <UButton
-          color="gray"
-          variant="ghost"
-          icon="close"
-          size="sm"
-          @click="app.setRegisterFlag(false)"
-        />
-      </div>
-    </template>
     
     <template #body>
       <!-- 使用Dialog/Register组件 -->
@@ -37,19 +25,6 @@
   
   <!-- 忘记密码对话框 -->
   <UModal v-model:open="app.forgetFlag" :ui="modalUI">
-    <template #header>
-      <div class="flex items-center justify-between w-full">
-        <div class="text-xl font-semibold">忘记密码</div>
-        <UButton
-          color="gray"
-          variant="ghost"
-          icon="close"
-          size="sm"
-          @click="app.setForgetFlag(false)"
-        />
-      </div>
-    </template>
-    
     <template #body>
       <!-- 使用Dialog/Forget组件 -->
       <Forget 

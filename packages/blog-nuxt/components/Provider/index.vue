@@ -7,10 +7,8 @@
 </template>
 
 <script setup lang="ts">
-// 使用defineComponent定义组件名称
-defineComponent({
-  name: 'Provider'
-});
+// 定义组件名称
+defineComponent('Provider');
 
 // 页面初始化时加载用户信息
 onMounted(async () => {

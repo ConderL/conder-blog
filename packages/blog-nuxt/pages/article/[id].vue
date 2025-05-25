@@ -7,29 +7,29 @@
         <div class="article-meta">
           <div class="first-meta">
             <span>
-              <CalendarIcon class="meta-icon" />
+              <UIcon name="icon:calendar" class="meta-icon" />
               <span class="text">发表于 </span>{{ data.formattedCreateTime }}
             </span>
             <span v-if="data.formattedUpdateTime" class="item">
-              <UpdateIcon class="meta-icon" />
+              <UIcon name="icon:update" class="meta-icon" />
               <span class="text">更新于 </span>{{ data.formattedUpdateTime }}
             </span>
             <span class="item">
-              <EyeIcon class="meta-icon" />
+              <UIcon name="icon:eye" class="meta-icon" />
               <span class="text">阅读量 </span>{{ data.article.viewCount || 0 }}
             </span>
           </div>
           <div class="second-meta">
             <span>
-              <ArticleIcon class="meta-icon" />
+              <UIcon name="icon:article" class="meta-icon" />
               <span class="text">字数统计 </span>{{ data.wordNumFormatted }} 字
             </span>
             <span class="item">
-              <ClockIcon class="meta-icon" />
+              <UIcon name="icon:clock" class="meta-icon" />
               <span class="text">阅读时长 </span>{{ data.readTime || 0 }} 分钟
             </span>
             <span v-if="data.article.category?.categoryName" class="item">
-              <CategoryIcon class="meta-icon" />
+              <UIcon name="icon:category" class="meta-icon" />
               {{ data.article.category?.categoryName }}
             </span>
           </div>
@@ -41,14 +41,14 @@
     <div class="bg">
       <div v-if="data.article" class="main-container">
         <div v-auto-animate="{duration: 300}" class="flex w-full">
-          <div class="bg-white rounded-lg" key="main">
+          <div key="main" class="bg-white rounded-lg">
             <div class="article-container">
               <!-- 仅MdPreview组件需要客户端渲染 -->
               <ClientOnly>
                 <MdPreview
                   v-if="data.articleLoaded"
-                  editorId="preview-only"
-                  :modelValue="data.article.articleContent"
+                  editor-id="preview-only"
+                  :model-value="data.article.articleContent"
                   class="md-preview-custom"
                 />
               </ClientOnly>
@@ -61,7 +61,7 @@
                     :to="`/tag/${tag.id}`"
                     class="article-tag"
                   >
-                    <TagIcon class="tag-icon" />
+                    <UIcon name="icon:tag" class="tag-icon" />
                     {{ tag.tagName }}
                   </NuxtLink>
                   
@@ -78,7 +78,7 @@
                 
                 <div class="reward">
                   <button class="btn" :class="data.isLiked ? 'like-btn-active' : 'like-btn'" @click="like">
-                    <LikeIcon class="btn-icon" />
+                    <UIcon name="icon:like" class="btn-icon" />
                     点赞
                     <span>{{ data.article.likeCount || 0 }}</span>
                   </button>
@@ -86,7 +86,7 @@
                   <ClientOnly v-if="data.isReward">
                     <div class="reward-container">
                       <button class="btn reward-btn" @click="showReward = !showReward">
-                        <QrCodeIcon class="btn-icon" />
+                        <UIcon name="icon:qr_code" class="btn-icon" />
                         打赏
                       </button>
                       
@@ -118,18 +118,18 @@
                 <div class="copyright">
                   <ul>
                     <li class="author">
-                      <UserIcon class="copyright-icon" />
+                      <UIcon name="icon:user" class="copyright-icon" />
                       <strong>本文作者： </strong>{{ data.siteAuthor }}
                     </li>
                     <li class="link">
-                      <ArticleLinkIcon class="copyright-icon" />
+                      <UIcon name="icon:article_link" class="copyright-icon" />
                       <strong>本文链接：</strong>
                       <a :href="articleUrl">
                         {{ articleUrl }}
                       </a>
                     </li>
                     <li class="license">
-                      <CopyIcon class="copyright-icon" />
+                      <UIcon name="icon:copy" class="copyright-icon" />
                       <strong>版权声明： </strong>本站所有文章除特别声明外，均采用
                       <a
                         href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"
@@ -176,23 +176,23 @@
           
           <div v-if="!data.sideFlag" :class="data.sideFlag ? '!w-0' : ''">
             <!-- 仅在侧边栏打开时显示 -->
-            <div class="ml-4 w-[300px] right-container" key="sidebar">
-              <div class="side-card" key="catalog">
-                <CategoryIcon class="side-icon" />
+            <div key="sidebar" class="ml-4 w-[300px] right-container">
+              <div key="catalog" class="side-card">
+                <UIcon name="icon:category" class="side-icon" />
                 目录
                 <!-- 仅目录组件需要客户端渲染 -->
                 <ClientOnly>
                   <MdCatalog
                     v-if="data.articleLoaded && isMounted"
-                    editorId="preview-only"
-                    :scrollElement="scrollElement"
+                    editor-id="preview-only"
+                    :scroll-element="scrollElement"
                   />
                 </ClientOnly>
               </div>
               
               <!-- 推荐文章 -->
-              <div v-if="data.recommendedArticles.length > 0" class="side-card" key="recommended">
-                <TopIcon class="side-icon" />
+              <div v-if="data.recommendedArticles.length > 0" key="recommended" class="side-card">
+                <UIcon name="icon:top" class="side-icon" />
                 推荐文章
                 <div class="recommend-list">
                   <NuxtLink 
@@ -215,23 +215,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, reactive } from 'vue';
-import { getArticle, likeArticle, unlikeArticle } from '~/api/article';
 import { MdCatalog, MdPreview } from 'md-editor-v3';
+import { getArticle, likeArticle, unlikeArticle } from '~/api/article';
 import 'md-editor-v3/lib/preview.css';
 import { ClickDebouncer } from '~/utils/debounce';
-import CalendarIcon from '~/assets/icons/calendar.svg';
-import UpdateIcon from '~/assets/icons/update.svg';
-import EyeIcon from '~/assets/icons/eye.svg';
-import ArticleIcon from '~/assets/icons/article.svg';
-import ClockIcon from '~/assets/icons/clock.svg';
-import CategoryIcon from '~/assets/icons/category.svg';
-import TagIcon from '~/assets/icons/tag.svg';
-import LikeIcon from '~/assets/icons/like.svg';
-import QrCodeIcon from '~/assets/icons/qr_code.svg';
-import UserIcon from '~/assets/icons/user.svg';
-import ArticleLinkIcon from '~/assets/icons/article_link.svg';
-import CopyIcon from '~/assets/icons/copy.svg';
-import TopIcon from '~/assets/icons/top.svg';
 
 // 在store初始化之前获取侧边栏状态
 const initialSideFlag = ref(false);
@@ -244,7 +231,7 @@ const blog = useBlogStore();
 // 获取路由信息
 const route = useRoute();
 const config = useRuntimeConfig();
-const articleId = Number(route.params.id);
+let articleId = Number(route.params.id);
 const articleUrl = computed(() => `${config.public.siteUrl || window.location.origin}/article/${articleId}`);
 
 // 客户端状态
@@ -324,7 +311,7 @@ const like = async () => {
     return;
   }
   
-  let id = data.article.id;
+  const id = data.article.id;
   
   // 使用防抖器检查是否可以点赞，防止快速多次点击
   if (!likeDebouncer.canClick(id)) {
@@ -333,7 +320,7 @@ const like = async () => {
   
   try {
     // 判断当前是否已点赞
-    if (user.articleLikeSet.indexOf(id) != -1) {
+    if (user.articleLikeSet.includes(id)) {
       // 已点赞，调用取消点赞API
       const response = await $fetch(`/api/articles/${id}/unlike`, { method: 'POST' });
       if (response.flag) {
@@ -395,7 +382,7 @@ const fetchArticleData = async () => {
     data.formattedUpdateTime = data.article.updateTime ? formatDateString(data.article.updateTime) : '';
     
     // 4. 检查用户是否已点赞此文章
-    data.isLiked = user.articleLikeSet.indexOf(data.article.id) !== -1;
+    data.isLiked = user.articleLikeSet.includes(data.article.id);
     
     // 5. 从博客配置中获取打赏码等信息
     const siteConfig = blog.blogInfo.siteConfig || {};
@@ -504,7 +491,7 @@ definePageMeta({
 </script>
 
 <style lang="scss" scoped>
-@import "~/assets/styles/mixin.scss";
+@use "~/assets/styles/mixin.scss";
 
 /* 添加主容器样式 */
 .main-container {
@@ -547,7 +534,7 @@ definePageMeta({
 }
 
 .article-meta {
-  @include flex;
+  @include mixin.flex;
   flex-direction: column;
   font-size: 0.875rem;
 

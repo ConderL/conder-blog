@@ -1,53 +1,15 @@
 // https://nuxt.com/docs/guide/directory-structure/app-config
 export default defineAppConfig({
+  // 添加icon配置
+  icon: {
+    mode: 'svg', // 使用SVG模式而不是CSS模式
+    class: 'icon', // 默认类名
+    customize: (content) => {
+      // 确保SVG使用currentColor
+      return content.replace(/fill="([^"]*)"/, 'fill="currentColor"')
+    }
+  },
   ui: {
-    // 主题配置 - 使用theme-shoka.scss中的颜色
-    primary: 'pink',
-    colors: ['pink'],
-    
-    // 图标配置 - 自定义图标映射
-    icons: {
-      dynamic: {
-        // 使用本地SVG图标，使用统一前缀
-        arrowLeft: 'icon-local:angle-left',
-        arrowRight: 'icon-local:angle-right',
-        check: 'icon-local:check',
-        chevronDoubleLeft: 'icon-local:angle-left',
-        chevronDoubleRight: 'icon-local:angle-right',
-        chevronDown: 'icon-local:down',
-        chevronLeft: 'icon-local:angle-left',
-        chevronRight: 'icon-local:angle-right',
-        chevronUp: 'icon-local:up',
-        close: 'icon-local:close',
-        ellipsis: 'icon-local:more',
-        external: 'icon-local:link',
-        loading: 'icon-local:update',
-        minus: 'icon-local:minus',
-        plus: 'icon-local:plus',
-        search: 'icon-local:search',
-        // 添加缺少的图标
-        'chevrons-left': 'icon-local:angle-left',
-        'chevrons-right': 'icon-local:angle-right',
-        // 为Tool组件添加的图标
-        'heng': 'icon-local:heng',
-        'comments': 'icon-local:comments',
-        'up': 'icon-local:up',
-        // emoji图标
-        'emoji': 'icon-local:emoji',
-        // 登录相关图标
-        'user': 'icon-local:user',
-        'author': 'icon-local:author',
-        'logout': 'icon-local:logout',
-        'github': 'icon-local:github',
-        'gitee': 'icon-local:gitee',
-        'qq': 'icon-local:qq',
-        // 常用操作图标
-        'update': 'icon-local:update',
-        'message': 'icon-local:message',
-        'i-lucide-x': 'icon-local:close'
-      }
-    },
-    
     // 分页组件配置 - 使用最新的Nuxt UI API
     pagination: {
       default: {
@@ -100,6 +62,82 @@ export default defineAppConfig({
       slots: {
         root: 'w-full',
         base: 'h-10 placeholder:text-[var(--grey-4)]'
+      }
+    },
+    // 添加Toast组件配置
+    toast: {
+      // 默认配置
+      default: {
+        position: 'top-right',
+        timeout: 3000,
+        progress: true,
+        closeButton: {
+          icon: 'i-icon-close',
+          size: 'sm'
+        },
+        shadow: 'shadow-lg',
+        rounded: 'rounded-lg'
+      },
+      // 插槽样式
+      slots: {
+        root: 'relative group overflow-hidden bg-white dark:bg-gray-900 shadow-lg rounded-lg ring-1 ring-gray-200 dark:ring-gray-800 p-4 flex gap-2.5 focus:outline-none',
+        wrapper: 'w-0 flex-1 flex flex-col',
+        title: 'text-sm font-medium text-gray-900 dark:text-white',
+        description: 'text-sm text-gray-500 dark:text-gray-400 mt-1',
+        icon: 'shrink-0 size-5',
+        avatar: 'shrink-0',
+        avatarSize: '2xl',
+        actions: 'flex gap-1.5 shrink-0',
+        progress: 'absolute inset-x-0 bottom-0 h-1 z-10',
+        close: 'p-0'
+      },
+      variants: {
+        color: {
+          primary: {
+            root: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary',
+            icon: 'text-primary',
+            progress: 'bg-primary'
+          },
+          secondary: {
+            root: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-secondary',
+            icon: 'text-secondary',
+            progress: 'bg-secondary'
+          },
+          success: {
+            root: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-success',
+            icon: 'text-success',
+            progress: 'bg-success'
+          },
+          info: {
+            root: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-info',
+            icon: 'text-info',
+            progress: 'bg-info'
+          },
+          warning: {
+            root: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-warning',
+            icon: 'text-warning',
+            progress: 'bg-warning'
+          },
+          error: {
+            root: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-error',
+            icon: 'text-error',
+            progress: 'bg-error'
+          },
+          neutral: {
+            root: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-inverted',
+            icon: 'text-neutral-500 dark:text-neutral-400',
+            progress: 'bg-neutral-500 dark:bg-neutral-400'
+          }
+        }
+      }
+    },
+    // 设置Toaster组件配置
+    toaster: {
+      // 全局配置
+      defaults: {
+        position: 'top-right',
+        duration: 3000,
+        progress: true
       }
     }
   }

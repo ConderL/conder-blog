@@ -1,7 +1,7 @@
 <template>
 	<div class="reply-warp" id="reply-wrap">
 		<div class="reply-title">
-			<ChatIcon class="icon icon-md" />
+			<UIcon name="icon:comment" class="icon icon-md" />
 			评论
 		</div>
 		<ReplyBox
@@ -21,7 +21,7 @@
 				<div class="content-warp">
 					<div class="user-info">
 						<div class="user-name">{{ comment.fromNickname }}</div>
-						<BadgeIcon
+						<UIcon name="icon:badge"
 							v-if="comment.fromUid == 1"
 							class="icon"
 						/>
@@ -35,7 +35,7 @@
 							formatDateTime(comment.createTime)
 						}}</span>
 						<span class="reply-like" @click="like(comment)">
-							<LikeIcon
+							<UIcon name="icon:like"
 								class="icon"
 								:class="isLike(comment.id)"
 							/>
@@ -81,7 +81,7 @@
 								formatDateTime(reply.createTime)
 							}}</span>
 							<span class="reply-like" @click="like(reply)">
-								<LikeIcon
+								<UIcon name="icon:like"
 									class="icon"
 									:class="isLike(reply.id)"
 								/>
@@ -146,10 +146,7 @@ import { useAppStore } from '~/stores/app';
 import { useUserStore } from '~/stores/user';
 import { ClickDebouncer } from '~/utils/debounce';
 import { cleanupContent } from '~/utils/emojiProcessor';
-import { useAutoAnimate } from '@formkit/auto-animate/vue';
-import ChatIcon from '~/assets/icons/comment.svg';
-import BadgeIcon from '~/assets/icons/badge.svg';
-import LikeIcon from '~/assets/icons/like.svg';
+import { useAutoAnimate } from '@formkit/auto-animate/vue';	
 
 // 创建点赞防抖器实例，设置800ms防抖时间
 const likeDebouncer = new ClickDebouncer(800);
@@ -428,8 +425,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-@import "~/assets/styles/mixin.scss";
-
 .reply-title {
 	display: flex;
 	align-items: center;

@@ -1,10 +1,10 @@
 /* 样式导入顺序很重要 */
 /* Tailwind和Nuxt UI已由@nuxtjs/tailwindcss模块自动处理 */
-@import "./theme-shoka.scss";
-@import "./transition.scss";
-@import "./markdown.scss";
-@import "./common.scss";
-@import "./icons.scss";
+@use "./theme-shoka.scss";
+@use "./transition.scss";
+@use "./markdown.scss";
+@use "./common.scss";
+@use "./icons.scss";
 
 body {
 	cursor: url("../icons/normal.ico"), default;

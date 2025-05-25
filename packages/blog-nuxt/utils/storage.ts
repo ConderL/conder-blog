@@ -55,7 +55,7 @@ export const useStorage = <T>(key: string, initialValue: T) => {
       console.error('Error writing to localStorage', error);
     }
   }, { deep: true });
-  
+
   return {
     value: storedValue,
     setValue: (newValue: T) => {

@@ -6,11 +6,7 @@
         target="_blank"
         :href="item.href"
       >
-        <component 
-          :is="getSocialIcon(item.type)" 
-          class="social-icon"
-          :style="{ color: item.color }"
-        />
+        <UIcon :name="item.type" class="social-icon" :style="{ color: item.color }" />
       </a>
     </template>
   </div>
@@ -19,47 +15,28 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useDark } from "@vueuse/core";
-import GithubIcon from '~/assets/icons/github.svg';
-import GithubDarkIcon from '~/assets/icons/github-dark.svg';
-import GiteeIcon from '~/assets/icons/gitee.svg';
-import BilibiliIcon from '~/assets/icons/bilibili.svg';
-import QQIcon from '~/assets/icons/qq.svg';
 
 const isDark = useDark();
-
-// 图标组件映射
-const iconComponents = {
-  'github': GithubIcon,
-  'github-dark': GithubDarkIcon,
-  'gitee': GiteeIcon,
-  'bilibili': BilibiliIcon,
-  'qq': QQIcon,
-};
-
-// 获取对应的社交图标组件
-const getSocialIcon = (type: string) => {
-  return iconComponents[type] || 'div';
-};
 
 // 由于当前store中没有社交媒体链接，我们使用静态链接作为示例
 const showSocialList = ref([
   {
-    type: isDark.value ? "github-dark" : "github",
+    type: isDark.value ? "icon:github-dark" : "icon:github",
     href: "https://github.com",
     color: "#24292e"
   },
   {
-    type: "gitee",
+    type: "icon:gitee",
     href: "https://gitee.com",
     color: "#c71d23"
   },
   {
-    type: "bilibili",
+    type: "icon:bilibili",
     href: "https://bilibili.com",
     color: "#00a1d6"
   },
   {
-    type: "qq",
+    type: "icon:qq",
     href: "https://im.qq.com",
     color: "#00aeec"
   },

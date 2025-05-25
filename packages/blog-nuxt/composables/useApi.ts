@@ -18,7 +18,7 @@ export const useApi = () => {
     if (process.client) {
       const token = localStorage.getItem('token');
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers.Authorization = `Bearer ${token}`;
       }
     }
     
@@ -134,7 +134,7 @@ export const useApi = () => {
         data: {
           flag: true,
           data: {
-            id: id,
+            id,
             articleTitle: 'Nuxt 3 服务端渲染与SEO优化实践',
             articleContent: '<h2 id="introduction">引言</h2><p>本文介绍Nuxt 3服务端渲染与SEO优化实践...</p><h2 id="what-is-ssr">什么是服务端渲染</h2><p>服务端渲染是指...</p>',
             articleCover: 'https://picsum.photos/id/1/1200/600',

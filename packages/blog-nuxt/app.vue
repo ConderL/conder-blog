@@ -1,16 +1,16 @@
 <template>
   <!-- 使用UApp包裹整个应用，确保Nuxt UI组件正常工作 -->
   <UApp :ui="{ fontSourceSans: false }">
-  <!-- 使用default指定默认布局 -->
-  <NuxtLayout>
-    <!-- NuxtPage渲染当前路由匹配的页面 -->
-    <NuxtPage />
-    
-    <!-- 全局组件 -->
-    <ClientOnly>
-      <Provider />
-    </ClientOnly>
-  </NuxtLayout>
+    <!-- 使用default指定默认布局 -->
+    <NuxtLayout>
+      <!-- NuxtPage渲染当前路由匹配的页面 -->
+      <NuxtPage />
+      
+      <!-- 全局组件 -->
+      <ClientOnly>
+        <Provider />
+      </ClientOnly>
+    </NuxtLayout>
   </UApp>
 </template>
 
@@ -33,7 +33,6 @@ useHead({
 </script>
 
 <style lang="scss">
-
 html {
   scroll-behavior: smooth; /* 添加平滑滚动 */
 }

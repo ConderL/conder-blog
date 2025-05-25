@@ -1,5 +1,5 @@
-import { defineNuxtPlugin } from '#imports';
 import { useApi } from '../composables/useApi';
+import { defineNuxtPlugin } from '#imports';
 
 export default defineNuxtPlugin((nuxtApp) => {
   const api = useApi();

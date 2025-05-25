@@ -32,7 +32,7 @@ requests.interceptors.request.use(
         config.headers = {};
       }
 
-      config.headers["Authorization"] = token_prefix + token;
+      config.headers.Authorization = token_prefix + token;
     }
 
     return config;
@@ -52,22 +52,22 @@ const handleResponse = (response: AxiosResponse) => {
     try {
       // 尝试获取toast通知
       if (window.$message) {
-        switch (response.data.code) {
-          case -1:
+  switch (response.data.code) {
+    case -1:
             window.$message.error(response.data.msg);
-            break;
-          case 400:
+      break;
+    case 400:
             window.$message.error(response.data.msg);
-            break;
-          case 402:
+      break;
+    case 402:
             // 登出逻辑
             const userStore = useUserStore();
             userStore.logout();
             window.$message.error(response.data.msg);
-            break;
-          case 500:
+      break;
+    case 500:
             window.$message.error(response.data.msg);
-            break;
+      break;
         }
       }
     } catch (error) {
@@ -83,8 +83,8 @@ requests.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    let { response } = error;
-    
+    const { response } = error;
+
     // 处理401错误（未授权）
     if (response && response.status === 401 && process.client) {
       try {
@@ -97,11 +97,9 @@ requests.interceptors.response.use(
             window.$message.error("登录已过期，请重新登录");
           }
           userStore.logout();
-        } else {
-          if (window.$message) {
+        } else if (window.$message) {
             window.$message.error("请先登录");
           }
-        }
         
         // 显示登录对话框
         appStore.setLoginFlag(true);

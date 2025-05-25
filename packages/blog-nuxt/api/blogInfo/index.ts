@@ -1,6 +1,6 @@
+import type { AxiosPromise } from "axios";
 import type { Result } from "../../model";
 import request from "../../utils/request";
-import type { AxiosPromise } from "axios";
 import type { BlogInfo } from "./types";
 
 /**

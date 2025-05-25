@@ -1,6 +1,6 @@
 import { defineEventHandler, proxyRequest } from 'h3';
-import { useRuntimeConfig } from '#imports';
 import { parseURL } from 'ufo';
+import { useRuntimeConfig } from '#imports';
 
 export default defineEventHandler(async (event) => {
   // 获取配置
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
 
   // 转发请求到后端API
   return proxyRequest(event, config.public.apiBase, {
-    fetch: fetch,
+    fetch,
     headers: {
       // 传递原始请求的cookie
       cookie: event.node.req.headers.cookie || ''

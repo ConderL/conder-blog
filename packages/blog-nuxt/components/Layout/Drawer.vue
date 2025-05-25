@@ -18,16 +18,16 @@
             <template v-for="(menu, index) of menuList">
               <li v-if="!menu.children" :key="index" class="item" :class="{ active: route.path === menu.path }">
                 <NuxtLink :to="menu.path" @click="closeDrawer">
-                  <component :is="getIconComponent(menu.icon)" class="menu-icon" /> {{ menu.name }}
+                  <UIcon :name="'icon:' + menu.icon" class="menu-icon" /> {{ menu.name }}
                 </NuxtLink>
             </li>
               <li v-else :key="`menu-${index}`" class="item dropdown" :class="{ expand: isExpanded(menu.children) }">
-                <a><component :is="getIconComponent(menu.icon)" class="menu-icon" /> {{ menu.name }} </a>
+                <a><UIcon :name="'icon:' + menu.icon" class="menu-icon" /> {{ menu.name }} </a>
               <ul class="submenu">
                   <li class="item" v-for="(submenu, subIndex) of menu.children" :key="subIndex"
                   :class="{ active: route.path === submenu.path }">
                     <NuxtLink :to="submenu.path" @click="closeDrawer">
-                      <component :is="getIconComponent(submenu.icon)" class="menu-icon" /> {{ submenu.name }}
+                      <UIcon :name="'icon:' + submenu.icon" class="menu-icon" /> {{ submenu.name }}
                   </NuxtLink>
                 </li>
               </ul>
@@ -35,18 +35,18 @@
           </template>
             <li class="item" v-if="!user.userInfo.id">
               <a @click="loginAndClose">
-                <UserIcon class="menu-icon" /> 登录
+                <UIcon name="icon:user" class="menu-icon" /> 登录
               </a>
           </li>
           <template v-else>
             <li class="item" :class="{ active: route.path === '/user' }">
               <NuxtLink to="/user" @click="closeDrawer">
-                  <AuthorIcon class="menu-icon" /> 个人中心
+                  <UIcon name="icon:author" class="menu-icon" /> 个人中心
               </NuxtLink>
             </li>
             <li class="item">
                 <a @click="logout">
-                  <LogoutIcon class="menu-icon" /> 退出
+                  <UIcon name="icon:logout" class="menu-icon" /> 退出
                 </a>
             </li>
           </template>
@@ -59,22 +59,6 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-// 导入所有需要的SVG图标
-import HomeIcon from '~/assets/icons/home.svg';
-import ArticleIcon from '~/assets/icons/article.svg';
-import ArchivesIcon from '~/assets/icons/archives.svg';
-import CategoryIcon from '~/assets/icons/category.svg';
-import TagIcon from '~/assets/icons/tag.svg';
-import FunIcon from '~/assets/icons/fun.svg';
-import TalkIcon from '~/assets/icons/talk.svg';
-import AlbumIcon from '~/assets/icons/album.svg';
-import UploadIcon from '~/assets/icons/upload.svg';
-import FriendIcon from '~/assets/icons/friend.svg';
-import MessageIcon from '~/assets/icons/message.svg';
-import PlaneIcon from '~/assets/icons/plane.svg';
-import UserIcon from '~/assets/icons/user.svg';
-import AuthorIcon from '~/assets/icons/author.svg';
-import LogoutIcon from '~/assets/icons/logout.svg';
 
 // 获取路由和store
 const route = useRoute();
@@ -82,30 +66,6 @@ const router = useRouter();
 const app = useAppStore();
 const blog = useBlogStore();
 const user = useUserStore();
-
-// 图标组件映射
-const iconComponents = {
-  'home': HomeIcon,
-  'article': ArticleIcon,
-  'archives': ArchivesIcon,
-  'category': CategoryIcon,
-  'tag': TagIcon,
-  'fun': FunIcon,
-  'talk': TalkIcon,
-  'album': AlbumIcon,
-  'upload': UploadIcon,
-  'friend': FriendIcon,
-  'message': MessageIcon,
-  'plane': PlaneIcon,
-  'user': UserIcon,
-  'author': AuthorIcon,
-  'logout': LogoutIcon
-};
-
-// 获取图标组件的方法
-const getIconComponent = (name) => {
-  return iconComponents[name] || 'div';
-};
 
 // 创建本地状态，避免直接依赖store
 const isOpen = ref(false);

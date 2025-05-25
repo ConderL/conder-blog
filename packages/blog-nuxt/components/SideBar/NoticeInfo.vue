@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="notice-title">
-      <TrumpetIcon class="trumpet" style="color: #FF5CA1;" />
+      <UIcon name="icon:trumpet" class="trumpet icon" style="color: #FF5CA1" />
       公告
     </div>
     <div class="notice-content" v-html="blog.blogInfo.siteConfig.siteNotice || '暂无公告'"></div>
@@ -10,7 +10,6 @@
 
 <script setup lang="ts">
 import { defineComponent } from 'vue';
-import TrumpetIcon from '~/assets/icons/trumpet.svg';
 
 // 获取博客信息
 const blog = useBlogStore();

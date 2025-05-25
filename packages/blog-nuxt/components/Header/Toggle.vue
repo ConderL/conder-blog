@@ -1,5 +1,5 @@
 <template>
-  <div :class="drawerVisible(app.isCollapse)" @click="app.isCollapse = true">
+  <div :class="app.isCollapse ? 'toggle close' : 'toggle'" @click="app.isCollapse = true">
     <div class="lines">
       <span class="line"></span>
       <span class="line"></span>
@@ -9,9 +9,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 const app = useAppStore();
-const drawerVisible = computed(() => (value) => value ? "toggle close" : "toggle");
 
 // 默认导出
 defineExpose({

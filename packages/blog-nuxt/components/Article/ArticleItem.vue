@@ -17,11 +17,11 @@
         <div class="article-meta">
           <!-- 置顶 -->
           <span class="top" v-if="article.isTop == 1">
-            <TopIcon class="icon-small" />置顶</span
+            <UIcon name="icon:top" class="icon-small" />置顶</span
           >
           <!-- 发表时间 -->
           <span class="meta-item ml-3.75">
-            <CalendarIcon class="icon-medium" />
+            <UIcon name="icon:calendar" class="icon-medium" />
             {{ formatArticleDate(article.createTime) }}
           </span>
           <!-- 文章标签 -->
@@ -31,7 +31,7 @@
             v-for="tag in article.tagVOList"
             :key="tag.id"
           >
-            <TagIcon class="icon-medium" />{{ tag.tagName }}
+            <UIcon name="icon:tag" class="icon-medium" />{{ tag.tagName }}
           </NuxtLink>
         </div>
         <!-- 文章标题 -->
@@ -44,7 +44,7 @@
         <div class="article-content">{{ article.articleDesc }}</div>
         <!-- 文章分类 -->
         <div class="article-category">
-          <QizhiIcon class="icon-medium" />
+          <UIcon name="icon:qizhi" class="icon-medium" />
           <NuxtLink :to="`/category/${article.category.id}`">{{
             article.category.categoryName
           }}</NuxtLink>
@@ -74,10 +74,6 @@ import type { Article } from "../../api/article/types";
 import type { PageQuery } from "../../model";
 import { formatDate } from "../../utils/date";
 import { useAutoAnimate } from "~/composables/useAutoAnimate";
-import TopIcon from '~/assets/icons/top.svg';
-import CalendarIcon from '~/assets/icons/calendar.svg';
-import TagIcon from '~/assets/icons/tag.svg';
-import QizhiIcon from '~/assets/icons/qizhi.svg';
 
 const articleList = ref<Article[]>([]);
 const count = ref(0);

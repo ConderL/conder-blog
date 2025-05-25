@@ -1,4 +1,4 @@
-@import "./mixin.scss";
+@use "./mixin.scss";
 
 /* 背景色 */
 .bg {
@@ -27,7 +27,7 @@
 }
 
 .page-title {
-	@include flex;
+	@include mixin.flex;
 	flex-direction: column;
 	position: fixed;
 	width: 100%;
@@ -158,7 +158,7 @@
 }
 
 .colorFlag {
-	@include cursor-pointer;
+	@include mixin.cursor-pointer;
 	color: var(--grey-6);
 }
 
@@ -214,7 +214,7 @@
 
 /* 加载更多按钮 */
 .loading-warp {
-	@include flex;
+	@include mixin.flex;
 	margin-top: 20px;
 }
 
@@ -287,8 +287,8 @@
 	}
 
 	.reply-box-send {
-		@include flex;
-		@include cursor-pointer;
+		@include mixin.flex;
+		@include mixin.cursor-pointer;
 		flex-basis: 70px;
 		margin-left: 10px;
 		border-radius: 4px;
@@ -302,7 +302,7 @@
 }
 
 .reply-box-avatar {
-	@include flex;
+	@include mixin.flex;
 	width: 3rem;
 	height: 3.125rem;
 }

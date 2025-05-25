@@ -16,7 +16,7 @@ export function processEmoji(content: string, emojiType: number = 0): string {
   
   try {
     // 创建临时字符串保存处理结果
-    let processedContent = content;
+    const processedContent = content;
     
     // 创建正则表达式寻找所有表情标记 [xxx]
     const emojiPattern = /\[([^\[\]]+?)\]/g;

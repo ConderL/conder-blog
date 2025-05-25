@@ -4,7 +4,7 @@
       <div class="flex items-center gap-2">
         <div v-if="icon" class="flex-shrink-0">
           <div :class="[`text-${color}-500 dark:text-${color}-400`]">
-            <UIcon :name="icon" class="text-xl" />
+            <UIcon :name="icon" class="text-xl icon" />
           </div>
         </div>
         <div class="text-lg font-semibold leading-6">

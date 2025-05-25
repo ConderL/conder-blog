@@ -1,7 +1,7 @@
 <template>
   <!-- 标题 -->
   <div class="comment-title">
-    <CommentIcon class="title-icon" />
+    <UIcon name="icon:comment" class="title-icon" />
     最新评论
   </div>
   
@@ -52,7 +52,6 @@ import { getRecentComment } from '../../api/comment';
 import type { RecentComment } from '../../api/comment/types';
 import { formatDate } from '../../utils/date';
 import { cleanupContent } from '../../utils/emojiProcessor';
-import CommentIcon from '~/assets/icons/comment.svg';
 
 const commentList = ref<RecentComment[]>([]);
 const loading = ref(true);
