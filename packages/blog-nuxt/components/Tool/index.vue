@@ -1,13 +1,13 @@
 <template>
   <div class="tool" :style="y > 0 ? show : ''" ref="toolRef">
     <div class="item" v-if="isArticlePage" @click="handleSide">
-      <UIcon name="icon:heng" class="!size-8 text-center"></UIcon>
+      <UIcon name="icon:heng" class="!size-6 text-center"></UIcon>
     </div>
     <div class="item" v-if="commentShow(route.name as string)" @click="handleToComment">
-      <UIcon name="icon:comments" class="!size-8 text-center"></UIcon>
+      <UIcon name="icon:comments" class="!size-6 text-center"></UIcon>
     </div>
     <div class="item back-to-top" @click="handleBackToTop">
-      <UIcon name="icon:up" class="!size-8 text-center"></UIcon>
+      <UIcon name="icon:up" class="!size-4 mb-1 text-center"></UIcon>
       <span class="count">{{ process }}%</span>
     </div>
   </div>
@@ -141,7 +141,7 @@ const isArticlePage = computed(() => {
     @include mixin.flex;
     flex-direction: column;
     width: 2.1rem;
-    padding: 0.2rem 0.2125rem;
+    padding: 0.4rem 0.2125rem;
     opacity: 0.6;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);

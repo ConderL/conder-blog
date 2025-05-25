@@ -1,19 +1,19 @@
 <template>
-	<div class="reply-warp" id="reply-wrap">
+	<div id="reply-wrap" class="reply-warp">
 		<div class="reply-title">
 			<UIcon name="icon:comment" class="icon icon-md" />
 			评论
 		</div>
 		<ReplyBox
-			@reload="reloadComments"
 			:comment-type="commentType"
 			:type-id="typeId"
+			@reload="reloadComments"
 		></ReplyBox>
 		<div v-if="count > 0 && reFresh" ref="commentListRef">
 			<div
-				class="reply-item"
 				v-for="(comment, index) of commentList"
 				:key="comment.id"
+				class="reply-item"
 			>
 				<div class="reply-box-avatar">
 					<img class="shoka-avatar" :src="comment.avatar" />
@@ -21,8 +21,9 @@
 				<div class="content-warp">
 					<div class="user-info">
 						<div class="user-name">{{ comment.fromNickname }}</div>
-						<UIcon name="icon:badge"
-							v-if="comment.fromUid == 1"
+						<UIcon
+v-if="comment.fromUid == 1"
+							name="icon:badge"
 							class="icon"
 						/>
 					</div>
@@ -35,7 +36,8 @@
 							formatDateTime(comment.createTime)
 						}}</span>
 						<span class="reply-like" @click="like(comment)">
-							<UIcon name="icon:like"
+							<UIcon
+name="icon:like"
 								class="icon"
 								:class="isLike(comment.id)"
 							/>
@@ -50,17 +52,18 @@
 						>
 					</div>
 					<div
-					 	class="sub-reply-item"
-						v-for="reply of comment.replyVOList"
+					 	v-for="reply of comment.replyVOList"
 						:key="reply.id"
+						class="sub-reply-item"
 					>
 						<div class="sub-user-info">
 							<img class="sub-reply-avatar" :src="reply.avatar" />
 							<div class="sub-user-name">
 								{{ reply.fromNickname }}
 							</div>
-							<BadgeIcon
+							<UIcon
 								v-if="reply.fromUid == 1"
+								name="icon:badge"
 								class="icon"
 							/>
 						</div>
@@ -81,7 +84,8 @@
 								formatDateTime(reply.createTime)
 							}}</span>
 							<span class="reply-like" @click="like(reply)">
-								<UIcon name="icon:like"
+								<UIcon
+name="icon:like"
 									class="icon"
 									:class="isLike(reply.id)"
 								/>
@@ -97,9 +101,9 @@
 						</div>
 					</div>
 					<div
+						v-show="comment.replyCount > 3"
 						ref="readMoreRef"
 						class="view-more"
-						v-show="comment.replyCount > 3"
 					>
 						<span>共{{ comment.replyCount }}条回复, </span>
 						<span
@@ -112,7 +116,7 @@
 						ref="pageRef"
 						:total="comment.replyCount"
 						:index="index"
-						:commentId="comment.id"
+						:comment-id="comment.id"
 						@get-current-page="getCurrentPage"
 					></Paging>
 					<ReplyBox
@@ -127,7 +131,7 @@
 					<div class="bottom-line"></div>
 				</div>
 			</div>
-			<div class="loading-warp" v-if="count > commentList.length">
+			<div v-if="count > commentList.length" class="loading-warp">
 				<UButton class="btn" color="primary" @click="getList">
 					加载更多...
 				</UButton>
@@ -142,11 +146,12 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useAutoAnimate } from '@formkit/auto-animate/vue';	
 import { useAppStore } from '~/stores/app';
 import { useUserStore } from '~/stores/user';
 import { ClickDebouncer } from '~/utils/debounce';
 import { cleanupContent } from '~/utils/emojiProcessor';
-import { useAutoAnimate } from '@formkit/auto-animate/vue';	
+import { getCommentList, getReplyList, likeComment, unlikeComment } from '~/api/comment';
 
 // 创建点赞防抖器实例，设置800ms防抖时间
 const likeDebouncer = new ClickDebouncer(800);
@@ -177,7 +182,7 @@ const typeId = computed(() =>
 );
 
 const isLike = computed(() => (id: number) => {
-	return user.commentLikeSet.indexOf(id) != -1 ? "like-flag" : "";
+	return user.commentLikeSet.includes(id) ? "like-flag" : "";
 });
 
 const data = reactive({
@@ -218,7 +223,7 @@ const like = (comment: any) => {
 		return;
 	}
 
-	let id = comment.id;
+	const id = comment.id;
 
 	// 使用防抖器检查是否可以点赞，防止快速多次点击
 	if (!likeDebouncer.canClick(id)) {
@@ -226,16 +231,11 @@ const like = (comment: any) => {
 	}
 
 	// 判断当前是否已点赞
-	if (user.commentLikeSet.indexOf(id) != -1) {
+	if (user.commentLikeSet.includes(id)) {
 		// 已点赞，调用取消点赞API
-		$fetch(`/api/comments/${id}/like`, { 
-			method: 'POST',
-			params: {
-				type: 'unlike'
-			}
-		})
-			.then((data: any) => {
-				if (data.flag) {
+		unlikeComment(id)
+			.then((response: any) => {
+				if (response.data.flag) {
 					comment.likeCount = Math.max(0, comment.likeCount - 1);
 					user.commentLike(id);
 				}
@@ -245,9 +245,9 @@ const like = (comment: any) => {
 			});
 	} else {
 		// 未点赞，调用点赞API
-		$fetch(`/api/comments/${id}/like`, { method: 'POST' })
-			.then((data: any) => {
-				if (data.flag) {
+		likeComment(id)
+			.then((response: any) => {
+				if (response.data.flag) {
 					comment.likeCount += 1;
 					user.commentLike(id);
 				}
@@ -272,12 +272,10 @@ watch(
 
 // 查看更多评论
 const readMoreComment = (index: number, comment: any) => {
-	$fetch(`/api/comments/${comment.id}/reply`, { 
-		params: { current: 1, size: 5 }
-	})
-	.then((data: any) => {
-		if (data && data.data) {
-			comment.replyVOList = data.data;
+	getReplyList(comment.id, { current: 1, size: 5 })
+	.then((response: any) => {
+		if (response.data && response.data.data) {
+			comment.replyVOList = response.data.data;
 			// 回复大于5条展示分页
 			if (comment.replyCount > 5 && pageRef.value[index]) {
 				pageRef.value[index].setPaging(true);
@@ -301,12 +299,10 @@ const readMoreComment = (index: number, comment: any) => {
 
 // 查看当前页的回复评论
 const getCurrentPage = (current: number, index: number, commentId: number) => {
-	$fetch(`/api/comments/${commentId}/reply`, { 
-		params: { current: current, size: 5 }
-	})
-	.then((data: any) => {
-		if (data && data.data && commentList.value[index]) {
-			commentList.value[index].replyVOList = data.data;
+	getReplyList(commentId, { current, size: 5 })
+	.then((response: any) => {
+		if (response.data && response.data.data && commentList.value[index]) {
+			commentList.value[index].replyVOList = response.data.data;
 		}
 	})
 	.catch(error => {
@@ -331,18 +327,16 @@ const handleReply = (index: number, target: any) => {
 };
 
 const getList = () => {
-	$fetch('/api/comments/list', { 
-		params: queryParams.value
-	})
-	.then((data: any) => {
-		if (data && data.data) {
-			if (queryParams.value.current == 1) {
-				commentList.value = data.data.recordList || [];
+	getCommentList(queryParams.value)
+	.then((response: any) => {
+		if (response.data && response.data.data) {
+			if (queryParams.value.current === 1) {
+				commentList.value = response.data.data.recordList || [];
 			} else {
-				commentList.value.push(...(data.data.recordList || []));
+				commentList.value.push(...(response.data.data.recordList || []));
 			}
 			queryParams.value.current++;
-			count.value = data.data.count || 0;
+			count.value = response.data.data.count || 0;
 			emit("getCommentCount", count.value);
 		}
 	})
@@ -356,7 +350,7 @@ const getList = () => {
 			},
 			flag: true
 		};
-		if (queryParams.value.current == 1) {
+		if (queryParams.value.current === 1) {
 			commentList.value = mockData.data.recordList;
 		} else {
 			commentList.value.push(...mockData.data.recordList);
@@ -379,15 +373,13 @@ const reloadReplies = (index: number) => {
 		return;
 	}
 	
-	$fetch(`/api/comments/${commentList.value[index].id}/reply`, {
-		params: {
-			current: pageRef.value[index].current,
-			size: 5,
-		}
+	getReplyList(commentList.value[index].id, {
+		current: pageRef.value[index].current,
+		size: 5,
 	})
-	.then((data: any) => {
-		if (data && data.data && commentList.value[index]) {
-			commentList.value[index].replyVOList = data.data;
+	.then((response: any) => {
+		if (response.data && response.data.data && commentList.value[index]) {
+			commentList.value[index].replyVOList = response.data.data;
 			commentList.value[index].replyCount++;
 			
 			// 隐藏回复框

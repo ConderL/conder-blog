@@ -1,6 +1,6 @@
 <template>
   <!-- 使用Nuxt UI的Modal组件 -->
-  <UModal v-model:open="app.loginFlag" :ui="modalUI" close-icon="close">
+  <UModal v-model:open="app.loginFlag" :ui="modalUI" close-icon="icon:close">
     <template #body>
       <!-- 使用Dialog/Login组件 -->
       <Login 
@@ -12,7 +12,7 @@
   </UModal>
   
   <!-- 注册对话框 -->
-  <UModal v-model:open="app.registerFlag" :ui="modalUI">
+  <UModal v-model:open="app.registerFlag" :ui="modalUI" close-icon="icon:close">
     
     <template #body>
       <!-- 使用Dialog/Register组件 -->
@@ -24,7 +24,7 @@
   </UModal>
   
   <!-- 忘记密码对话框 -->
-  <UModal v-model:open="app.forgetFlag" :ui="modalUI">
+  <UModal v-model:open="app.forgetFlag" :ui="modalUI" close-icon="icon:close">
     <template #body>
       <!-- 使用Dialog/Forget组件 -->
       <Forget 
@@ -38,11 +38,6 @@
 <script setup lang="ts">
 // 使用store
 const app = useAppStore();
-
-// 导入组件
-import Login from '../Dialog/Login.vue';
-import Register from '../Dialog/Register.vue';
-import Forget from '../Dialog/Forget.vue';
 
 // Modal UI 样式配置
 const modalUI = {

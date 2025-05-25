@@ -1,38 +1,31 @@
 <template>
   <div>
     <!-- 这个组件作为忘记密码表单内容，由useOverlay显示 -->
-    <UForm :state="forgetForm" class="w-full space-y-4" @submit="handleSubmit">
+    <UForm :state="forgetForm" class="w-full space-y-4" @submit="handleForget">
       <!-- 邮箱输入 -->
-      <UFormField label="邮箱" name="email" class="mb-3">
+      <UFormField name="username" class="mb-8">
         <UInput
-          v-model="forgetForm.email"
+          v-model="forgetForm.username"
           placeholder="请输入邮箱"
         />
       </UFormField>
       
-      <!-- 验证码 -->
-      <UFormField label="验证码" name="code" class="mb-3">
-        <div class="flex items-center gap-3">
+      <!-- 验证码输入组 -->
+      <UFormField name="code" class="mb-8">
+        <div class="flex gap-3">
           <UInput
             v-model="forgetForm.code"
             placeholder="请输入验证码"
             class="flex-1"
           />
-          <UButton
-            variant="outline"
-            color="pink"
-            class="w-32 flex-shrink-0 rounded-md"
-            :loading="sending"
-            :disabled="timer > 0"
-            @click="sendCode"
-          >
-            {{ timer > 0 ? `${timer}秒后重试` : '获取验证码' }}
+          <UButton color="info" :disabled="flag" @click="sendCode" class="whitespace-nowrap">
+            {{ timer == 0 ? "发送" : `${timer}s` }}
           </UButton>
         </div>
       </UFormField>
       
-      <!-- 新密码输入 -->
-      <UFormField label="新密码" name="password" class="mb-3">
+      <!-- 密码输入 -->
+      <UFormField name="password" class="mb-8">
         <UInput
           v-model="forgetForm.password"
           type="password"
@@ -40,54 +33,40 @@
         />
       </UFormField>
       
-      <!-- 确认密码输入 -->
-      <UFormField label="确认密码" name="confirmPassword" class="mb-3">
-        <UInput
-          v-model="forgetForm.confirmPassword"
-          type="password"
-          placeholder="请再次输入密码"
-        />
-      </UFormField>
-      
-      <!-- 提交按钮 -->
+      <!-- 确认按钮 -->
       <UButton
         block
-        color="pink"
+        color="success"
         variant="solid"
         type="submit"
         :loading="loading"
         class="rounded-md"
       >
-        提 交
+        确 定
       </UButton>
       
-      <!-- 返回登录 -->
+      <!-- 去登录 -->
       <div class="flex justify-center mt-4">
-        <UButton variant="link" color="pink" @click="handleLogin" class="hover:text-pink-600">返回登录</UButton>
+        <UButton variant="link" color="pink" @click="handleLogin" class="hover:text-pink-600">已有账号？去登录</UButton>
       </div>
     </UForm>
   </div>
 </template>
 
 <script setup lang="ts">
-import { forget, sendEmailCode } from "~/api/login";
-
-interface ForgetForm {
-  email: string;
-  code: string;
-  password: string;
-  confirmPassword: string;
-}
+import { useIntervalFn } from "@vueuse/core";
+import { sendEmailCode } from "~/api/login";
+import { updateUserPassword } from "~/api/user";
+import type { UserForm } from "~/api/user";
 
 // 计算属性和状态
 const loading = ref(false);
-const sending = ref(false);
 const timer = ref(0);
-const forgetForm = reactive<ForgetForm>({
-  email: "",
-  code: "",
+const flag = ref(false);
+const forgetForm = reactive<UserForm>({
+  username: "",
   password: "",
-  confirmPassword: ""
+  code: ""
 });
 
 // 暴露给父组件的事件
@@ -99,102 +78,94 @@ const handleLogin = () => {
   emit('login');
 };
 
-// 发送验证码
-const sendCode = async () => {
-  // 邮箱格式验证
-  let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-  if (!reg.test(forgetForm.email)) {
-    window.$message?.warning("邮箱格式不正确");
-    return;
-  }
-  
-  sending.value = true;
-  
-  try {
-    // 调用实际发送验证码API
-    const res = await sendEmailCode(forgetForm.email, 'forget');
-    
-    if (res.data.flag) {
-      window.$message?.success("验证码已发送至邮箱");
-      startTimer();
-    }
-  } catch (error) {
-    console.error("发送验证码失败", error);
-    window.$message?.error("发送验证码失败，请重试");
-  } finally {
-    sending.value = false;
-  }
-};
-
-// 开始倒计时
-const startTimer = () => {
-  timer.value = 60;
-  const interval = setInterval(() => {
+// 倒计时功能
+const { pause, resume } = useIntervalFn(
+  () => {
     timer.value--;
     if (timer.value <= 0) {
-      clearInterval(interval);
+      // 停止定时器
+      pause();
+      flag.value = false;
     }
-  }, 1000);
+  },
+  1000,
+  { immediate: false }
+);
+
+// 开始倒计时
+const start = (time: number) => {
+  flag.value = true;
+  timer.value = time;
+  // 启动定时器
+  resume();
 };
 
-// 处理提交
-const handleSubmit = async () => {
+// 发送验证码
+const sendCode = () => {
   // 邮箱格式验证
   let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-  if (!reg.test(forgetForm.email)) {
+  if (!reg.test(forgetForm.username as string)) {
     window.$message?.warning("邮箱格式不正确");
     return;
   }
   
+  start(60);
+  sendEmailCode(forgetForm.username as string)
+    .then((res: any) => {
+      if (res.data.flag) {
+        window.$message?.success("验证码发送成功");
+      }
+    })
+    .catch((error) => {
+      console.error("发送验证码失败", error);
+      window.$message?.error("验证码发送失败");
+      // 重置倒计时
+      flag.value = false;
+      timer.value = 0;
+      pause();
+    });
+};
+
+// 处理忘记密码
+const handleForget = async () => {
   // 验证码验证
-  if (forgetForm.code.trim().length == 0) {
-    window.$message?.warning("验证码不能为空");
+  if ((forgetForm.code?.trim().length || 0) != 6) {
+    window.$message?.warning("请输入6位验证码");
     return;
   }
   
   // 密码验证
-  if (forgetForm.password.trim().length == 0) {
-    window.$message?.warning("密码不能为空");
-    return;
-  }
-  
-  // 确认密码
-  if (forgetForm.password !== forgetForm.confirmPassword) {
-    window.$message?.warning("两次密码不一致");
+  if ((forgetForm.password?.trim().length || 0) < 6) {
+    window.$message?.warning("密码不能少于6位");
     return;
   }
   
   loading.value = true;
   
   try {
-    // 调用实际忘记密码API
-    const res = await forget(forgetForm);
+    // 调用修改密码API
+    const res = await updateUserPassword(forgetForm);
     
     if (res.data.flag) {
-      window.$message?.success("密码重置成功，请登录");
+      window.$message?.success("修改成功");
       
       // 重置表单
-      forgetForm.email = "";
-      forgetForm.code = "";
+      forgetForm.username = "";
       forgetForm.password = "";
-      forgetForm.confirmPassword = "";
+      forgetForm.code = "";
       
       // 关闭忘记密码框，打开登录框
       emit('close');
       emit('login');
     }
   } catch (error) {
-    console.error("重置密码失败", error);
-    window.$message?.error("重置密码失败，请重试");
+    console.error("修改密码失败", error);
   } finally {
     loading.value = false;
   }
 };
 
-// 组件卸载时清除定时器
-onUnmounted(() => {
-  if (timer.value > 0) {
-    timer.value = 0;
-  }
+defineExpose({
+  name: 'Forget'
 });
 </script> 

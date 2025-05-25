@@ -1,17 +1,17 @@
 <template>
-  <div class="reply-box" v-if="show">
+  <div v-if="isVisible" class="reply-box">
     <div class="box-normal">
       <div class="reply-box-avatar">
         <ClientOnly>
           <img
-            class="shoka-avatar"
             v-if="userStore.userInfo?.avatar"
+            class="shoka-avatar"
             :src="userStore.userInfo.avatar"
             alt="用户头像"
           />
           <img
-            class="shoka-avatar"
             v-else
+            class="shoka-avatar"
             :src="blogStore.blogInfo.siteConfig.touristAvatar || 'https://img.conder.top/config/default_avatar.jpg'"
             alt="游客头像"
           />
@@ -27,11 +27,11 @@
       </div>
       <div class="reply-box-warp">
         <textarea
-          class="reply-box-textarea"
           v-model="commentContent"
+          class="reply-box-textarea"
           :style="sendActive ? lineStyle : ''"
-          @input="inputActive"
           :placeholder="placeholderText"
+          @input="inputActive"
         ></textarea>
       </div>
       <div
@@ -43,14 +43,15 @@
       </div>
     </div>
     <div class="box-expand">
-      <Emoji @addEmoji="handleEmoji" @chooseType="handleType"></Emoji>
+      <Emoji @add-emoji="handleEmoji" @choose-type="handleType"></Emoji>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, toRefs } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { processEmoji } from '../../utils/emojiProcessor';
+import { addComment } from '~/api/comment';
 
 // 使用Store
 const userStore = useUserStore();
@@ -83,25 +84,20 @@ const props = defineProps({
   },
 });
 
-// 组件状态
-const data = reactive({
-  nickname: "",
-  sendActive: false,
-  show: props.show,
+// 组件状态 - 使用独立的ref而不是reactive包含show
+const isVisible = ref(props.show);
+const nickname = ref("");
+const sendActive = ref(false);
+const commentContent = ref("");
+const emojiType = ref(0);
+const commentForm = reactive({
+  typeId: props.typeId,
+  commentType: props.commentType,
+  parentId: undefined as number | undefined,
+  replyId: undefined as number | undefined,
+  toUid: undefined as number | undefined,
   commentContent: "",
-  emojiType: 0,
-  commentForm: {
-    typeId: props.typeId,
-    commentType: props.commentType,
-    parentId: undefined,
-    replyId: undefined,
-    toUid: undefined,
-    commentContent: "",
-  },
 });
-
-// 解构状态
-const { nickname, sendActive, show, commentContent, emojiType, commentForm } = toRefs(data);
 
 // 计算属性：placeholder文本
 const placeholderText = computed(() =>
@@ -137,25 +133,22 @@ function handleAdd() {
   }
 
   // 使用工具函数处理表情
-  commentForm.value.commentContent = processEmoji(
+  commentForm.commentContent = processEmoji(
     commentContent.value,
     emojiType.value,
   );
 
   // 调用API发送评论
-  $fetch('/api/comments/add', {
-    method: 'POST',
-    body: {
-      typeId: commentForm.value.typeId,
-      commentType: commentForm.value.commentType,
-      commentContent: commentForm.value.commentContent,
-      replyId: commentForm.value.replyId,
-      toUid: commentForm.value.toUid,
-      parentId: commentForm.value.parentId
-    }
+  addComment({
+    typeId: commentForm.typeId,
+    commentType: commentForm.commentType,
+    commentContent: commentForm.commentContent,
+    replyId: commentForm.replyId,
+    toUid: commentForm.toUid,
+    parentId: commentForm.parentId
   })
   .then((response: any) => {
-    if (response.flag) {
+    if (response.data.flag) {
       sendActive.value = false;
       commentContent.value = "";
       
@@ -177,7 +170,7 @@ function handleAdd() {
 
 // 设置回复状态
 function setReply(flag: boolean) {
-  show.value = flag;
+  isVisible.value = flag;
 }
 
 // 暴露给父组件的方法和属性

@@ -5,8 +5,10 @@ export default defineAppConfig({
     mode: 'svg', // 使用SVG模式而不是CSS模式
     class: 'icon', // 默认类名
     customize: (content) => {
-      // 确保SVG使用currentColor
-      return content.replace(/fill="([^"]*)"/, 'fill="currentColor"')
+      // 简单移除所有fill属性，使用currentColor
+      return content
+        .replace(/fill="[^"]*"/g, '')
+        .replace(/p-id="[^"]*"/g, '')
     }
   },
   ui: {

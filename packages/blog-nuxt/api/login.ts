@@ -6,9 +6,9 @@ import requests from '~/utils/request';
 export interface LoginForm {
   email: string;
   password: string;
-  code: string;
-  captchaUUID: string;
-  type: string;
+  code?: string;
+  captchaUUID?: string;
+  type?: string;
 }
 
 /**
@@ -18,9 +18,12 @@ export interface LoginForm {
  */
 export const login = (data: LoginForm) => {
   return requests({
-    url: '/api/login',
+    url: '/auth/login',
     method: 'post',
-    data
+    data: {
+      type: 'ConderView',
+      ...data
+    }
   });
 };
 
@@ -28,27 +31,26 @@ export const login = (data: LoginForm) => {
  * 获取验证码
  * @returns 验证码信息
  */
-export const getCaptcha = () => {
+export const getCaptcha = (data: Record<string, string> = {}) => {
   return requests({
-    url: '/api/captcha',
-    method: 'get'
+    url: '/captcha',
+    method: 'get',
+    params: { type: 'ConderView', ...data }
   });
 };
 
 /**
  * 发送邮箱验证码
  * @param email 邮箱
- * @param type 类型
  * @returns 发送结果
  */
-export const sendEmailCode = (email: string, type: string) => {
+export const sendEmailCode = (email: string) => {
   return requests({
-    url: '/api/email/code',
-    method: 'post',
-    data: {
+    url: "/auth/email/code",
+    method: "get",
+    params: {
       email,
-      type
-    }
+    },
   });
 };
 
@@ -59,20 +61,7 @@ export const sendEmailCode = (email: string, type: string) => {
  */
 export const register = (data: any) => {
   return requests({
-    url: '/api/register',
-    method: 'post',
-    data
-  });
-};
-
-/**
- * 忘记密码
- * @param data 忘记密码数据
- * @returns 重置结果
- */
-export const forget = (data: any) => {
-  return requests({
-    url: '/api/forget',
+    url: '/auth/register',
     method: 'post',
     data
   });
@@ -84,7 +73,7 @@ export const forget = (data: any) => {
  */
 export const getUserInfo = () => {
   return requests({
-    url: '/api/users/info',
+    url: '/user/getUserInfo',
     method: 'get'
   });
 }; 

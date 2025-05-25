@@ -1,7 +1,7 @@
 <template>
   <div class="article-page">
     <!-- 文章头部信息 -->
-    <div v-if="data.article" class="page-header">
+    <div class="page-header">
       <div class="page-title">
         <h1 class="article-title">{{ data.article.articleTitle }}</h1>
         <div class="article-meta">
@@ -39,7 +39,7 @@
       <Waves></Waves>
     </div>
     <div class="bg">
-      <div v-if="data.article" class="main-container">
+      <div class="main-container">
         <div v-auto-animate="{duration: 300}" class="flex w-full">
           <div key="main" class="bg-white rounded-lg">
             <div class="article-container">
@@ -86,7 +86,7 @@
                   <ClientOnly v-if="data.isReward">
                     <div class="reward-container">
                       <button class="btn reward-btn" @click="showReward = !showReward">
-                        <UIcon name="icon:qr_code" class="btn-icon" />
+                        <UIcon name="icon:qr-code" class="btn-icon" />
                         打赏
                       </button>
                       
@@ -122,7 +122,7 @@
                       <strong>本文作者： </strong>{{ data.siteAuthor }}
                     </li>
                     <li class="link">
-                      <UIcon name="icon:article_link" class="copyright-icon" />
+                      <UIcon name="icon:article-link" class="copyright-icon" />
                       <strong>本文链接：</strong>
                       <a :href="articleUrl">
                         {{ articleUrl }}
@@ -216,9 +216,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, reactive } from 'vue';
 import { MdCatalog, MdPreview } from 'md-editor-v3';
-import { getArticle, likeArticle, unlikeArticle } from '~/api/article';
+import { getArticle, likeArticle, unlikeArticle, getArticleRecommend } from '~/api/article';
 import 'md-editor-v3/lib/preview.css';
 import { ClickDebouncer } from '~/utils/debounce';
+
+console.log('文章页面脚本开始执行');
+
+// 开发环境标识
+const isDev = process.env.NODE_ENV === 'development';
 
 // 在store初始化之前获取侧边栏状态
 const initialSideFlag = ref(false);
@@ -232,7 +237,7 @@ const blog = useBlogStore();
 const route = useRoute();
 const config = useRuntimeConfig();
 let articleId = Number(route.params.id);
-const articleUrl = computed(() => `${config.public.siteUrl || window.location.origin}/article/${articleId}`);
+const articleUrl = computed(() => `${config.public.siteUrl}/article/${articleId}`);
 
 // 客户端状态
 const isMounted = ref(false);
@@ -322,16 +327,16 @@ const like = async () => {
     // 判断当前是否已点赞
     if (user.articleLikeSet.includes(id)) {
       // 已点赞，调用取消点赞API
-      const response = await $fetch(`/api/articles/${id}/unlike`, { method: 'POST' });
-      if (response.flag) {
+      const response = await unlikeArticle(id);
+      if (response.data.flag) {
         data.article.likeCount = Math.max(0, data.article.likeCount - 1);
         user.articleLike(id);
         data.isLiked = !data.isLiked;
       }
     } else {
       // 未点赞，调用点赞API
-      const response = await $fetch(`/api/articles/${id}/like`, { method: 'POST' });
-      if (response.flag) {
+      const response = await likeArticle(id);
+      if (response.data.flag) {
         data.article.likeCount += 1;
         user.articleLike(id);
         data.isLiked = !data.isLiked;
@@ -346,14 +351,14 @@ const like = async () => {
 const fetchArticleData = async () => {
   try {
     // 1. 获取文章详情
-    const articleResponse = await $fetch(`/api/articles/${articleId}`);
-    if (!articleResponse.flag) {
+    const articleResponse = await getArticle(articleId);
+    if (!articleResponse.data.flag) {
       console.error('获取文章详情失败');
       return;
     }
     
     // 将API返回的数据映射到我们的数据结构
-    const articleData = articleResponse.data;
+    const articleData = articleResponse.data.data;
     
     // 更新文章基本信息
     data.article = {
@@ -393,9 +398,9 @@ const fetchArticleData = async () => {
     
     // 6. 获取推荐文章
     try {
-      const recommendResponse = await $fetch('/api/articles/recommend');
-      if (recommendResponse?.flag) {
-        data.recommendedArticles = recommendResponse.data || [];
+      const recommendResponse = await getArticleRecommend();
+      if (recommendResponse?.data.flag) {
+        data.recommendedArticles = recommendResponse.data.data || [];
       }
     } catch (error) {
       console.error('获取推荐文章失败:', error);
@@ -440,6 +445,9 @@ useHead({
 
 // 仅在客户端进行的操作
 onMounted(() => {
+
+  console.log('文章页面挂载...');
+
   scrollElement.value = document.documentElement;
   isMounted.value = true;
   

@@ -18,10 +18,10 @@ export default defineNuxtConfig({
   ],
   
   icon: {
-    provider: 'server',
+    provider: 'iconify',
     mode: 'svg',
     clientBundle: {
-      scan: true,
+      // scan: true,
       includeCustomCollections: true,
     },
     customCollections: [
@@ -34,17 +34,17 @@ export default defineNuxtConfig({
 
   vite: {
     // 优化构建性能
-    // optimizeDeps: {
-    //   include: ['vue', 'vue-router', 'pinia', '@vueuse/core'],
-    //   exclude: ['lightningcss']
-    // },
-    // // 减少构建警告
-    // build: {
-    //   chunkSizeWarningLimit: 1000,
-    //   rollupOptions: {
-    //     external: ['lightningcss']
-    //   }
-    // }
+    optimizeDeps: {
+      include: ['vue', 'vue-router', 'pinia', '@vueuse/core'],
+      exclude: ['lightningcss']
+    },
+    // 减少构建警告
+    build: {
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        external: ['lightningcss']
+      }
+    }
   },
 
   // 更新Nuxt UI配置，确保正确加载组件

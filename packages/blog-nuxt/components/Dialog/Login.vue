@@ -93,6 +93,7 @@ import { useAppStore, useBlogStore, useUserStore } from "~/stores";
 import { setToken } from "~/utils/token";
 import { debounce } from "~/utils/debounce";
 import { login, getCaptcha, type LoginForm } from "~/api/login";
+import { encryptPassword } from "~/utils/secret";
 
 // 计算属性和状态
 const app = useAppStore();
@@ -103,8 +104,7 @@ const loginForm = reactive<LoginForm>({
   email: "",
   password: "",
   code: "",
-  captchaUUID: "",
-  type: "",
+  captchaUUID: ""
 });
 const captcha = ref("");
 const captchaLoading = ref(false);
@@ -205,12 +205,19 @@ const handleLogin = async () => {
   loading.value = true;
   
   try {
+    // 加密密码
+    const encryptedPassword = encryptPassword(loginForm.password);
+    
     // 调用实际登录API
-    const res = await login(loginForm);
+    const res = await login({
+      ...loginForm,
+      password: encryptedPassword
+    });
     
     if (res.data.flag) {
       setToken(res.data.data.token);
       user.loadToken();
+      await user.fetchUserInfo(); // 获取用户信息
       window.$message?.success("登录成功");
       
       // 重置表单
@@ -218,14 +225,12 @@ const handleLogin = async () => {
       loginForm.password = "";
       loginForm.code = "";
       loginForm.captchaUUID = "";
-      loginForm.type = "";
       
       // 关闭登录框
       emit('close');
     }
   } catch (error) {
     console.error("登录失败", error);
-    window.$message?.error("登录失败，请重试");
   } finally {
     loading.value = false;
   }

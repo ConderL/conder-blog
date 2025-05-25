@@ -81,7 +81,10 @@ export function unlikeArticle(
 	articleId: number
 ): AxiosPromise<Result<null>> {
 	return request({
-		url: `/articles/${articleId}/unlike`,
+		url: `/articles/${articleId}/like`,
 		method: "post",
+		params: {
+			type: "unlike",
+		},
 	});
 } 

@@ -13,7 +13,7 @@
 			color="gray" 
 			variant="ghost" 
 			class="!p-0 h-auto" 
-			icon="emoji" 
+			icon="icon:emoji" 
 			aria-label="表情"
 		/>
 		<template #content>
@@ -21,11 +21,11 @@
 				<div class="emoji-title">
 					{{ emojiTitle }}
 				</div>
-				<div class="emoji-content" v-if="emojiType === 0">
+				<div v-if="emojiType === 0" class="emoji-content">
 					<span
-						class="emoji-item"
 						v-for="(value, key, index) of emojiMap"
 						:key="index"
+						class="emoji-item"
 						@click="addEmoji(key)"
 					>
 						<img
@@ -37,11 +37,11 @@
 						/>
 					</span>
 				</div>
-				<div class="emoji-content" v-if="emojiType === 1">
+				<div v-if="emojiType === 1" class="emoji-content">
 					<span
-						class="emoji-item"
 						v-for="(value, key, index) of emojiGenshinMap"
 						:key="index"
+						class="emoji-item"
 						@click="addEmoji(key)"
 					>
 						<img
@@ -53,11 +53,11 @@
 						/>
 					</span>
 				</div>
-				<div class="emoji-content" v-if="emojiType === 2">
+				<div v-if="emojiType === 2" class="emoji-content">
 					<span
-						class="emoji-item"
 						v-for="(value, key, index) of emojiMygoMap"
 						:key="index"
+						class="emoji-item"
 						@click="addEmoji(key)"
 					>
 						<img
@@ -69,11 +69,11 @@
 						/>
 					</span>
 				</div>
-				<div class="emoji-content" v-if="emojiType === 3">
+				<div v-if="emojiType === 3" class="emoji-content">
 					<span
-						class="text-emoji"
 						v-for="(value, index) in textList"
 						:key="index"
+						class="text-emoji"
 						@click="addEmoji(value)"
 					>
 						{{ value }}

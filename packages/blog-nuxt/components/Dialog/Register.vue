@@ -3,15 +3,29 @@
     <!-- 这个组件作为注册表单内容，由useOverlay显示 -->
     <UForm :state="registerForm" class="w-full space-y-4" @submit="handleRegister">
       <!-- 邮箱输入 -->
-      <UFormField label="邮箱" name="email" class="mb-3">
+      <UFormField name="email" class="mb-8">
         <UInput
           v-model="registerForm.email"
           placeholder="请输入邮箱"
         />
       </UFormField>
       
+      <!-- 验证码输入组 -->
+      <UFormField name="code" class="mb-8">
+        <div class="flex gap-3">
+          <UInput
+            v-model="registerForm.code"
+            placeholder="请输入验证码"
+            class="flex-1"
+          />
+          <UButton color="info" :disabled="flag" @click="sendCode" class="whitespace-nowrap">
+            {{ timer == 0 ? "发送" : `${timer}s` }}
+          </UButton>
+        </div>
+      </UFormField>
+      
       <!-- 昵称输入 -->
-      <UFormField label="昵称" name="nickname" class="mb-3">
+      <UFormField name="nickname" class="mb-8">
         <UInput
           v-model="registerForm.nickname"
           placeholder="请输入昵称"
@@ -19,7 +33,7 @@
       </UFormField>
       
       <!-- 密码输入 -->
-      <UFormField label="密码" name="password" class="mb-3">
+      <UFormField name="password" class="mb-8">
         <UInput
           v-model="registerForm.password"
           type="password"
@@ -28,48 +42,18 @@
       </UFormField>
       
       <!-- 确认密码输入 -->
-      <UFormField label="确认密码" name="confirmPassword" class="mb-3">
+      <UFormField name="confirmPassword" class="mb-8">
         <UInput
           v-model="registerForm.confirmPassword"
           type="password"
           placeholder="请再次输入密码"
         />
       </UFormField>
-
-      <!-- 验证码 -->
-      <UFormField label="验证码" name="code" class="mb-3">
-        <div class="flex items-center gap-3">
-          <UInput
-            v-model="registerForm.code"
-            placeholder="请输入验证码"
-            class="flex-1"
-          />
-          <div v-if="captcha" class="w-32 h-10 overflow-hidden flex-shrink-0">
-            <NuxtImg
-              :src="captcha"
-              alt="验证码"
-              @click="initCaptcha"
-              class="w-full h-full cursor-pointer"
-              v-show="!captchaLoading"
-            />
-            <div v-show="captchaLoading" class="w-full h-full flex items-center justify-center">
-              <UIcon name="icon:update" class="animate-spin" />
-            </div>
-          </div>
-          <div
-            v-else
-            class="w-32 h-10 flex-shrink-0 flex items-center justify-center cursor-pointer"
-            @click="initCaptcha"
-          >
-            <UIcon name="icon:update" class="animate-spin" />
-          </div>
-        </div>
-      </UFormField>
       
       <!-- 注册按钮 -->
       <UButton
         block
-        color="pink"
+        color="primary"
         variant="solid"
         type="submit"
         :loading="loading"
@@ -87,8 +71,10 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from "~/utils/debounce";
-import { register, getCaptcha } from "~/api/login";
+import { useIntervalFn } from "@vueuse/core";
+import { register, sendEmailCode, login } from "~/api/login";
+import { encryptPassword } from "~/utils/secret";
+import { useUserStore } from "~/stores/user";
 
 interface RegisterForm {
   email: string;
@@ -96,21 +82,19 @@ interface RegisterForm {
   password: string;
   confirmPassword: string;
   code: string;
-  captchaUUID: string;
 }
 
 // 计算属性和状态
 const loading = ref(false);
+const timer = ref(0);
+const flag = ref(false);
 const registerForm = reactive<RegisterForm>({
   email: "",
   nickname: "",
   password: "",
   confirmPassword: "",
   code: "",
-  captchaUUID: "",
 });
-const captcha = ref("");
-const captchaLoading = ref(false);
 
 // 暴露给父组件的事件
 const emit = defineEmits(['close', 'login']);
@@ -119,6 +103,54 @@ const emit = defineEmits(['close', 'login']);
 const handleLogin = () => {
   emit('close');
   emit('login');
+};
+
+// 倒计时功能
+const { pause, resume } = useIntervalFn(
+  () => {
+    timer.value--;
+    if (timer.value <= 0) {
+      // 停止定时器
+      pause();
+      flag.value = false;
+    }
+  },
+  1000,
+  { immediate: false }
+);
+
+// 开始倒计时
+const start = (time: number) => {
+  flag.value = true;
+  timer.value = time;
+  // 启动定时器
+  resume();
+};
+
+// 发送验证码
+const sendCode = () => {
+  // 邮箱格式验证
+  let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+  if (!reg.test(registerForm.email)) {
+    window.$message?.warning("邮箱格式不正确");
+    return;
+  }
+  
+  start(60);
+  sendEmailCode(registerForm.email)
+    .then((res: any) => {
+      if (res.data.flag) {
+        window.$message?.success("验证码发送成功");
+      }
+    })
+    .catch((error) => {
+      console.error("发送验证码失败", error);
+      window.$message?.error("验证码发送失败");
+      // 重置倒计时
+      flag.value = false;
+      timer.value = 0;
+      pause();
+    });
 };
 
 // 处理注册
@@ -130,6 +162,12 @@ const handleRegister = async () => {
     return;
   }
   
+  // 验证码验证
+  if (registerForm.code.trim().length != 6) {
+    window.$message?.warning("请输入6位验证码");
+    return;
+  }
+  
   // 昵称验证
   if (registerForm.nickname.trim().length == 0) {
     window.$message?.warning("昵称不能为空");
@@ -137,8 +175,8 @@ const handleRegister = async () => {
   }
   
   // 密码验证
-  if (registerForm.password.trim().length == 0) {
-    window.$message?.warning("密码不能为空");
+  if (registerForm.password.trim().length < 6) {
+    window.$message?.warning("密码不能少于6位");
     return;
   }
   
@@ -148,20 +186,42 @@ const handleRegister = async () => {
     return;
   }
   
-  // 验证码验证
-  if (registerForm.code.trim().length == 0) {
-    window.$message?.warning("验证码不能为空");
-    return;
-  }
-  
   loading.value = true;
   
   try {
-    // 调用实际注册API
-    const res = await register(registerForm);
+    // 调用实际注册API，不加密密码
+    const res = await register({
+      email: registerForm.email,
+      code: registerForm.code,
+      password: registerForm.password,
+      nickname: registerForm.nickname
+    });
     
     if (res.data.flag) {
-      window.$message?.success("注册成功，请登录");
+      // 注册成功后自动登录，这里需要加密密码
+      try {
+        const loginRes = await login({
+          email: registerForm.email,
+          password: encryptPassword(registerForm.password)
+        });
+        
+        if (loginRes.data.flag) {
+          // 存储token
+          const token = loginRes.data.data.token;
+          localStorage.setItem('token', token);
+          
+          // 获取用户信息
+          const user = useUserStore();
+          await user.fetchUserInfo();
+          
+          window.$message?.success("注册并登录成功");
+        } else {
+          window.$message?.success("注册成功，请登录");
+        }
+      } catch (loginError) {
+        console.error("自动登录失败", loginError);
+        window.$message?.success("注册成功，请手动登录");
+      }
       
       // 重置表单
       registerForm.email = "";
@@ -169,45 +229,18 @@ const handleRegister = async () => {
       registerForm.password = "";
       registerForm.confirmPassword = "";
       registerForm.code = "";
-      registerForm.captchaUUID = "";
       
-      // 关闭注册框，打开登录框
+      // 关闭注册框
       emit('close');
-      emit('login');
     }
   } catch (error) {
     console.error("注册失败", error);
-    window.$message?.error("注册失败，请重试");
   } finally {
     loading.value = false;
   }
 };
 
-// 初始化验证码
-const initCaptcha = debounce(async () => {
-  captchaLoading.value = true;
-  
-  try {
-    // 调用获取验证码API
-    const res = await getCaptcha();
-    
-    if (res.data.flag) {
-      captcha.value = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(res.data.data.captchaImg)}`;
-      registerForm.captchaUUID = res.data.data.captchaUuid;
-    }
-  } catch (error) {
-    console.error("获取验证码失败", error);
-  } finally {
-    captchaLoading.value = false;
-  }
-}, 500);
-
-// 组件挂载时初始化验证码
-onMounted(() => {
-  initCaptcha();
-});
-
 defineExpose({
-  initCaptcha
+  name: 'Register'
 });
 </script> 
