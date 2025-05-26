@@ -1,6 +1,6 @@
 <template>
 	<ClientOnly>
-	<NuxtLink to="/talk" class="talk-swiper" v-if="talkList.length > 0">
+	<NuxtLink v-if="talkList.length > 0" to="/talk" class="talk-swiper">
 		<UIcon name="icon:laba" class="laba-icon" />
 			<swiper
 				class="swiper-container"
@@ -11,8 +11,8 @@
 				:slides-per-view="1"
 				:autoplay="{ delay: 3000, disableOnInteraction: false }"
 			>
-				<swiper-slide v-for="(talk, index) in talkList" :key="index">
-					<div class="slide-content" v-html="talk"></div>
+				<swiper-slide v-for="(t, index) in talkList" :key="index">
+					<div class="slide-content" v-html="t"></div>
 				</swiper-slide>
 			</swiper>
 		<UIcon name="icon:right-arrow" class="arrow" />
@@ -25,56 +25,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { Autoplay } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { useApi } from '../../../composables/useApi';
 
 // 导入Swiper样式
 import 'swiper/css';
 import 'swiper/css/autoplay';
 
-// 获取API
-const api = useApi();
-const talkList = ref<string[]>([]);
+// 默认导出
+defineExpose({
+  name: 'TalkSwiper'
+});
+
 // 自动播放
 const modules = [Autoplay];
 
-// 获取首页说说数据
-const fetchTalkHomeList = async () => {
-  try {
-    // 使用API获取说说数据
-    console.log('正在获取说说数据...');
-    const response = await api.talk.getHomeList();
-    console.log('获取到的说说数据:', response);
-    
-    if (response && response.data) {
-      talkList.value = response.data;
-    } else if (response && Array.isArray(response)) {
-      // 如果API直接返回数组
-      talkList.value = response;
-    } else {
-      // 使用默认数据
-      talkList.value = [
-        "欢迎来到我的博客，这里是一个分享技术和生活的地方。",
-        "Nuxt.js的服务端渲染能力让博客获得更好的SEO效果。",
-        "有什么问题可以在留言板给我留言，我会及时回复的！"
-      ];
-    }
-  } catch (error) {
-    console.error('获取说说数据失败:', error);
-    // 使用默认数据作为备用
-    talkList.value = [
-  "欢迎来到我的博客，这里是一个分享技术和生活的地方。",
-  "Nuxt.js的服务端渲染能力让博客获得更好的SEO效果。",
-  "有什么问题可以在留言板给我留言，我会及时回复的！"
-    ];
-  }
-};
+const { talk } = useApi();
 
-onMounted(() => {
-  fetchTalkHomeList();
-});
+// 使用useFetch获取说说数据
+const talkList = await talk.getTalkList();
 </script>
 
 <style lang="scss" scoped>

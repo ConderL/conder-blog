@@ -1,55 +1,23 @@
 <template>
   <div class="imgs">
-    <ul v-show="displayedItems.length > 0">
-      <li class="item" v-for="(carousel, index) of displayedItems"
-        :key="index" :style="{'background-image': 'url(' + carousel.imgUrl + ')'}">
+    <ul v-if="carouselList.length">	
+      <li
+		v-for="(img, index) of carouselList" :key="index"
+        class="item" :style="{'background-image': 'url(' + img.imgUrl + ')'}">
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { getCarouselList } from '../../../api/carousel';
-import type { Carousel } from '../../../api/carousel/types';
-
-const carouselList = ref<Carousel[]>([]);
-const currentIndex = ref(0);
-let intervalId: any = null;
-
-// 计算属性，用于显示当前的子数组
-const displayedItems = computed(() => {
-	if (carouselList.value.length > 0) {
-		return [carouselList.value[currentIndex.value]];
-	} else {
-		return [];
-	}
-});
-
-// 开始遍历
-const startIteration = () => {
-	intervalId = setInterval(() => {
-		currentIndex.value = (currentIndex.value + 1) % carouselList.value.length;
-	}, 36000); // 动画结束时更新换下一张
-};
-
-onMounted(() => {
-  getCarouselList().then(({data}) => {
-    carouselList.value = data.data;
-    startIteration();
-  });
-});
-
-onUnmounted(() => {
-	if (intervalId !== null) {
-		clearInterval(intervalId);
-	}
-});
-
 // 默认导出
 defineExpose({
   name: 'Images'
 });
+
+// 使用useFetch获取轮播图数据
+const { carousel } = useApi();
+const carouselList = await carousel.getList();
 </script>
 
 <style lang="scss" scoped>

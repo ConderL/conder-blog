@@ -10,7 +10,7 @@
     <!-- 评论列表 -->
     <template #default>
       <div v-if="commentList.length > 0">
-        <div class="comment-item" v-for="comment in commentList" :key="comment.id">
+        <div v-for="comment in commentList" :key="comment.id" class="comment-item">
           <!-- 头像 -->
           <img class="user-avatar" :src="comment.avatar" alt="" />
           <div class="comment-content">
@@ -48,13 +48,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted, defineComponent } from 'vue';
-import { getRecentComment } from '../../api/comment';
-import type { RecentComment } from '../../api/comment/types';
 import { formatDate } from '../../utils/date';
 import { cleanupContent } from '../../utils/emojiProcessor';
 
-const commentList = ref<RecentComment[]>([]);
+// 添加默认导出
+defineComponent({
+  name: 'RecentComment'
+});
+
 const loading = ref(true);
+const { comment: commentApi } = useApi();
+
+const { recordList: commentList } = await commentApi.getList();
 
 // 处理评论内容，转换表情代码为图片
 const processCommentContent = (content: string) => {
@@ -74,34 +79,6 @@ const formatCommentDate = (date: string | Date | null | undefined) => {
   }
 };
 
-// 获取评论数据的函数
-const fetchComments = async () => {
-  try {
-    loading.value = true;
-    const { data } = await getRecentComment();
-    if (data && data.code === 200 && Array.isArray(data.data)) {
-      // 过滤掉可能存在的无效数据
-      commentList.value = data.data.filter(comment => 
-        comment && typeof comment === 'object' && comment.id
-      ) || [];
-    } else {
-      commentList.value = [];
-    }
-  } catch (error) {
-    console.error('获取最新评论失败', error);
-    commentList.value = [];
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 在客户端挂载后获取数据
-onMounted(fetchComments);
-
-// 添加默认导出
-defineComponent({
-  name: 'RecentComment'
-});
 </script>
 
 <style lang="scss" scoped>

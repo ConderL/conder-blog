@@ -18,7 +18,7 @@
             placeholder="请输入验证码"
             class="flex-1"
           />
-          <UButton color="info" :disabled="flag" @click="sendCode" class="whitespace-nowrap">
+          <UButton color="info" :disabled="flag" class="whitespace-nowrap" @click="sendCode">
             {{ timer == 0 ? "发送" : `${timer}s` }}
           </UButton>
         </div>
@@ -47,7 +47,7 @@
       
       <!-- 去登录 -->
       <div class="flex justify-center mt-4">
-        <UButton variant="link" color="pink" @click="handleLogin" class="hover:text-pink-600">已有账号？去登录</UButton>
+        <UButton variant="link" color="pink" class="hover:text-pink-600" @click="handleLogin">已有账号？去登录</UButton>
       </div>
     </UForm>
   </div>
@@ -55,10 +55,8 @@
 
 <script setup lang="ts">
 import { useIntervalFn } from "@vueuse/core";
-import { sendEmailCode } from "~/api/login";
-import { updateUserPassword } from "~/api/user";
-import type { UserForm } from "~/api/user";
 
+const { login: loginApi } = useApi();
 // 计算属性和状态
 const loading = ref(false);
 const timer = ref(0);
@@ -103,14 +101,14 @@ const start = (time: number) => {
 // 发送验证码
 const sendCode = () => {
   // 邮箱格式验证
-  let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+  const reg = /^[A-Za-z0-9\u4E00-\u9FA5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
   if (!reg.test(forgetForm.username as string)) {
     window.$message?.warning("邮箱格式不正确");
     return;
   }
   
   start(60);
-  sendEmailCode(forgetForm.username as string)
+  loginApi.sendEmailCode(forgetForm.username as string)
     .then((res: any) => {
       if (res.data.flag) {
         window.$message?.success("验证码发送成功");
@@ -144,7 +142,7 @@ const handleForget = async () => {
   
   try {
     // 调用修改密码API
-    const res = await updateUserPassword(forgetForm);
+    const res = await loginApi.updateUserPassword(forgetForm);
     
     if (res.data.flag) {
       window.$message?.success("修改成功");

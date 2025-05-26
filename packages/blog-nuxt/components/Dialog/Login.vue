@@ -29,11 +29,11 @@
           />
           <div v-if="captcha" class="w-32 h-10 overflow-hidden flex-shrink-0">
             <NuxtImg
+              v-show="!captchaLoading"
               :src="captcha"
               alt="验证码"
-              @click="initCaptcha"
               class="w-full h-full cursor-pointer"
-              v-show="!captchaLoading"
+              @click="initCaptcha"
             />
             <div v-show="captchaLoading" class="w-full h-full flex items-center justify-center">
               <UIcon name="icon:update" class="animate-spin" />
@@ -62,8 +62,8 @@
       
       <!-- 注册和忘记密码 -->
       <div class="flex justify-between mt-4">
-        <UButton variant="link" color="pink" @click="handleRegister" class="hover:text-pink-600">立即注册</UButton>
-        <UButton variant="link" color="pink" @click="handleForget" class="hover:text-pink-600">忘记密码?</UButton>
+        <UButton variant="link" color="pink" class="hover:text-pink-600" @click="handleRegister">立即注册</UButton>
+        <UButton variant="link" color="pink" class="hover:text-pink-600" @click="handleForget">忘记密码?</UButton>
       </div>
       
       <!-- 社交登录 -->
@@ -73,13 +73,13 @@
           <div class="absolute top-1/2 left-0 right-0 h-px bg-gray-200 dark:bg-gray-800"></div>
         </div>
         <div class="flex justify-center gap-6 mt-3">
-          <div v-if="showLogin('qq')" @click="qqLogin" class="cursor-pointer hover:opacity-80 transition-opacity">
+          <div v-if="showLogin('qq')" class="cursor-pointer hover:opacity-80 transition-opacity" @click="qqLogin">
             <UIcon name="icon:qq" class="text-[#00aaee] w-8 h-8 hover:scale-110 transition-transform" />
           </div>
-          <div v-if="showLogin('gitee')" @click="giteeLogin" class="cursor-pointer hover:opacity-80 transition-opacity">
+          <div v-if="showLogin('gitee')" class="cursor-pointer hover:opacity-80 transition-opacity" @click="giteeLogin">
             <UIcon name="icon:gitee" class="w-8 h-8 hover:scale-110 transition-transform" />
           </div>
-          <div v-if="showLogin('github')" @click="githubLogin" class="cursor-pointer hover:opacity-80 transition-opacity">
+          <div v-if="showLogin('github')" class="cursor-pointer hover:opacity-80 transition-opacity" @click="githubLogin">
             <UIcon name="icon:github" class="w-8 h-8 hover:scale-110 transition-transform" />
           </div>
         </div>
@@ -92,13 +92,13 @@
 import { useAppStore, useBlogStore, useUserStore } from "~/stores";
 import { setToken } from "~/utils/token";
 import { debounce } from "~/utils/debounce";
-import { login, getCaptcha, type LoginForm } from "~/api/login";
 import { encryptPassword } from "~/utils/secret";
 
 // 计算属性和状态
 const app = useAppStore();
 const user = useUserStore();
 const blog = useBlogStore();
+const { login: loginApi } = useApi();
 const loading = ref(false);
 const loginForm = reactive<LoginForm>({
   email: "",
@@ -184,7 +184,7 @@ const githubLogin = () => {
 // 处理登录
 const handleLogin = async () => {
   // 邮箱格式验证
-  let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+  const reg = /^[A-Za-z0-9\u4E00-\u9FA5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
   if (!reg.test(loginForm.email)) {
     window.$message?.warning("邮箱格式不正确");
     return;
@@ -209,7 +209,7 @@ const handleLogin = async () => {
     const encryptedPassword = encryptPassword(loginForm.password);
     
     // 调用实际登录API
-    const res = await login({
+    const res = await loginApi.login({
       ...loginForm,
       password: encryptedPassword
     });
@@ -242,7 +242,7 @@ const initCaptcha = debounce(async () => {
   
   try {
     // 调用获取验证码API
-    const res = await getCaptcha();
+    const res = await loginApi.getCaptcha();
     
     if (res.data.flag) {
       captcha.value = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(res.data.data.captchaImg)}`;

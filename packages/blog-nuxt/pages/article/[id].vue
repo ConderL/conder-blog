@@ -3,39 +3,39 @@
     <!-- 文章头部信息 -->
     <div class="page-header">
       <div class="page-title">
-        <h1 class="article-title">{{ data.article.articleTitle }}</h1>
+        <h1 class="article-title">{{ articleData?.articleTitle }}</h1>
         <div class="article-meta">
           <div class="first-meta">
             <span>
               <UIcon name="icon:calendar" class="meta-icon" />
-              <span class="text">发表于 </span>{{ data.formattedCreateTime }}
+              <span class="text">发表于 </span>{{ formattedCreateTime }}
             </span>
-            <span v-if="data.formattedUpdateTime" class="item">
+            <span v-if="formattedUpdateTime" class="item">
               <UIcon name="icon:update" class="meta-icon" />
-              <span class="text">更新于 </span>{{ data.formattedUpdateTime }}
+              <span class="text">更新于 </span>{{ formattedUpdateTime }}
             </span>
             <span class="item">
               <UIcon name="icon:eye" class="meta-icon" />
-              <span class="text">阅读量 </span>{{ data.article.viewCount || 0 }}
+              <span class="text">阅读量 </span>{{ articleData?.viewCount || 0 }}
             </span>
           </div>
           <div class="second-meta">
             <span>
               <UIcon name="icon:article" class="meta-icon" />
-              <span class="text">字数统计 </span>{{ data.wordNumFormatted }} 字
+              <span class="text">字数统计 </span>{{ wordNumFormatted }} 字
             </span>
             <span class="item">
               <UIcon name="icon:clock" class="meta-icon" />
-              <span class="text">阅读时长 </span>{{ data.readTime || 0 }} 分钟
+              <span class="text">阅读时长 </span>{{ readTime || 0 }} 分钟
             </span>
-            <span v-if="data.article.category?.categoryName" class="item">
+            <span v-if="articleData?.category?.categoryName" class="item">
               <UIcon name="icon:category" class="meta-icon" />
-              {{ data.article.category?.categoryName }}
+              {{ articleData.category?.categoryName }}
             </span>
           </div>
         </div>
       </div>
-      <img v-if="data.article.articleCover" class="page-cover" :src="data.article.articleCover" alt="" />
+      <img v-if="articleData?.articleCover" class="page-cover" :src="articleData.articleCover" alt="" />
       <Waves></Waves>
     </div>
     <div class="bg">
@@ -43,20 +43,16 @@
         <div v-auto-animate="{duration: 300}" class="flex w-full">
           <div key="main" class="bg-white rounded-lg">
             <div class="article-container">
-              <!-- 仅MdPreview组件需要客户端渲染 -->
-              <ClientOnly>
-                <MdPreview
-                  v-if="data.articleLoaded"
-                  editor-id="preview-only"
-                  :model-value="data.article.articleContent"
-                  class="md-preview-custom"
-                />
-              </ClientOnly>
+              <MdPreview
+                editor-id="preview-only"
+                :model-value="articleData?.articleContent"
+                class="md-preview-custom"
+              />
               
               <div class="article-post">
                 <div class="tag-share">
                   <NuxtLink
-                    v-for="tag in data.article.tagVOList || data.article.tags"
+                    v-for="tag in articleData?.tags"
                     :key="tag.id"
                     :to="`/tag/${tag.id}`"
                     class="article-tag"
@@ -70,20 +66,20 @@
                     <div class="share-info">
                       <ShareButtons
                         :url="articleUrl"
-                        :title="data.article.articleTitle"
+                        :title="articleData?.articleTitle"
                       />  
                     </div>
                   </ClientOnly>
                 </div>
                 
                 <div class="reward">
-                  <button class="btn" :class="data.isLiked ? 'like-btn-active' : 'like-btn'" @click="like">
+                  <button class="btn" :class="isLiked ? 'like-btn-active' : 'like-btn'" @click="like">
                     <UIcon name="icon:like" class="btn-icon" />
                     点赞
-                    <span>{{ data.article.likeCount || 0 }}</span>
+                    <span>{{ articleData?.likeCount || 0 }}</span>
                   </button>
                   
-                  <ClientOnly v-if="data.isReward">
+                  <ClientOnly v-if="isReward">
                     <div class="reward-container">
                       <button class="btn reward-btn" @click="showReward = !showReward">
                         <UIcon name="icon:qr-code" class="btn-icon" />
@@ -95,7 +91,7 @@
                           <span>
                             <img
                               class="reward-img"
-                              :src="data.weiXinCode"
+                              :src="weiXinCode"
                               alt="微信打赏"
                             />
                             <div class="reward-desc">微信</div>
@@ -103,7 +99,7 @@
                           <span style="margin-left: 0.3rem">
                             <img
                               class="reward-img"
-                              :src="data.aliCode"
+                              :src="aliCode"
                               alt="支付宝打赏"
                             />
                             <div class="reward-desc">支付宝</div>
@@ -119,7 +115,7 @@
                   <ul>
                     <li class="author">
                       <UIcon name="icon:user" class="copyright-icon" />
-                      <strong>本文作者： </strong>{{ data.siteAuthor }}
+                      <strong>本文作者： </strong>{{ siteAuthor }}
                     </li>
                     <li class="link">
                       <UIcon name="icon:article-link" class="copyright-icon" />
@@ -142,39 +138,39 @@
                 
                 <!-- 上下文 -->
                 <div class="post-nav">
-                  <div v-if="data.article.lastArticle?.id" class="item">
+                  <div v-if="articleData?.lastArticle?.id" class="item">
                     <NuxtLink
-                      :to="`/article/${data.article.lastArticle.id}`"
+                      :to="`/article/${articleData.lastArticle.id}`"
                       class="post-cover"
-                      :style="articleCover(data.article.lastArticle.articleCover)"
+                      :style="articleCover(articleData.lastArticle.articleCover)"
                     >
                       <span class="post-last-next">上一篇</span>
                       <h3 class="post-title">
-                        {{ data.article.lastArticle.articleTitle }}
+                        {{ articleData.lastArticle.articleTitle }}
                       </h3>
                     </NuxtLink>
                   </div>
-                  <div v-if="data.article.nextArticle?.id" class="item">
+                  <div v-if="articleData?.nextArticle?.id" class="item">
                     <NuxtLink
-                      :to="`/article/${data.article.nextArticle.id}`"
+                      :to="`/article/${articleData.nextArticle.id}`"
                       class="post-cover"
-                      :style="articleCover(data.article.nextArticle.articleCover)"
+                      :style="articleCover(articleData.nextArticle.articleCover)"
                     >
                       <span class="post-last-next">下一篇</span>
                       <h3 class="post-title">
-                        {{ data.article.nextArticle.articleTitle }}
+                        {{ articleData.nextArticle.articleTitle }}
                       </h3>
                     </NuxtLink>
                   </div>
                 </div>
                 
                 <!-- 评论区 -->
-                <CommentList :comment-type="data.commentType" />
+                <CommentList :comment-type="commentType" />
               </div>
             </div>
           </div>
           
-          <div v-if="!data.sideFlag" :class="data.sideFlag ? '!w-0' : ''">
+          <div v-if="!sideFlag" :class="sideFlag ? '!w-0' : ''">
             <!-- 仅在侧边栏打开时显示 -->
             <div key="sidebar" class="ml-4 w-[300px] right-container">
               <div key="catalog" class="side-card">
@@ -183,7 +179,7 @@
                 <!-- 仅目录组件需要客户端渲染 -->
                 <ClientOnly>
                   <MdCatalog
-                    v-if="data.articleLoaded && isMounted"
+                    v-if="articleLoaded && isMounted"
                     editor-id="preview-only"
                     :scroll-element="scrollElement"
                   />
@@ -191,12 +187,12 @@
               </div>
               
               <!-- 推荐文章 -->
-              <div v-if="data.recommendedArticles.length > 0" key="recommended" class="side-card">
+              <div v-if="recommendData && recommendData.length > 0" key="recommended" class="side-card">
                 <UIcon name="icon:top" class="side-icon" />
                 推荐文章
                 <div class="recommend-list">
                   <NuxtLink 
-                    v-for="rec in data.recommendedArticles" 
+                    v-for="rec in recommendData" 
                     :key="rec.id" 
                     :to="`/article/${rec.id}`" 
                     class="recommend-item"
@@ -216,11 +212,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, reactive } from 'vue';
 import { MdCatalog, MdPreview } from 'md-editor-v3';
-import { getArticle, likeArticle, unlikeArticle, getArticleRecommend } from '~/api/article';
 import 'md-editor-v3/lib/preview.css';
 import { ClickDebouncer } from '~/utils/debounce';
-
-console.log('文章页面脚本开始执行');
 
 // 开发环境标识
 const isDev = process.env.NODE_ENV === 'development';
@@ -236,8 +229,19 @@ const blog = useBlogStore();
 // 获取路由信息
 const route = useRoute();
 const config = useRuntimeConfig();
-let articleId = Number(route.params.id);
-const articleUrl = computed(() => `${config.public.siteUrl}/article/${articleId}`);
+const articleId = computed(() => {
+  // 确保ID是有效的数字
+  const id = route.params.id;
+  if (typeof id === 'string') {
+    return parseInt(id, 10);
+  } else if (Array.isArray(id) && id.length > 0) {
+    return parseInt(id[0], 10);
+  }
+  // 如果无法获取有效ID，返回默认值或重定向
+  console.error('无效的文章ID:', id);
+  return 1; // 默认返回ID为1的文章，避免NaN
+});
+const articleUrl = computed(() => `${config.public.siteUrl}/article/${articleId.value}`);
 
 // 客户端状态
 const isMounted = ref(false);
@@ -245,39 +249,168 @@ const scrollElement = ref(null);
 const likeDebouncer = new ClickDebouncer(800);
 const showReward = ref(false);
 
-// 文章数据
-const data = reactive({
-  articleLoaded: false,
-  wordNum: 0,
-  wordNumFormatted: '0',
-  readTime: 0,
-  commentType: 1,
-  recommendedArticles: [],
-  article: {
-    id: 0,
-    articleCover: "",
-    articleTitle: "",
-    articleContent: "",
-    articleType: 0,
-    viewCount: 0,
-    likeCount: 0,
-    category: {},
-    tagVOList: [],
-    createTime: "",
-    lastArticle: {},
-    nextArticle: {},
-    updateTime: "",
-  },
-  formattedCreateTime: '',
-  formattedUpdateTime: '',
-  isLiked: false,
-  sideFlag: initialSideFlag.value, // 使用独立的ref作为初始值
-  weiXinCode: '',
-  aliCode: '',
-  isReward: false,
-  siteAuthor: ''
+// 文章数据相关的响应式变量
+const articleLoaded = ref(false);
+const wordNum = ref(0);
+const wordNumFormatted = ref('0');
+const readTime = ref(0);
+const commentType = ref(1);
+const isLiked = ref(false);
+const sideFlag = ref(initialSideFlag.value); // 使用独立的ref作为初始值
+const weiXinCode = ref('');
+const aliCode = ref('');
+const isReward = ref(false);
+const siteAuthor = ref('@ConderL');
+const formattedCreateTime = ref('');
+const formattedUpdateTime = ref('');
+
+// 使用封装好的API
+const { article: articleApi } = useApi();
+
+// 文章数据和推荐文章
+const loading = ref(true);
+const articleData = await articleApi.getArticle(articleId.value)
+const recommendData = await articleApi.getArticleRecommend()
+
+// 获取文章数据
+const fetchArticleData = async () => {
+  try {
+    loading.value = true;
+    
+    // 计算字数和阅读时间
+    if (articleData.value?.articleContent) {
+      wordNum.value = deleteHTMLTag(articleData.value.articleContent).length;
+      readTime.value = Math.round(wordNum.value / 400) || 1;
+      wordNumFormatted.value = formatNumber(wordNum.value);
+    }
+    
+    // 格式化日期
+    formattedCreateTime.value = articleData.value?.createTime ? formatDateString(articleData.value.createTime) : '';
+    formattedUpdateTime.value = articleData.value?.updateTime ? formatDateString(articleData.value.updateTime) : '';
+    
+    // 检查用户是否已点赞此文章
+    isLiked.value = articleData.value ? user.articleLikeSet.includes(articleData.value.id) : false;
+    
+    articleLoaded.value = true;
+    
+    // 从博客配置中获取打赏码等信息
+    const siteConfig = blog.blogInfo.siteConfig || {};
+    siteAuthor.value = siteConfig.siteAuthor || '@ConderL';
+    weiXinCode.value = siteConfig.weiXinCode || '';
+    aliCode.value = siteConfig.aliCode || '';
+    isReward.value = !!siteConfig.isReward;
+  } catch (error) {
+    console.error('获取文章数据失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+fetchArticleData();
+
+// 点赞文章
+const like = async () => {
+  if (!user.id) {
+    app.setLoginFlag(true);
+    return;
+  }
+  
+  if (!articleData.value) return;
+  
+  const id = articleData.value.id;
+  
+  // 使用防抖器检查是否可以点赞，防止快速多次点击
+  if (!likeDebouncer.canClick(id)) {
+    return;
+  }
+  
+  try {
+    // 判断当前是否已点赞
+    if (user.articleLikeSet.includes(id)) {
+      // 已点赞，调用取消点赞API
+      const response = await articleApi.unlike(id.toString());
+      if (response?.flag) {
+        articleData.value.likeCount = Math.max(0, articleData.value.likeCount - 1);
+        user.articleLike(id);
+        isLiked.value = !isLiked.value;
+      }
+    } else {
+      // 未点赞，使用封装好的API
+      const response = await articleApi.like(id.toString());
+      if (response?.flag) {
+        articleData.value.likeCount += 1;
+        user.articleLike(id);
+        isLiked.value = !isLiked.value;
+      }
+    }
+  } catch (error) {
+    console.error("点赞操作失败:", error);
+  }
+};
+
+// SEO优化
+useHead({
+  title: computed(() => articleData.value?.articleTitle 
+    ? `${articleData.value.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`
+    : '文章详情'),
+  meta: [
+    {
+      name: 'description',
+      content: computed(() => articleData.value?.articleContent
+        ? deleteHTMLTag(articleData.value.articleContent).slice(0, 150) + '...'
+        : '查看详细文章内容')
+    },
+    {
+      name: 'keywords',
+      content: computed(() => {
+        const tags = articleData.value?.tags || [];
+        return tags?.length
+          ? tags.map((tag: any) => tag.tagName).join(',')
+          : '博客,文章,技术';
+      })
+    }
+  ]
 });
 
+// 仅在客户端进行的操作
+onMounted(() => {
+  console.log('文章页面挂载...');
+
+  scrollElement.value = document.documentElement;
+  isMounted.value = true;
+  
+  // 使用setTimeout确保获取到正确的app.sideFlag
+  setTimeout(() => {
+    // 更新初始状态
+    initialSideFlag.value = app.sideFlag;
+    // 同步侧边栏状态
+    sideFlag.value = app.sideFlag;
+  }, 0);
+  
+  // 添加点击外部关闭打赏弹窗的事件监听
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const rewardBtn = document.querySelector('.reward-btn');
+    const rewardPopup = document.querySelector('.reward-popup');
+    
+    if (showReward.value && rewardBtn && rewardPopup && 
+        !rewardBtn.contains(target) && !rewardPopup.contains(target)) {
+      showReward.value = false;
+    }
+  });
+});
+
+// 监听侧边栏状态变化
+watch(() => app.sideFlag, (newValue) => {
+  sideFlag.value = newValue;
+});
+
+// 设置路由meta信息
+definePageMeta({
+  title: '文章'
+});
+
+// 工具函数 - 提前声明
 // 文章封面背景样式
 const articleCover = (cover: string) => {
   return `background-image:url(${cover})`;
@@ -308,194 +441,6 @@ const formatDateString = (dateString: string | undefined) => {
   const day = date.getDate();
   return `${year}年${month}月${day}日`;
 };
-
-// 点赞文章
-const like = async () => {
-  if (!user.id) {
-    app.setLoginFlag(true);
-    return;
-  }
-  
-  const id = data.article.id;
-  
-  // 使用防抖器检查是否可以点赞，防止快速多次点击
-  if (!likeDebouncer.canClick(id)) {
-    return;
-  }
-  
-  try {
-    // 判断当前是否已点赞
-    if (user.articleLikeSet.includes(id)) {
-      // 已点赞，调用取消点赞API
-      const response = await unlikeArticle(id);
-      if (response.data.flag) {
-        data.article.likeCount = Math.max(0, data.article.likeCount - 1);
-        user.articleLike(id);
-        data.isLiked = !data.isLiked;
-      }
-    } else {
-      // 未点赞，调用点赞API
-      const response = await likeArticle(id);
-      if (response.data.flag) {
-        data.article.likeCount += 1;
-        user.articleLike(id);
-        data.isLiked = !data.isLiked;
-      }
-    }
-  } catch (error) {
-    console.error("点赞操作失败:", error);
-  }
-};
-
-// 获取文章数据
-const fetchArticleData = async () => {
-  try {
-    // 1. 获取文章详情
-    const articleResponse = await getArticle(articleId);
-    if (!articleResponse.data.flag) {
-      console.error('获取文章详情失败');
-      return;
-    }
-    
-    // 将API返回的数据映射到我们的数据结构
-    const articleData = articleResponse.data.data;
-    
-    // 更新文章基本信息
-    data.article = {
-      id: articleData.id,
-      articleCover: articleData.articleCover,
-      articleTitle: articleData.articleTitle,
-      articleContent: articleData.articleContent,
-      articleType: articleData.articleType,
-      viewCount: articleData.viewCount,
-      likeCount: articleData.likeCount,
-      category: articleData.category,
-      tagVOList: articleData.tags, // 注意这里API返回的是tags而不是tagVOList
-      createTime: articleData.createTime,
-      lastArticle: articleData.lastArticle || {}, // 可能不存在
-      nextArticle: articleData.nextArticle || {},
-      updateTime: articleData.updateTime,
-    };
-    
-    // 2. 计算字数和阅读时间
-    data.wordNum = data.article.articleContent ? deleteHTMLTag(data.article.articleContent).length : 0;
-    data.readTime = Math.round(data.wordNum / 400) || 1;
-    data.wordNumFormatted = formatNumber(data.wordNum);
-    
-    // 3. 格式化日期
-    data.formattedCreateTime = data.article.createTime ? formatDateString(data.article.createTime) : '';
-    data.formattedUpdateTime = data.article.updateTime ? formatDateString(data.article.updateTime) : '';
-    
-    // 4. 检查用户是否已点赞此文章
-    data.isLiked = user.articleLikeSet.includes(data.article.id);
-    
-    // 5. 从博客配置中获取打赏码等信息
-    const siteConfig = blog.blogInfo.siteConfig || {};
-    data.siteAuthor = siteConfig.siteAuthor || '@ConderL';
-    data.weiXinCode = siteConfig.weiXinCode || '';
-    data.aliCode = siteConfig.aliCode || '';
-    data.isReward = !!siteConfig.isReward;
-    
-    // 6. 获取推荐文章
-    try {
-      const recommendResponse = await getArticleRecommend();
-      if (recommendResponse?.data.flag) {
-        data.recommendedArticles = recommendResponse.data.data || [];
-      }
-    } catch (error) {
-      console.error('获取推荐文章失败:', error);
-    }
-    
-    data.articleLoaded = true;
-    
-    // 设置文档标题
-    if (data.article.articleTitle) {
-      document.title = `${data.article.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`;
-    }
-    
-    console.log('文章数据加载完成:', data);
-  } catch (error) {
-    console.error('获取文章数据失败:', error);
-  }
-};
-
-// SEO优化
-useHead({
-  title: computed(() => data.article.articleTitle 
-    ? `${data.article.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`
-    : '文章详情'),
-  meta: [
-    {
-      name: 'description',
-      content: computed(() => data.article.articleContent
-        ? deleteHTMLTag(data.article.articleContent).slice(0, 150) + '...'
-        : '查看详细文章内容')
-    },
-    {
-      name: 'keywords',
-      content: computed(() => {
-        const tags = data.article.tagVOList || data.article.tags;
-        return tags?.length
-          ? tags.map((tag: any) => tag.tagName).join(',')
-          : '博客,文章,技术';
-      })
-    }
-  ]
-});
-
-// 仅在客户端进行的操作
-onMounted(() => {
-
-  console.log('文章页面挂载...');
-
-  scrollElement.value = document.documentElement;
-  isMounted.value = true;
-  
-  // 使用setTimeout确保获取到正确的app.sideFlag
-  setTimeout(() => {
-    // 更新初始状态
-    initialSideFlag.value = app.sideFlag;
-    // 同步侧边栏状态
-    data.sideFlag = app.sideFlag;
-  }, 0);
-  
-  // 获取文章数据
-  fetchArticleData();
-  
-  // 添加点击外部关闭打赏弹窗的事件监听
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const rewardBtn = document.querySelector('.reward-btn');
-    const rewardPopup = document.querySelector('.reward-popup');
-    
-    if (showReward.value && rewardBtn && rewardPopup && 
-        !rewardBtn.contains(target) && !rewardPopup.contains(target)) {
-      showReward.value = false;
-    }
-  });
-});
-
-// 监听侧边栏状态变化
-watch(() => app.sideFlag, (newValue) => {
-  data.sideFlag = newValue;
-});
-
-// 监听路由参数变化，重新获取文章数据
-watch(() => route.params.id, (newId) => {
-  if (newId && Number(newId) !== articleId) {
-    // 重新设置文章ID
-    articleId = Number(newId);
-    // 重置数据
-    data.articleLoaded = false;
-    // 重新获取文章数据
-    fetchArticleData();
-  }
-});
-
-// 设置路由meta信息
-definePageMeta({
-  title: '文章'
-});
 </script>
 
 <style lang="scss" scoped>

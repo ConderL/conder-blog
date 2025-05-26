@@ -25,7 +25,7 @@
 						</div>
 					</div>
 				</div>
-				<Pagination v-if="count > 0" v-model:current="queryParams.current" :total="Math.ceil(count / 5)">
+				<Pagination v-if="count > 5" v-model:current="queryParams.current" :per-page="queryParams.size" :total="count">
 				</Pagination>
 			</div>
 		</div>
@@ -35,39 +35,13 @@
 <script setup lang="ts">
 import { formatDate } from '~/utils/date';
 import { useBlogStore } from "~/stores/blog";
-import request from "~/utils/request";
 
 // 定义所有需要的接口，避免导入错误
-interface PageQuery {
-	current: number;
-	size: number;
-}
-
 interface Archives {
 	id: number;
 	articleTitle: string;
 	articleCover: string;
 	createTime: string;
-}
-
-interface Result<T> {
-	code: number;
-	msg: string;
-	data: T;
-}
-
-interface PageResult<T> {
-	recordList: T;
-	count: number;
-}
-
-// 定义API函数
-function getArchivesList(params: PageQuery) {
-	return request({
-		url: "/archives/list",
-		method: "get",
-		params,
-	});
 }
 
 // 定义页面元数据，使导航栏能正确识别当前页面
@@ -76,51 +50,15 @@ definePageMeta({
 });
 
 const blog = useBlogStore();
-const data = reactive({
-	count: 0,
-	queryParams: {
-		current: 1,
-		size: 5,
-	} as PageQuery,
-	archivesList: [] as Archives[],
-});
-const {
-	count,
-	queryParams,
-	archivesList,
-} = toRefs(data);
 
-// 确保在服务器端预取博客信息
-onServerPrefetch(async () => {
-	if (!blog.blogInfo?.siteConfig) {
-		try {
-			// 尝试获取博客信息
-			const { data: blogData } = await useFetch('/api/blog/info');
-			if (blogData.value) {
-				blog.setBlogInfo(blogData.value.data);
-			}
-		} catch (error) {
-			console.error('获取博客信息失败', error);
-		}
-	}
+const queryParams = reactive({
+	current: 1,
+	size: 5,
 });
 
-watch(
-	() => queryParams.value.current,
-	() => {
-		getArchivesList(queryParams.value).then(({data}) => {
-			archivesList.value = data.data.recordList;
-			count.value = data.data.count;
-		});
-	}
-);
+const { archives } = useApi();
+const { recordList: archivesList, count } = await archives.getList(queryParams);
 
-onMounted(() => {
-	getArchivesList(queryParams.value).then(({data}) => {
-		archivesList.value = data.data.recordList;
-		count.value = data.data.count;
-	});
-});
 
 // SEO优化
 useHead({

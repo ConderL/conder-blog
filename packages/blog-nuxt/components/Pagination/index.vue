@@ -1,8 +1,8 @@
 <template>
   <div class="pagination-wrapper">
     <UPagination
-      class="pagination"
       v-model:page="currentPage"
+      class="pagination"
       :total="total"
       :items-per-page="perPage"
       :show-controls="true"
@@ -55,10 +55,6 @@ const props = defineProps({
   total: {
     type: Number,
     default: 0,
-  },
-  pageCount: {
-    type: Number,
-    default: 10,
   },
   perPage: {
     type: Number,

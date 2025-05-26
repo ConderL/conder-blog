@@ -151,7 +151,6 @@ import { useAppStore } from '~/stores/app';
 import { useUserStore } from '~/stores/user';
 import { ClickDebouncer } from '~/utils/debounce';
 import { cleanupContent } from '~/utils/emojiProcessor';
-import { getCommentList, getReplyList, likeComment, unlikeComment } from '~/api/comment';
 
 // 创建点赞防抖器实例，设置800ms防抖时间
 const likeDebouncer = new ClickDebouncer(800);
@@ -161,7 +160,7 @@ const route = useRoute();
 const replyRef = ref<any>([]);
 const pageRef = ref<any>([]);
 const readMoreRef = ref<any>([]);
-
+const { comment: commentApi } = useApi();
 // 使用AutoAnimate添加评论列表动画
 const [commentListRef] = useAutoAnimate({
 	duration: 300,
@@ -233,7 +232,7 @@ const like = (comment: any) => {
 	// 判断当前是否已点赞
 	if (user.commentLikeSet.includes(id)) {
 		// 已点赞，调用取消点赞API
-		unlikeComment(id)
+		commentApi.unlike(id)
 			.then((response: any) => {
 				if (response.data.flag) {
 					comment.likeCount = Math.max(0, comment.likeCount - 1);
@@ -245,7 +244,7 @@ const like = (comment: any) => {
 			});
 	} else {
 		// 未点赞，调用点赞API
-		likeComment(id)
+		commentApi.like(id)
 			.then((response: any) => {
 				if (response.data.flag) {
 					comment.likeCount += 1;
@@ -272,7 +271,7 @@ watch(
 
 // 查看更多评论
 const readMoreComment = (index: number, comment: any) => {
-	getReplyList(comment.id, { current: 1, size: 5 })
+	commentApi.getReplyList(comment.id, { current: 1, size: 5 })
 	.then((response: any) => {
 		if (response.data && response.data.data) {
 			comment.replyVOList = response.data.data;
@@ -299,7 +298,7 @@ const readMoreComment = (index: number, comment: any) => {
 
 // 查看当前页的回复评论
 const getCurrentPage = (current: number, index: number, commentId: number) => {
-	getReplyList(commentId, { current, size: 5 })
+	commentApi.getReplyList(commentId, { current, size: 5 })
 	.then((response: any) => {
 		if (response.data && response.data.data && commentList.value[index]) {
 			commentList.value[index].replyVOList = response.data.data;
@@ -326,39 +325,16 @@ const handleReply = (index: number, target: any) => {
 	currentReply.setReply(true);
 };
 
-const getList = () => {
-	getCommentList(queryParams.value)
-	.then((response: any) => {
-		if (response.data && response.data.data) {
-			if (queryParams.value.current === 1) {
-				commentList.value = response.data.data.recordList || [];
-			} else {
-				commentList.value.push(...(response.data.data.recordList || []));
-			}
-			queryParams.value.current++;
-			count.value = response.data.data.count || 0;
-			emit("getCommentCount", count.value);
-		}
-	})
-	.catch(error => {
-		console.warn('评论加载失败', error);
-		// 使用模拟数据
-		const mockData = {
-			data: {
-				recordList: [],
-				count: 0
-			},
-			flag: true
-		};
-		if (queryParams.value.current === 1) {
-			commentList.value = mockData.data.recordList;
-		} else {
-			commentList.value.push(...mockData.data.recordList);
-		}
-		queryParams.value.current++;
-		count.value = mockData.data.count;
-		emit("getCommentCount", count.value);
-	});
+const getList = async () => {
+	const { recordList: list } = await commentApi.getList(queryParams.value)
+	if(queryParams.value.current === 1) {
+		commentList.value = list || [];
+	} else {
+		commentList.value.push(...(list || []));
+	}
+	queryParams.value.current++;
+	count.value = list.data.data.count || 0;
+	emit("getCommentCount", count.value);
 };
 
 // 重新加载评论列表
@@ -373,7 +349,7 @@ const reloadReplies = (index: number) => {
 		return;
 	}
 	
-	getReplyList(commentList.value[index].id, {
+	comment.getReplyList(commentList.value[index].id, {
 		current: pageRef.value[index].current,
 		size: 5,
 	})

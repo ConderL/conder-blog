@@ -1,10 +1,10 @@
 <template>
-  <div class="article-container" ref="listRef">
+  <div v-if="articleList.length > 0" ref="listRef" class="article-container">
     <div
-      class="article-item"
-      v-animate="['slideUpBigIn']"
       v-for="article of articleList"
       :key="article.id"
+      v-animate="['slideUpBigIn']"
+      class="article-item"
     >
       <!-- 文章缩略图 -->
       <div class="article-cover">
@@ -16,7 +16,7 @@
       <div class="article-info">
         <div class="article-meta">
           <!-- 置顶 -->
-          <span class="top" v-if="article.isTop == 1">
+          <span v-if="article.isTop == 1" class="top">
             <UIcon name="icon:top" class="icon-small" />置顶</span
           >
           <!-- 发表时间 -->
@@ -26,10 +26,10 @@
           </span>
           <!-- 文章标签 -->
           <NuxtLink
-            class="meta-item ml-3.75"
-            :to="`/tag/${tag.id}`"
             v-for="tag in article.tagVOList"
             :key="tag.id"
+            class="meta-item ml-3.75"
+            :to="`/tag/${tag.id}`"
           >
             <UIcon name="icon:tag" class="icon-medium" />{{ tag.tagName }}
           </NuxtLink>
@@ -56,11 +56,11 @@
       </div>
     </div>
     <!-- 分页器 -->
-    <div class="pagination-container" v-if="count > 5">
+    <div v-if="count > 5" class="pagination-container">
       <Pagination 
         :current="queryParams.current"
         :total="count"
-        :perPage="queryParams.size"
+        :per-page="queryParams.size"
         @update:current="changePage"
       />
     </div>
@@ -69,18 +69,22 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
-import { getArticleList } from "../../api/article";
-import type { Article } from "../../api/article/types";
 import type { PageQuery } from "../../model";
 import { formatDate } from "../../utils/date";
 import { useAutoAnimate } from "~/composables/useAutoAnimate";
 
-const articleList = ref<Article[]>([]);
-const count = ref(0);
+// 默认导出
+defineExpose({
+  name: "ArticleItem",
+});
+
+const { article: articleApi } = useApi();
 const queryParams = reactive<PageQuery>({
   current: 1,
   size: 5,
 });
+
+const { recordList: articleList, count } = await articleApi.getList(queryParams);
 
 // 使用AutoAnimate为列表添加动画
 const { parent: listRef } = useAutoAnimate({
@@ -100,37 +104,10 @@ const formatArticleDate = (date: string | Date | null | undefined) => {
   }
 };
 
-watch(
-  () => queryParams.current,
-  () => {
-    fetchArticles();
-  }
-);
-
-const fetchArticles = async () => {
-  try {
-    const { data } = await getArticleList(queryParams);
-    if (data && data.code === 200) {
-      articleList.value = data.data.recordList;
-      count.value = data.data.count;
-    }
-  } catch (error) {
-    console.error("获取文章列表失败", error);
-  }
-};
-
 const changePage = (page: number) => {
   queryParams.current = page;
 };
 
-onMounted(() => {
-  fetchArticles();
-});
-
-// 默认导出
-defineExpose({
-  name: "ArticleItem",
-});
 </script>
 
 <style lang="scss" scoped>

@@ -41,20 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import { onServerPrefetch } from 'vue';
-import { getBlogInfo } from '../api/blogInfo';
-
-// 导入组件
-import Images from '../components/Home/Swiper/Images.vue';
-import Brand from '../components/Home/Brand/index.vue';
-import TalkSwiper from '../components/Home/Swiper/TalkSwiper.vue';
-import Recommend from '../components/Home/Swiper/Recommend.vue';
-import ArticleItem from '../components/Article/ArticleItem.vue';
-import BlogInfo from '../components/SideBar/BlogInfo.vue';
-import AuthorInfo from '../components/SideBar/AuthorInfo.vue';
-import NoticeInfo from '../components/SideBar/NoticeInfo.vue';
-import RecentComment from '../components/SideBar/RecentComment.vue';
-
 // 获取store实例 (使用Nuxt自动导入)
 const app = useAppStore();
 const blog = useBlogStore();
@@ -65,20 +51,22 @@ definePageMeta({
   layout: 'default'
 });
 
-// 服务端获取数据
-onServerPrefetch(async () => {
-  try {
-    const { data } = await getBlogInfo();
-    if (data && data.code === 200) {
-      // 直接设置博客信息，不做转换
-      blog.setBlogInfo(data.data);
+const { blogInfo } = useApi(); 
+
+const blogData = await blogInfo.getBlogInfo();
+
+blog.setBlogInfo(blogData);
+
+// 客户端上报访问信息
+onMounted(() => {
+  if (process.client) {
+    try {
+      blogInfo.report();
+    } catch (error) {
+      console.error('上报访问信息失败', error);
     }
-  } catch (error) {
-    console.error('获取博客信息失败', error);
   }
 });
-
-// 客户端获取数据将由clientOnly.client.ts插件处理
 </script>
 
 <style lang="scss" scoped>

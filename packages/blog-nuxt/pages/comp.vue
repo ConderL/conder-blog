@@ -18,11 +18,11 @@
 // 从文件名生成图标名列表
 const iconNames = [
   'emoji', 'chevron-right', 'chevron-left', 'user', 'web', 'zhaoxiang', 'update', 'upload',
-  'top', 'trumpet', 'up', 'talk', 'sun', 'tag', 'qr-code', 'qr_code', 'right-arrow', 'search',
+  'top', 'trumpet', 'up', 'talk', 'sun', 'tag', 'qr-code', 'right-arrow', 'search',
   'qizhi', 'qq', 'plane', 'message', 'moon', 'logout', 'laba', 'like', 'heng', 'history', 'home',
   'github-dark', 'github', 'heart', 'friend', 'fun', 'gitee', 'eye', 'flower', 'down', 'edit',
   'comment', 'comments', 'copy', 'delete', 'category', 'clock', 'close', 'bilibili', 'calendar',
-  'author', 'badge', 'article-link', 'article_link', 'article-share', 'article_share', 'arrow-down',
+  'author', 'badge', 'article-link', 'article-share', 'arrow-down',
   'arrow-up', 'article', 'angle-right', 'archives', 'album', 'angle-left'
 ];
 </script> 

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getSafeStorage, useStorage } from '~/utils/storage';
-import { getUserInfo } from '~/api/login';
 import { getToken, removeToken, setToken as setTokenUtil } from '~/utils/token';
 
 export interface UserInfo {

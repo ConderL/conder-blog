@@ -18,7 +18,7 @@
             placeholder="请输入验证码"
             class="flex-1"
           />
-          <UButton color="info" :disabled="flag" @click="sendCode" class="whitespace-nowrap">
+          <UButton color="info" :disabled="flag" class="whitespace-nowrap" @click="sendCode">
             {{ timer == 0 ? "发送" : `${timer}s` }}
           </UButton>
         </div>
@@ -64,7 +64,7 @@
       
       <!-- 去登录 -->
       <div class="flex justify-center mt-4">
-        <UButton variant="link" color="pink" @click="handleLogin" class="hover:text-pink-600">已有账号？去登录</UButton>
+        <UButton variant="link" color="pink" class="hover:text-pink-600" @click="handleLogin">已有账号？去登录</UButton>
       </div>
     </UForm>
   </div>
@@ -72,7 +72,6 @@
 
 <script setup lang="ts">
 import { useIntervalFn } from "@vueuse/core";
-import { register, sendEmailCode, login } from "~/api/login";
 import { encryptPassword } from "~/utils/secret";
 import { useUserStore } from "~/stores/user";
 
@@ -95,6 +94,8 @@ const registerForm = reactive<RegisterForm>({
   confirmPassword: "",
   code: "",
 });
+
+const { login: loginApi } = useApi();
 
 // 暴露给父组件的事件
 const emit = defineEmits(['close', 'login']);
@@ -130,14 +131,14 @@ const start = (time: number) => {
 // 发送验证码
 const sendCode = () => {
   // 邮箱格式验证
-  let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+  const reg = /^[A-Za-z0-9\u4E00-\u9FA5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
   if (!reg.test(registerForm.email)) {
     window.$message?.warning("邮箱格式不正确");
     return;
   }
   
   start(60);
-  sendEmailCode(registerForm.email)
+  loginApi.sendEmailCode(registerForm.email)
     .then((res: any) => {
       if (res.data.flag) {
         window.$message?.success("验证码发送成功");
@@ -156,20 +157,20 @@ const sendCode = () => {
 // 处理注册
 const handleRegister = async () => {
   // 邮箱格式验证
-  let reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+  const reg = /^[A-Za-z0-9\u4E00-\u9FA5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
   if (!reg.test(registerForm.email)) {
     window.$message?.warning("邮箱格式不正确");
     return;
   }
   
   // 验证码验证
-  if (registerForm.code.trim().length != 6) {
+  if (registerForm.code.trim().length !== 6) {
     window.$message?.warning("请输入6位验证码");
     return;
   }
   
   // 昵称验证
-  if (registerForm.nickname.trim().length == 0) {
+  if (registerForm.nickname.trim().length === 0) {
     window.$message?.warning("昵称不能为空");
     return;
   }
@@ -190,7 +191,7 @@ const handleRegister = async () => {
   
   try {
     // 调用实际注册API，不加密密码
-    const res = await register({
+    const res = await loginApi.register({
       email: registerForm.email,
       code: registerForm.code,
       password: registerForm.password,
@@ -200,7 +201,7 @@ const handleRegister = async () => {
     if (res.data.flag) {
       // 注册成功后自动登录，这里需要加密密码
       try {
-        const loginRes = await login({
+        const loginRes = await loginApi.login({
           email: registerForm.email,
           password: encryptPassword(registerForm.password)
         });

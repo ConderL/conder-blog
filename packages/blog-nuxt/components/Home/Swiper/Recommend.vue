@@ -35,12 +35,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
 import { Autoplay, Mousewheel, Navigation, Pagination } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { getArticleRecommend } from '../../../api/article';
 import { formatDate } from '../../../utils/date';
-import type { ArticleRecommend } from '../../../api/article/types';
 
 // 导入Swiper样式
 import 'swiper/css';
@@ -48,29 +45,22 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/autoplay';
 
+// 默认导出
+defineExpose({
+	name: 'Recommend'
+});
+
 // 自定义模块
 const modules = [Pagination, Navigation, Mousewheel, Autoplay];
-const articleList = ref<ArticleRecommend[]>([]);
+
+const { article } = useApi();
+
+// 使用useFetch获取推荐文章数据
+const articleList = await article.getArticleRecommend();
 
 const articleCover = computed(
 	() => (cover: string) => `background:url(${cover})`
 );
-
-// 获取推荐文章数据
-const fetchRecommendedArticles = async () => {
-	try {
-		const { data } = await getArticleRecommend();
-		if (data && data.code === 200 && Array.isArray(data.data)) {
-			articleList.value = data.data;
-		}
-	} catch (error) {
-		console.error('获取推荐文章失败:', error);
-	}
-};
-
-onMounted(() => {
-	fetchRecommendedArticles();
-});
 </script>
 
 <style lang="scss" scoped>

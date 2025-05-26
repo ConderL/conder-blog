@@ -5,8 +5,14 @@
 			<p class="artboard">{{ blog.blogInfo.siteConfig?.siteName || '个人博客' }}</p>
 			<!-- 打字机 -->
 			<div class="title">
-				{{ obj.output }}
-				<span class="easy-typed-cursor">|</span>
+				<ClientOnly>
+					<span>{{ obj.output }}</span>
+					<span class="easy-typed-cursor">|</span>
+					
+					<template #fallback>
+						<span>让思想在文字中流淌，让灵感在记录中延伸。</span>
+					</template>
+				</ClientOnly>
 			</div>
 		</div>
 		<!-- 波浪 -->
@@ -21,6 +27,11 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted } from 'vue';
 import Waves from '../../Waves/index.vue';
+
+// 默认导出
+defineExpose({
+	name: 'Brand'
+});
 
 const blog = useBlogStore();
 const obj = reactive({
@@ -46,6 +57,14 @@ const scrollDown = () => {
 	});
 };
 
+onMounted(() => {
+	// 仅在客户端获取一言数据
+	if (process.client) {
+		fetchData();
+	}
+});
+
+// 将fetchData函数移到onMounted之后，确保只在客户端执行
 const fetchData = () => {
 	fetch("http://v1.hitokoto.cn")
 		.then((res) => {
@@ -54,25 +73,54 @@ const fetchData = () => {
 		.then(({ hitokoto, from }) => {
 			// 动态导入，避免SSR问题
 			import('easy-typer-js').then(({ default: EasyTyper }) => {
-				new EasyTyper(obj, `${hitokoto} —— ${from}`, fetchData, () => {});
+				try {
+					// 创建打字机实例
+					const typer = new EasyTyper({
+						output: obj.output,
+						isEnd: obj.isEnd,
+						speed: obj.speed,
+						singleBack: obj.singleBack,
+						sleep: obj.sleep,
+						type: obj.type,
+						backSpeed: obj.backSpeed,
+						sentencePause: obj.sentencePause
+					}, `${hitokoto} —— ${from}`, fetchData);
+					
+					// 保持引用，避免被垃圾回收
+					obj._typer = typer;
+				} catch (error) {
+					console.error('初始化打字机失败:', error);
+					// 设置默认文本
+					obj.output = `${hitokoto} —— ${from}`;
+				}
 			});
 		})
 		.catch(() => {
 			// 如果API请求失败，使用默认文字
 			import('easy-typer-js').then(({ default: EasyTyper }) => {
-				new EasyTyper(obj, "让思想在文字中流淌，让灵感在记录中延伸。", fetchData, () => {});
+				try {
+					// 创建打字机实例
+					const typer = new EasyTyper({
+						output: obj.output,
+						isEnd: obj.isEnd,
+						speed: obj.speed,
+						singleBack: obj.singleBack,
+						sleep: obj.sleep,
+						type: obj.type,
+						backSpeed: obj.backSpeed,
+						sentencePause: obj.sentencePause
+					}, "让思想在文字中流淌，让灵感在记录中延伸。", fetchData);
+					
+					// 保持引用，避免被垃圾回收
+					obj._typer = typer;
+				} catch (error) {
+					console.error('初始化打字机失败:', error);
+					// 设置默认文本
+					obj.output = "让思想在文字中流淌，让灵感在记录中延伸。";
+				}
 			});
 		});
 };
-
-onMounted(() => {
-	fetchData();
-});
-
-// 默认导出
-defineExpose({
-	name: 'Brand'
-});
 </script>
 
 <style lang="scss" scoped>

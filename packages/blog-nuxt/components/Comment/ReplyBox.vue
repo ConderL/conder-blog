@@ -51,7 +51,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { processEmoji } from '../../utils/emojiProcessor';
-import { addComment } from '~/api/comment';
 
 // 使用Store
 const userStore = useUserStore();
