@@ -30,6 +30,7 @@ async function bootstrap() {
     'http://www.conder.top',
     'https://www.conder.top',
     'http://localhost:4173',
+    'http://localhost:3334',
   ];
 
   // 如果有设置环境变量ALLOWED_ORIGINS，则添加到允许列表中

@@ -1,0 +1,96 @@
+/**
+ * 图标通用样式
+ */
+
+/* 基础图标样式 */
+.icon {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: -0.15em;
+  overflow: hidden;
+  fill: currentColor;
+  display: inline-block;
+}
+
+/* 小图标 */
+.icon-sm {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* 中等图标 */
+.icon-md {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* 大图标 */
+.icon-lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* 超大图标 */
+.icon-xl {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* 带动画效果的图标 */
+.icon-animate {
+  transition: all 0.3s;
+}
+
+/* 图标颜色 */
+.icon-primary {
+  color: var(--color-primary);
+}
+
+.icon-success {
+  color: var(--color-success);
+}
+
+.icon-warning {
+  color: var(--color-warning);
+}
+
+.icon-danger {
+  color: var(--color-danger);
+}
+
+.icon-info {
+  color: var(--color-info);
+}
+
+/* 自定义图标样式 */
+.meta-icon, .btn-icon, .copyright-icon, .side-icon, .tag-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon {
+  margin-right: 0.125rem;
+}
+
+.copyright-icon {
+  margin-right: 0.25rem;
+  color: var(--grey-6);
+}
+
+.side-icon {
+  margin-right: 0.5rem;
+  color: var(--primary-color);
+}
+
+.tag-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-right: 0.125rem;
+  position: relative;
+  z-index: 1;
+} 
