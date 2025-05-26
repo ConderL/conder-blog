@@ -10,7 +10,8 @@
 <script setup lang="ts">
 // Nuxt 3 会自动导入 definePageMeta
 definePageMeta({
-  layout: 'default'
+  layout: 'default',
+  title: '说说'
 })
 </script>
 

@@ -6,7 +6,7 @@
 			</NuxtLink>
 		</div>
 		<template v-for="menu of menuList" :key="menu.name">
-			<div v-if="!menu.children" class="menu-item" :class="{ active: route.meta.title === menu.name }">
+			<div v-if="!menu.children" class="menu-item" :class="{ active: route?.meta?.title === menu.name }">
 				<NuxtLink :to="menu.path" class="menu-btn">
 					<UIcon :name="`i-icon-${menu.icon}`" class="icon" />
 					{{ menu.name }}
@@ -18,8 +18,9 @@
 					{{ menu.name }}
 				</a>
 				<ul class="submenu">
-					<li class="subitem" v-for="submenu of menu.children" :key="submenu.name"
-						:class="{ active: route.meta.title === submenu.name }">
+					<li
+						v-for="submenu of menu.children" :key="submenu.name" class="subitem"
+						:class="{ active: route?.meta?.title === submenu.name }">
 						<NuxtLink class="link" :to="submenu.path">
 							<UIcon :name="`i-icon-${submenu.icon}`" class="icon" />
 							{{ submenu.name }}
@@ -30,14 +31,14 @@
 		</template>
 		<div class="menu-item">
 			<ClientOnly>
-				<a v-if="!user.userInfo.id" @click="app.setLoginFlag(true)" class="menu-btn">
+				<a v-if="!user.userInfo.id" class="menu-btn" @click="app.setLoginFlag(true)">
 					<UIcon name="i-icon-user" class="icon" />
 					登录
 				</a>
 				<template v-else>
 					<img class="user-avatar drop" :src="userAvatar"/>
 					<ul class="submenu">
-						<li class="subitem" :class="{ active: route.meta.title === '个人中心' }">
+						<li class="subitem" :class="{ active: route?.meta?.title === '个人中心' }">
 							<NuxtLink to="/user" class="link">
 								<UIcon name="i-icon-user" class="icon" />
 								个人中心
@@ -79,6 +80,18 @@ onMounted(() => {
   }
 });
 
+const logout = () => {
+	if (route?.path === "/user") {
+		router.go(-1);
+	}
+	// 使用正确的logout方法
+	user.logout();
+	
+	// 提示消息
+	if (typeof window !== 'undefined' && window.$message) {
+		window.$message.success("退出成功");
+	}
+};
 
 const menuList = [
 	{
@@ -93,7 +106,7 @@ const menuList = [
 			{
 				name: "归档",
 				icon: "archives",
-				path: "/archive"
+				path: "/archives"
 			},
 			{
 				name: "分类",
@@ -139,19 +152,6 @@ const menuList = [
 		path: "/about"
 	},
 ];
-
-const logout = () => {
-	if (route.path == "/user") {
-		router.go(-1);
-	}
-	// 使用正确的logout方法
-	user.logout();
-	
-	// 提示消息
-	if (typeof window !== 'undefined' && window.$message) {
-		window.$message.success("退出成功");
-	}
-};
 
 // 默认导出
 defineExpose({

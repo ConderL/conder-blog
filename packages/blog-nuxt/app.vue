@@ -3,7 +3,7 @@
   <UApp :ui="{ fontSourceSans: false }">
     <!-- 使用default指定默认布局 -->
     <NuxtLayout>
-      <!-- NuxtPage渲染当前路由匹配的页面 -->
+      <!-- NuxtPage渲染当前路由匹配的页面，添加过渡动画 -->
       <NuxtPage />
       
       <!-- 全局组件 -->
@@ -29,6 +29,18 @@ useHead({
     { property: 'og:description', content: '一个使用Nuxt.js构建的博客网站，提供优质的技术文章和生活分享' },
     { property: 'og:site_name', content: "Conder's blog" }
   ]
+});
+
+// 定义路由钩子，确保路由元数据在切换页面时正确设置
+const router = useRouter();
+router.beforeEach((to, from) => {
+  // 确保路由元数据存在
+  if (!to.meta) {
+    to.meta = {};
+  }
+  
+  // 打印路由信息，便于调试
+  console.log(`路由切换: ${from.path} -> ${to.path}`, to.meta);
 });
 </script>
 
@@ -130,5 +142,29 @@ a {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 页面过渡动画 */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* 布局过渡动画 */
+.layout-enter-active,
+.layout-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+
+.layout-enter-from,
+.layout-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style> 

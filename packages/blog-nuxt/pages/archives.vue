@@ -1,39 +1,74 @@
 <template>
-	<div class="page-header">
-		<h1 class="page-title">归档</h1>
-		<img class="page-cover" :src="blog.blogInfo.siteConfig.archiveWallpaper" alt="">
-		<!-- 波浪 -->
-		<Waves></Waves>
-	</div>
-	<div class="bg">
-		<div class="page-container">
-			<div class="archive-title">文章总览 - {{ count }}</div>
-			<div class="archive-list">
-				<div v-for="archive in archivesList" :key="archive.id" class="archive-item">
-					<NuxtLink class="article-cover" :to="`/article/${archive.id}`">
-						<img :src="archive.articleCover" class="cover">
-					</NuxtLink>
-					<div class="article-info">
-						<div class="article-time">
-							<UIcon name="icon:calendar" class="mr-1.5" />
-							<time>{{ formatDate(archive.createTime) }}</time>
-						</div>
-						<NuxtLink class="article-title" :to="`/article/${archive.id}`">
-							{{ archive.articleTitle }}
+	<div class="archives-page">
+		<div class="page-header">
+			<h1 class="page-title">归档</h1>
+			<img class="page-cover" :src="blog.blogInfo?.siteConfig?.archiveWallpaper || ''" alt="">
+			<!-- 波浪 -->
+			<Waves></Waves>
+		</div>
+		<div class="bg">
+			<div class="page-container">
+				<div class="archive-title">文章总览 - {{ count }}</div>
+				<div class="archive-list">
+					<div v-for="archive in archivesList" :key="archive.id" class="archive-item">
+						<NuxtLink class="article-cover" :to="`/article/${archive.id}`">
+							<img :src="archive.articleCover" class="cover">
 						</NuxtLink>
+						<div class="article-info">
+							<div class="article-time">
+								<UIcon name="icon:calendar" class="mr-1.5" />
+								<time>{{ formatDate(archive.createTime) }}</time>
+							</div>
+							<NuxtLink class="article-title" :to="`/article/${archive.id}`">
+								{{ archive.articleTitle }}
+							</NuxtLink>
+						</div>
 					</div>
 				</div>
+				<Pagination v-if="count > 0" v-model:current="queryParams.current" :total="Math.ceil(count / 5)">
+				</Pagination>
 			</div>
-			<Pagination v-if="count > 0" v-model:current="queryParams.current" :total="Math.ceil(count / 5)">
-			</Pagination>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { getArchivesList, Archives, PageQuery } from '~/api/archives';
 import { formatDate } from '~/utils/date';
 import { useBlogStore } from "~/stores/blog";
+import request from "~/utils/request";
+
+// 定义所有需要的接口，避免导入错误
+interface PageQuery {
+	current: number;
+	size: number;
+}
+
+interface Archives {
+	id: number;
+	articleTitle: string;
+	articleCover: string;
+	createTime: string;
+}
+
+interface Result<T> {
+	code: number;
+	msg: string;
+	data: T;
+}
+
+interface PageResult<T> {
+	recordList: T;
+	count: number;
+}
+
+// 定义API函数
+function getArchivesList(params: PageQuery) {
+	return request({
+		url: "/archives/list",
+		method: "get",
+		params,
+	});
+}
 
 // 定义页面元数据，使导航栏能正确识别当前页面
 definePageMeta({
@@ -54,6 +89,21 @@ const {
 	queryParams,
 	archivesList,
 } = toRefs(data);
+
+// 确保在服务器端预取博客信息
+onServerPrefetch(async () => {
+	if (!blog.blogInfo?.siteConfig) {
+		try {
+			// 尝试获取博客信息
+			const { data: blogData } = await useFetch('/api/blog/info');
+			if (blogData.value) {
+				blog.setBlogInfo(blogData.value.data);
+			}
+		} catch (error) {
+			console.error('获取博客信息失败', error);
+		}
+	}
+});
 
 watch(
 	() => queryParams.value.current,
@@ -83,6 +133,10 @@ useHead({
 </script>
 
 <style lang="scss" scoped>
+.archives-page {
+	width: 100%;
+}
+
 .archive-title {
 	position: relative;
 	margin-left: 10px;

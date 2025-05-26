@@ -147,7 +147,7 @@ export default defineNuxtConfig({
       ssr: true,
       prerender: true,
     },
-    '/archive': { ssr: true },
+    '/archives': { ssr: true },
     '/talk': { ssr: true },
     // 测试页面使用客户端渲染(CSR)
     '/test': { ssr: false },
@@ -161,6 +161,7 @@ export default defineNuxtConfig({
     // 标签页和分类页缓存15分钟
     '/tag/**': { isr: 900 },
     '/category/**': { isr: 900 },
+    '/archives': { isr: 900 },
   },
   colorMode: {
     preference: 'system',
@@ -174,5 +175,12 @@ export default defineNuxtConfig({
   },
   plugins: [
     '~/plugins/auto-animate.ts',
+    '~/plugins/route-location.ts',
+    '~/plugins/error-handler.ts',
   ],
+  // 禁用页面过渡动画的警告
+  experimental: {
+    emitRouteChunkError: false,
+    restoreState: true,
+  }
 })

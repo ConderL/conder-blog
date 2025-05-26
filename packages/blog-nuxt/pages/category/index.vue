@@ -28,6 +28,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
+// 定义页面元数据
+definePageMeta({
+  title: '分类'
+});
+
 // 模拟分类数据
 const categories = ref([
   {

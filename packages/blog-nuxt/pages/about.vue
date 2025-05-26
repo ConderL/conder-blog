@@ -78,6 +78,11 @@
 </template>
 
 <script setup lang="ts">
+// 定义页面元数据
+definePageMeta({
+  title: '关于'
+});
+
 // SEO优化
 useHead({
   title: '关于博客',

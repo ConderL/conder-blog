@@ -45,6 +45,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 
+// 定义页面元数据
+definePageMeta({
+  title: '标签'
+});
+
 // 模拟标签数据
 const tags = ref([
   {

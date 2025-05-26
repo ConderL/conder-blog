@@ -1,58 +1,28 @@
 <template>
   <div class="p-4">
-    <h2 class="text-xl font-bold mb-4">图标组件示例</h2>
+    <h1 class="text-2xl font-bold mb-4">图标测试页面 - 所有图标</h1>
     
-    <div class="space-y-6">
-      <div>
-        <h3 class="text-lg font-medium mb-2">1. 使用UIcon组件 - 方式一：i-icon-xxx格式</h3>
-        <div class="flex gap-4 items-center">
-          <UIcon name="i-icon-heng" class="size-8 icon" />
-          <UIcon name="i-icon-home" class="size-8 icon" />
-          <UIcon name="i-icon-user" class="size-8 icon" />
+    <div class="grid grid-cols-4 gap-4">
+      <!-- 测试所有可能的图标名称 -->
+      <div v-for="iconName in iconNames" :key="iconName" class="border p-4 rounded flex flex-col items-center">
+        <div class="mb-2">
+          <UIcon :name="'icon:' + iconName" class="size-8 icon" />
         </div>
-      </div>
-      
-      <div>
-        <h3 class="text-lg font-medium mb-2">2. 使用UIcon组件 - 方式二：icon:xxx格式</h3>
-        <div class="flex gap-4 items-center">
-          <UIcon name="icon:heng" class="size-8 icon" />
-          <UIcon name="icon:home" class="size-8 icon" />
-          <UIcon name="icon:user" class="size-8 icon" />
-        </div>
-      </div>
-      
-      <div>
-        <h3 class="text-lg font-medium mb-2">3. 直接使用CSS类名</h3>
-        <div class="flex gap-4 items-center">
-          <div class="i-icon-heng size-8"></div>
-          <div class="i-icon-home size-8"></div>
-          <div class="i-icon-user size-8"></div>
-        </div>
-      </div>
-      
-      <div>
-        <h3 class="text-lg font-medium mb-2">4. 尝试不同方式使用UButton的icon属性</h3>
-        <div class="flex flex-wrap gap-4 items-center">
-          <!-- 方法1：直接使用完整图标名 -->
-          <UButton icon="i-icon-home" variant="ghost" label="方法1：完整图标名" />
-          
-          <!-- 方法2：使用app.config.ts中的别名 -->
-          <UButton icon="home" variant="ghost" label="方法2：别名" />
-          
-          <!-- 方法3：使用leading-icon插槽 -->
-          <UButton variant="ghost" label="方法3：插槽">
-            <template #leading-icon>
-              <UIcon name="icon:article" class="icon" />
-            </template>
-          </UButton>
-          
-          <!-- 方法4：使用自定义前缀 -->
-          <UButton icon="icon:home" variant="ghost" label="方法4：自定义前缀" />
-          
-          <!-- 方法5：使用动态绑定 -->
-          <UButton :icon="$ui?.icons?.home || 'i-icon-home'" variant="ghost" label="方法5：动态绑定" />
-        </div>
+        <div class="text-sm text-center">{{ iconName }}</div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+// 从文件名生成图标名列表
+const iconNames = [
+  'emoji', 'chevron-right', 'chevron-left', 'user', 'web', 'zhaoxiang', 'update', 'upload',
+  'top', 'trumpet', 'up', 'talk', 'sun', 'tag', 'qr-code', 'qr_code', 'right-arrow', 'search',
+  'qizhi', 'qq', 'plane', 'message', 'moon', 'logout', 'laba', 'like', 'heng', 'history', 'home',
+  'github-dark', 'github', 'heart', 'friend', 'fun', 'gitee', 'eye', 'flower', 'down', 'edit',
+  'comment', 'comments', 'copy', 'delete', 'category', 'clock', 'close', 'bilibili', 'calendar',
+  'author', 'badge', 'article-link', 'article_link', 'article-share', 'article_share', 'arrow-down',
+  'arrow-up', 'article', 'angle-right', 'archives', 'album', 'angle-left'
+];
+</script> 

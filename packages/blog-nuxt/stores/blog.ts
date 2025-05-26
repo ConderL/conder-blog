@@ -22,11 +22,12 @@ export interface SiteConfig {
     isCommentReview?: boolean;
     isMessageReview?: boolean;
     socialUrlList?: any[];
-  socialLoginList?: string;
+    socialLoginList?: string;
     qq?: string;
     github?: string;
     gitee?: string;
     bilibili?: string;
+    archiveWallpaper?: string;
 }
 
 export interface BlogInfo {
@@ -68,7 +69,8 @@ export const useBlogStore = defineStore('blog', () => {
       qq: '',
       github: '',
       gitee: '',
-      bilibili: ''
+      bilibili: '',
+      archiveWallpaper: ''
     }
   });
   
