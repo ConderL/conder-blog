@@ -77,7 +77,7 @@
             <UIcon name="icon:qq" class="text-[#00aaee] w-8 h-8 hover:scale-110 transition-transform" />
           </div>
           <div v-if="showLogin('gitee')" class="cursor-pointer hover:opacity-80 transition-opacity" @click="giteeLogin">
-            <UIcon name="icon:gitee" class="w-8 h-8 hover:scale-110 transition-transform" />
+            <UIcon name="icon:gitee" class="w-8 h-8 hover:scale-110 transition-transform" style="color: #C71D23" />
           </div>
           <div v-if="showLogin('github')" class="cursor-pointer hover:opacity-80 transition-opacity" @click="githubLogin">
             <UIcon name="icon:github" class="w-8 h-8 hover:scale-110 transition-transform" />
@@ -112,7 +112,7 @@ const captchaLoading = ref(false);
 
 // 显示社交登录按钮的计算属性
 const showLogin = (type: string) => {
-  return blog.loginList.includes(type) || false;
+  return blog.blogInfo.siteConfig.loginList.includes(type) || false;
 };
 
 // 暴露给父组件的事件

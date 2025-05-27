@@ -25,6 +25,7 @@
 v-if="comment.fromUid == 1"
 							name="icon:badge"
 							class="icon"
+							style="color: #EA387E"
 						/>
 					</div>
 					<div

@@ -16,6 +16,7 @@
         <Drawer />
         <Tool />
         <ChatRoom />
+        <MusicPlayer />
       </ClientOnly>
     </div>
 </template>

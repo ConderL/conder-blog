@@ -191,6 +191,7 @@ export default defineNuxtConfig({
     '~/plugins/vue-danmaku.client.ts',
     '~/plugins/md-editor.client.ts',
     '~/plugins/socket-io.client.ts',
+    '~/plugins/aplayer.client.ts',
   ],
   // 禁用页面过渡动画的警告
   experimental: {

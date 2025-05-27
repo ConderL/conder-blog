@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted } from 'vue';
 import Waves from '../../Waves/index.vue';
+import request from '~/utils/http';
 
 // 默认导出
 defineExpose({
@@ -64,13 +65,21 @@ onMounted(() => {
 	}
 });
 
+// 一言数据接口返回类型
+interface HitokotoResponse {
+  hitokoto: string;
+  from: string;
+  [key: string]: any;
+}
+
 // 将fetchData函数移到onMounted之后，确保只在客户端执行
 const fetchData = () => {
-	fetch("http://v1.hitokoto.cn")
-		.then((res) => {
-			return res.json();
-		})
-		.then(({ hitokoto, from }) => {
+	request<HitokotoResponse>({
+		url: "https://v1.hitokoto.cn",
+		method: "get"
+	})
+		.then(({ data }) => {
+			const { hitokoto, from } = data;
 			// 动态导入，避免SSR问题
 			import('easy-typer-js').then(({ default: EasyTyper }) => {
 				try {
@@ -95,7 +104,8 @@ const fetchData = () => {
 				}
 			});
 		})
-		.catch(() => {
+		.catch((error) => {
+			console.error('获取一言数据失败:', error);
 			// 如果API请求失败，使用默认文字
 			import('easy-typer-js').then(({ default: EasyTyper }) => {
 				try {
