@@ -159,6 +159,7 @@ export default defineNuxtConfig({
     },
     '/archives': { ssr: true },
     '/talk': { ssr: true },
+    '/message': { ssr: false },
     // 测试页面使用客户端渲染(CSR)
     '/test': { ssr: false },
     // 非关键页面使用客户端渲染(CSR)
@@ -187,6 +188,7 @@ export default defineNuxtConfig({
     '~/plugins/auto-animate.ts',
     '~/plugins/route-location.ts',
     '~/plugins/error-handler.ts',
+    '~/plugins/vue-danmaku.client.ts',
   ],
   // 禁用页面过渡动画的警告
   experimental: {

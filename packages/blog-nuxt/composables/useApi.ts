@@ -142,6 +142,15 @@ export const useApi = () => {
     getFriendList: () => fetchData('/friend/list'),
   };
 
+  // 添加留言板相关API
+  const message = {
+    // 获取留言列表 - 用于SSR
+    getMessageList: () => directFetch('/message/list'),
+    
+    // 添加留言 - 用于客户端交互
+    addMessage: (data: any) => directFetch('/message/add', { method: 'POST', body: data }),
+  };
+
   return {
     blogInfo,
     article,
@@ -154,5 +163,6 @@ export const useApi = () => {
     tag,
     album,
     friend,
+    message,
   };
 }; 
