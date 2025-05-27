@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { useScroll } from '@vueuse/core';
-import { nextTick } from 'vue';
+import { nextTick, watch } from 'vue';
 import { useAutoAnimate } from '~/composables/useAutoAnimate';
 
 // 使用Nuxt的路由
@@ -39,22 +39,22 @@ onMounted(() => {
   // 标记为客户端环境
   isClient.value = true;
 
-  // 在组件挂载后初始化useScroll
-  const scrollData = useScroll(window);
-  y.value = scrollData.y;
+  // 使用useScroll获取滚动位置
+  const { y: scrollY } = useScroll(window);
   
-  // 监听滚动事件计算百分比
-  window.addEventListener('scroll', updateScrollProcess);
-});
-
-onUnmounted(() => {
-  if (isClient.value) {
-    window.removeEventListener('scroll', updateScrollProcess);
-  }
+  // 监听滚动位置变化
+  watch(scrollY, (newY) => {
+    y.value = newY;
+    updateScrollProcess();
+  });
+  
+  // 初始化滚动进度
+  updateScrollProcess();
 });
 
 const updateScrollProcess = () => {
-  if (process.value && isClient.value) {
+  if (isClient.value) {
+    // 计算滚动百分比
     process.value = Number(
       (
         (window.pageYOffset /
