@@ -51,11 +51,7 @@ definePageMeta({
   layout: 'default'
 });
 
-const { blogInfo } = useApi(); 
-
-const { data: blogData } = await blogInfo.getBlogInfo();
-
-blog.setBlogInfo(unref(blogData));
+const { blogInfo } = useApi();
 
 // 客户端上报访问信息
 onMounted(() => {

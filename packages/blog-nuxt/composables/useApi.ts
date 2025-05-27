@@ -91,7 +91,7 @@ export const useApi = () => {
 
   const comment = {
     // 获取评论列表 - 用于SSR
-    getList: (params: any) => fetchData('/comments/list', { params }),
+    getList: (params: any) => fetchData('/comments/list', { params, key: JSON.stringify(params) }),
 
     // 添加评论 - 用于客户端交互
     add: (data: any) => directFetch('/comments/add', { method: 'POST', body: data }),
@@ -136,6 +136,12 @@ export const useApi = () => {
     getPhotoList: (albumId: number) => directFetch('/photo/list', { params: { albumId } }),
   };
 
+  // 添加友链相关API
+  const friend = {
+    // 获取友链列表 - 用于SSR
+    getFriendList: () => fetchData('/friend/list'),
+  };
+
   return {
     blogInfo,
     article,
@@ -147,5 +153,6 @@ export const useApi = () => {
     category,
     tag,
     album,
+    friend,
   };
 }; 

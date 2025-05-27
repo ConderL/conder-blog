@@ -172,7 +172,8 @@ const props = defineProps({
 	},
 	typeId: {
 		type: Number,
-		required: true
+		required: false,
+		default: undefined
 	}
 });
 

@@ -1,11 +1,11 @@
 <template>
   <div class="author-container">
     <!-- 作者头像 -->
-    <img class="author-avatar" :src="blog.blogInfo.siteConfig.siteAvatar || blog.blogInfo.siteConfig.authorAvatar" />
+    <img class="author-avatar" :src="blog.blogInfo?.siteConfig?.siteAvatar || blog.blogInfo?.siteConfig?.authorAvatar" />
     <!-- 作者名称 -->
-    <p class="author-name">{{ blog.blogInfo.siteConfig.siteAuthor }}</p>
+    <p class="author-name">{{ blog.blogInfo?.siteConfig?.siteAuthor }}</p>
     <!-- 网站简介 -->
-    <div class="site-desc">{{ blog.blogInfo.siteConfig.siteIntro }}</div>
+    <div class="site-desc">{{ blog.blogInfo?.siteConfig?.siteIntro }}</div>
   </div>
 </template>
 

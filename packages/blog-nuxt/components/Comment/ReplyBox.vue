@@ -140,7 +140,7 @@ function handleAdd() {
 
   // 调用API发送评论
   commentApi.add({
-    typeId: commentForm.typeId,
+    typeId: commentForm.commentType === 2 ? null : commentForm.typeId,
     commentType: commentForm.commentType,
     commentContent: commentForm.commentContent,
     replyId: commentForm.replyId,

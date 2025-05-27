@@ -4,7 +4,7 @@
       <UIcon name="icon:trumpet" class="trumpet icon" style="color: #FF5CA1" />
       公告
     </div>
-    <div class="notice-content" v-html="blog.blogInfo.siteConfig.siteNotice || '暂无公告'"></div>
+    <div class="notice-content" v-html="blog.blogInfo?.siteConfig?.siteNotice || '暂无公告'"></div>
   </div>
 </template>
 
