@@ -10,7 +10,17 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/image',
     '@nuxtjs/color-mode',
+    'nuxt-echarts',
   ],
+  
+  echarts: {
+    // 注册渲染器
+    renderer: 'svg',
+    // 注册图表类型
+    charts: ['PieChart'],
+    // 注册组件
+    components: ['TitleComponent', 'TooltipComponent', 'LegendComponent', 'GridComponent'],
+  },
   
   css: [
     '~/assets/styles/main.css',

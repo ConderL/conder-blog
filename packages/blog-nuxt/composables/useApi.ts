@@ -109,6 +109,24 @@ export const useApi = () => {
     getReplyList: (commentId: number, params: any) => fetchData(`/comments/${commentId}/reply`, { params }),
   };
 
+  // 添加分类相关API
+  const category = {
+    // 获取分类列表 - 用于SSR
+    getCategoryList: () => fetchData('/categories'),
+    
+    // 获取分类文章列表 - 用于SSR
+    getCategoryArticleList: (params: any) => fetchData('/category/article', { params }),
+  };
+
+  // 添加标签相关API
+  const tag = {
+    // 获取标签列表 - 用于SSR
+    getTagList: () => fetchData('/tag/list'),
+    
+    // 获取标签文章列表 - 用于SSR
+    getTagArticleList: (params: any) => fetchData('/tag/article', { params }),
+  };
+
   return {
     blogInfo,
     article,
@@ -117,5 +135,7 @@ export const useApi = () => {
     talk,
     login,
     comment,
+    category,
+    tag,
   };
 }; 

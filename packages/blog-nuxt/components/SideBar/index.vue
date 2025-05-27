@@ -55,7 +55,7 @@
           :key="category.id" 
           :to="`/category/${category.id}`"
           class="category-item">
-          <span class="category-name">{{ category.name }}</span>
+          <span class="category-name">{{ category.categoryName }}</span>
           <span class="category-count">({{ category.articleCount }})</span>
         </NuxtLink>
       </div>
@@ -82,12 +82,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, unref } from 'vue';
+import { formatDate } from '~/utils/date';
 
 // 使用博客信息store
 const blogStore = useBlogStore();
 
-// 模拟数据
+// 获取API
+const { category, article } = useApi();
+
+// 最新文章数据
 const latestArticles = ref([
   { id: '1', title: '使用Nuxt.js实现服务端渲染', createTime: '2023-10-20' },
   { id: '2', title: 'SEO优化指南：提高网站可见性', createTime: '2023-10-15' },
@@ -96,14 +100,18 @@ const latestArticles = ref([
   { id: '5', title: 'TypeScript高级类型技巧', createTime: '2023-10-01' },
 ]);
 
-const categories = ref([
-  { id: '1', name: '前端开发', articleCount: 15 },
-  { id: '2', name: '后端开发', articleCount: 10 },
-  { id: '3', name: 'DevOps', articleCount: 5 },
-  { id: '4', name: '人工智能', articleCount: 8 },
-  { id: '5', name: '数据库', articleCount: 7 },
-]);
+// 分类数据
+const { data: categoryData } = await category.getCategoryList();
+const categories = computed(() => {
+  const data = unref(categoryData) || [];
+  return data.map(item => ({
+    id: item.id,
+    categoryName: item.categoryName,
+    articleCount: item.articleCount
+  }));
+});
 
+// 标签数据
 const tags = ref([
   { id: '1', name: 'Vue', color: '#41B883' },
   { id: '2', name: 'React', color: '#61DAFB' },
@@ -117,28 +125,8 @@ const tags = ref([
   { id: '10', name: 'Go', color: '#00ADD8' },
 ]);
 
-// 格式化日期
-const formatDate = (date: string) => {
-  if (!date) return '';
-  const d = new Date(date);
-  return d.toLocaleDateString();
-};
-
-onMounted(() => {
-  // 实际项目中应该从API获取数据
-  // const nuxtApp = useNuxtApp();
-  // nuxtApp.$api.article.getLatest().then((data) => {
-  //   latestArticles.value = data;
-  // });
-  
-  // nuxtApp.$api.category.getAll().then((data) => {
-  //   categories.value = data;
-  // });
-  
-  // nuxtApp.$api.tag.getAll().then((data) => {
-  //   tags.value = data;
-  // });
-});
+// 在未来迭代中可以添加获取最新文章和标签的API调用
+// 目前保持这些数据为模拟数据，专注于分类数据的调整
 </script>
 
 <style lang="scss" scoped>

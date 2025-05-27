@@ -1,33 +1,66 @@
 <template>
-  <div class="category-detail-page">
-    <div class="container">
-      <div class="page-header" :style="{ backgroundColor: getCategoryColor(category?.name) }">
-        <div class="page-header-content">
-          <div class="category-icon">{{ getCategoryIcon(category?.name) }}</div>
-          <h1 class="page-title">{{ category?.name }}</h1>
-          <p class="page-description">共有 {{ articles?.length || 0 }} 篇文章</p>
-        </div>
+  <div class="category-detail">
+    <!-- 页面头部 -->
+    <ClientOnly>
+      <div class="page-header">
+        <h1 class="page-title">分类 - {{ categoryName }}</h1>
+        <img
+          class="page-cover"
+          :src="blog.blogInfo.siteConfig?.categoryWallpaper"
+          alt="分类封面"
+        />
+        <Waves></Waves>
       </div>
-      
-      <div class="article-list">
-        <div v-for="article in articles" :key="article.id" class="article-item">
-          <NuxtLink :to="`/article/${article.id}`" class="article-link">
+    </ClientOnly>
+    
+    <div class="bg">
+      <div class="page-container">
+        <!-- 文章列表 -->
+        <div class="article-grid">
+          <div
+            v-for="article in articleList"
+            :key="article.id"
+            class="article-item"
+          >
             <div class="article-cover">
-              <img :src="article.cover" :alt="article.title">
+              <NuxtLink :to="`/article/${article.id}`">
+                <img class="cover" :src="article.articleCover" :alt="article.articleTitle" />
+              </NuxtLink>
             </div>
+            
             <div class="article-info">
-              <h2 class="article-title">{{ article.title }}</h2>
-              <p class="article-summary">{{ article.summary }}</p>
+              <h3 class="article-title">
+                <NuxtLink :to="`/article/${article.id}`">{{ article.articleTitle }}</NuxtLink>
+              </h3>
+              
               <div class="article-meta">
-                <span class="article-date">{{ formatDate(article.createdAt) }}</span>
-                <span class="article-views">{{ article.views }} 阅读</span>
+                <span>
+                  <UIcon name="icon:calendar" class="meta-icon" />
+                  {{ formatDate(article.createTime) }}
+                </span>
+                <NuxtLink :to="`/category/${article.category?.id}`" class="category-link">
+                  <UIcon name="icon:category" class="meta-icon" />
+                  {{ article.category?.categoryName }}
+                </NuxtLink>
+              </div>
+              
+              <div class="tag-info">
+                <NuxtLink
+                  v-for="tag in article.tags"
+                  :key="tag.id"
+                  :to="`/tag/${tag.id}`"
+                  class="article-tag"
+                >
+                  <UIcon name="icon:tag" class="tag-icon" />
+                  {{ tag.tagName }}
+                </NuxtLink>
               </div>
             </div>
-          </NuxtLink>
+          </div>
         </div>
         
-        <!-- 暂无文章时的提示 -->
-        <div v-if="!articles || articles.length === 0" class="no-articles">
+        <!-- 暂无文章提示 -->
+        <div v-if="!articleList || articleList.length === 0" class="no-articles">
           <p>该分类下暂无文章</p>
         </div>
       </div>
@@ -36,243 +69,254 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, reactive, unref } from 'vue';
+import { useBlogStore } from '~/stores';
+import { formatDate } from '~/utils/date';
 
-// 使用API工具
-const nuxtApp = useNuxtApp();
-// 添加类型断言
-const { category: categoryApi } = (nuxtApp.$api as any);
+// 定义页面元数据
+definePageMeta({
+  title: '分类文章'
+});
+
+// 获取博客信息
+const blog = useBlogStore();
 
 // 获取路由参数
 const route = useRoute();
-const categoryId = route.params.id as string;
+const categoryId = computed(() => Number(route.params.id));
 
-// 初始化数据
-const category = ref<any>(null);
-const articles = ref<any[]>([]);
+// 查询参数
+const queryParams = reactive({
+  categoryId: categoryId.value,
+  current: 1,
+  size: 20
+});
 
-// 根据分类名称获取颜色
-const getCategoryColor = (categoryName?: string) => {
-  if (!categoryName) return '#6c757d';
-  
-  // 常见分类颜色映射
-  const colorMap: Record<string, string> = {
-    '前端技术': '#4caf50',
-    '后端开发': '#2196f3',
-    '全栈开发': '#9c27b0',
-    '移动开发': '#ff5722',
-    '人工智能': '#3f51b5',
-    '数据科学': '#009688',
-    '云计算': '#00bcd4',
-    '网络安全': '#f44336',
-    '运维DevOps': '#795548',
-    '数据库': '#607d8b',
-    '区块链': '#ffb300',
-    '服务器': '#0097a7',
-    '算法': '#7e57c2',
-    '设计模式': '#d81b60',
-    '工具教程': '#546e7a'
-  };
-  
-  return colorMap[categoryName] || '#6c757d';
-};
+// 使用封装好的API
+const { category } = useApi();
+const { data } = await category.getCategoryArticleList(queryParams);
 
-// 根据分类获取图标
-const getCategoryIcon = (categoryName?: string) => {
-  if (!categoryName) return '📚';
-  
-  // 常见分类图标映射
-  const iconMap: Record<string, string> = {
-    '前端技术': '🌐',
-    '后端开发': '⚙️',
-    '全栈开发': '🔄',
-    '移动开发': '📱',
-    '人工智能': '🤖',
-    '数据科学': '📊',
-    '云计算': '☁️',
-    '网络安全': '🔒',
-    '运维DevOps': '🛠️',
-    '数据库': '💾',
-    '区块链': '⛓️',
-    '服务器': '🖥️',
-    '算法': '🧮',
-    '设计模式': '🎨',
-    '工具教程': '🔧'
-  };
-  
-  return iconMap[categoryName] || '📚';
-};
-
-// 格式化日期
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
-
-// 获取分类详情
-const fetchCategoryDetail = async () => {
-  try {
-    const data = await categoryApi.getDetail(categoryId);
-    category.value = data;
-  } catch (error) {
-    console.error('获取分类详情失败:', error);
-  }
-};
-
-// 获取分类下的文章
-const fetchCategoryArticles = async () => {
-  try {
-    const data = await categoryApi.getArticles(categoryId, { limit: 10, page: 1 });
-    articles.value = data?.items || [];
-  } catch (error) {
-    console.error('获取分类文章失败:', error);
-  }
-};
-
-// 使用Nuxt的asyncData加载数据
-const { data: categoryData } = await useAsyncData('category', () => Promise.all([
-  fetchCategoryDetail(),
-  fetchCategoryArticles()
-]).then(() => ({ category: category.value, articles: articles.value })));
-
-// 如果有预取数据，直接使用
-if (categoryData.value) {
-  category.value = categoryData.value.category;
-  articles.value = categoryData.value.articles;
-}
+// 处理文章数据
+const articleList = computed(() => unref(data)?.articleConditionVOList || []);
+const categoryName = computed(() => unref(data)?.name || '');
 
 // SEO优化
 useHead({
-  title: () => category.value ? `${category.value.name} - 博客分类` : '分类 - 博客网站',
+  title: computed(() => `${categoryName.value || '分类'} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`),
   meta: [
     {
       name: 'description',
-      content: () => category.value ? `查看${category.value.name}分类下的所有文章` : '浏览博客分类'
+      content: computed(() => `浏览${categoryName.value || ''}分类下的所有文章，共${articleList.value.length}篇`)
+    },
+    {
+      name: 'keywords',
+      content: computed(() => `${categoryName.value || '分类'},博客,文章,技术博客`)
     }
   ]
 });
 </script>
 
-<style scoped>
-.category-detail-page {
-  background-color: #f8f9fa;
-  min-height: 100vh;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
+<style lang="scss" scoped>
 .page-header {
+  position: relative;
   padding: 3rem 0;
-  margin-bottom: 2rem;
   color: #fff;
   text-align: center;
-  border-radius: 0 0 8px 8px;
+  background-color: var(--primary-color);
+  
+  .page-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--header-text-color);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .page-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
 }
 
-.page-header-content {
-  max-width: 800px;
+.bg {
+  background-color: var(--background-color);
+  padding: 2rem 0;
+  min-height: 70vh;
+}
+
+.page-container {
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem 3rem;
 }
 
-.category-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.page-title {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.page-description {
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
-
-.article-list {
-  padding: 1rem 0 3rem;
+.article-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: 100%;
 }
 
 .article-item {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
-  overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.article-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
-
-.article-link {
+  transition: all 0.3s;
+  margin-bottom: 1rem;
+  height: 100%;
   display: flex;
-  text-decoration: none;
-  color: inherit;
+  flex-direction: column;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .article-cover {
-  flex: 0 0 250px;
+  width: 100%;
+  height: 0;
+  padding-bottom: 60%;
+  position: relative;
+  overflow: hidden;
+  
+  img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s;
+  }
 }
 
-.article-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.article-item:hover .cover {
+  transform: scale(1.1);
 }
 
 .article-info {
+  padding: 1rem;
   flex: 1;
-  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .article-title {
-  font-size: 1.4rem;
-  margin-bottom: 0.8rem;
-  color: #333;
-}
-
-.article-summary {
-  color: #666;
-  margin-bottom: 1rem;
-  line-height: 1.6;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  
+  a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s;
+    
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
 }
 
 .article-meta {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  color: #888;
-  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--grey-5);
+  
+  .meta-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+    vertical-align: -0.15em;
+  }
+  
+  .category-link {
+    color: var(--grey-5);
+    text-decoration: none;
+    transition: color 0.3s;
+    
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.tag-info {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.article-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: var(--grey-1);
+  color: var(--grey-6);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: all 0.3s;
+  
+  &:hover {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .tag-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.25rem;
+  }
 }
 
 .no-articles {
   text-align: center;
   padding: 3rem 0;
-  color: #666;
-  font-size: 1.2rem;
+  color: var(--grey-5);
+  font-size: 1.1rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  margin: 2rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 响应式布局 */
+@media (max-width: 1024px) {
+  .article-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .article-link {
-    flex-direction: column;
+  .page-title {
+    font-size: 2rem !important;
   }
   
-  .article-cover {
-    flex: auto;
-    height: 200px;
+  .article-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    span {
+      margin-bottom: 0.25rem;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .article-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style> 
