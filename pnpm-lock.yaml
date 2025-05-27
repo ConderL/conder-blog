@@ -443,6 +443,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      lottie-web:
+        specifier: ^5.12.2
+        version: 5.12.2
       md-editor-v3:
         specifier: ^4.21.3
         version: 4.21.3(vue@3.5.14(typescript@5.8.3))
