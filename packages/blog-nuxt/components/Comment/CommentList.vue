@@ -33,26 +33,26 @@ v-if="comment.fromUid == 1"
 					></div>
 					<ClientOnly>
 						
-					<div class="reply-info">
-						<span class="reply-time">{{
-							formatDateTime(comment.createTime)
-						}}</span>
-						<span class="reply-like" @click="like(comment)">
-							<UIcon
-name="icon:like"
-								class="icon"
-								:class="isLike(comment.id)"
-							/>
-							<span v-show="comment.likeCount">{{
-								comment.likeCount
+						<div class="reply-info">
+							<span class="reply-time">{{
+								formatDateTime(comment.createTime)
 							}}</span>
-						</span>
-						<span
-							class="reply-btn"
-							@click="handleReply(index, comment)"
-							>回复</span
-						>
-					</div>
+							<span class="reply-like" @click="like(comment)">
+								<UIcon
+									name="icon:like"
+									class="icon"
+									:class="isLike(comment.id)"
+								/>
+								<span v-show="comment.likeCount">{{
+									comment.likeCount
+								}}</span>
+							</span>
+							<span
+								class="reply-btn"
+								@click="handleReply(index, comment)"
+								>回复</span
+							>
+						</div>
 					</ClientOnly>
 					<div
 					 	v-for="reply of comment.replyVOList"
@@ -170,23 +170,19 @@ const props = defineProps({
 		type: Number,
 		required: true
 	},
+	typeId: {
+		type: Number,
+		required: true
+	}
 });
 
-const typeId = computed(() =>
-	Number(route.params.id) ? Number(route.params.id) : undefined
-);
-
-onMounted(() => {
-	console.log(user, 'user')
-});
-
-const isLike = computed(() => (id: number) => {
-	return unref(user.commentLikeSet).includes(id) ? "like-flag" : "";
-});
+const isLike = (id: number) => {
+  return unref(user.commentLikeSet).includes(id) ? "like-flag" : "";
+};
 
 const queryParams = reactive({
 		current: 1,
-		typeId: typeId.value,
+		typeId: props.typeId,
 		commentType: props.commentType,
 });
 

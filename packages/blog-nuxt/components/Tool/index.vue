@@ -1,9 +1,9 @@
 <template>
-  <div class="tool" :style="y > 0 ? show : ''" ref="toolRef">
-    <div class="item" v-if="isArticlePage" @click="handleSide">
+  <div ref="toolRef" class="tool" :style="y > 0 ? show : ''">
+    <div v-if="isArticlePage" class="item" @click="handleSide">
       <UIcon name="icon:heng" class="!size-6 text-center"></UIcon>
     </div>
-    <div class="item" v-if="commentShow(route.name as string)" @click="handleToComment">
+    <div v-if="commentShow(route.name as string)" class="item" @click="handleToComment">
       <UIcon name="icon:comments" class="!size-6 text-center"></UIcon>
     </div>
     <div class="item back-to-top" @click="handleBackToTop">
@@ -32,8 +32,8 @@ const show = reactive({
 const { parent: toolRef } = useAutoAnimate();
 
 // 在客户端使用window
-let y = ref(0);
-let isClient = ref(false);
+const y = ref(0);
+const isClient = ref(false);
 
 onMounted(() => {
   // 标记为客户端环境
@@ -41,7 +41,7 @@ onMounted(() => {
 
   // 在组件挂载后初始化useScroll
   const scrollData = useScroll(window);
-  y = scrollData.y;
+  y.value = scrollData.y;
   
   // 监听滚动事件计算百分比
   window.addEventListener('scroll', updateScrollProcess);
@@ -54,7 +54,7 @@ onUnmounted(() => {
 });
 
 const updateScrollProcess = () => {
-  if (process && isClient.value) {
+  if (process.value && isClient.value) {
     process.value = Number(
       (
         (window.pageYOffset /

@@ -67,8 +67,6 @@ export const useRequest = () => {
       // 添加token
       const token = getToken();
 
-      console.log('发送请求时的token', token);
-
       if (token) {
         fetchOptions.headers.Authorization = token_prefix + token;
       }
@@ -78,8 +76,6 @@ export const useRequest = () => {
         ...fetchOptions,
         baseURL
       });
-
-      console.log('API响应:', response);
 
       if(fetchOptions.isNotify || !response.flag) {
         handleResponse(response);

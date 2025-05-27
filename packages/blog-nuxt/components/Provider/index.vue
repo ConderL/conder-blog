@@ -13,9 +13,6 @@ defineComponent('Provider');
 // 页面初始化时加载用户信息
 onMounted(async () => {
   const userStore = useUserStore();
-
-  console.log('userStore', userStore);
-  
   // 如果存在token，尝试获取用户信息
   if (userStore.token) {
     try {

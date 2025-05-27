@@ -165,7 +165,7 @@
                 </div>
                 
                 <!-- 评论区 -->
-                <CommentList :comment-type="commentType" />
+                <CommentList :comment-type="commentType" :type-id="articleId" />
               </div>
             </div>
           </div>

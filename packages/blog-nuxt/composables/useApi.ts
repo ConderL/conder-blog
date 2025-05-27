@@ -44,7 +44,7 @@ export const useApi = () => {
 
   const talk = {
     // 获取说说列表 - 用于SSR
-    getTalkList: () => fetchData('/talk/list'),
+    getTalkList: (params: any) => fetchData('/talk/list', { params }),
 
     // 获取说说详情 - 用于SSR
     getTalk: (id: number) => fetchData(`/talk/${id}`),
