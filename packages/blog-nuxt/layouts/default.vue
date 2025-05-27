@@ -15,6 +15,7 @@
       <ClientOnly>
         <Drawer />
         <Tool />
+        <ChatRoom />
       </ClientOnly>
     </div>
 </template>
