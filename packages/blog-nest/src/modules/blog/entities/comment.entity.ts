@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { User } from '../../../modules/user/entities/user.entity';
 import { Article } from './article.entity';
@@ -27,13 +19,14 @@ export enum CommentType {
 @Entity('t_comment')
 export class Comment extends BaseEntity {
   /**
-   * 评论类型 (0: 文章评论, 1: 友链评论, 2: 说说评论)
+   * 评论类型 (1: 文章评论, 2: 友链评论, 3: 说说评论, 4: 留言评论)
    */
   @Column({ name: 'comment_type', type: 'tinyint', width: 1 })
   commentType: number;
 
   /**
    * 类型ID (文章ID、友链ID或说说ID)
+   * 对于友链评论，typeId可以为-1
    */
   @Column({ name: 'type_id', nullable: true })
   typeId: number;
@@ -82,10 +75,11 @@ export class Comment extends BaseEntity {
   likeCount: number;
 
   /**
-   * 文章
+   * 文章 - 仅当评论类型为文章评论时有效
+   * 对于友链评论(commentType=2)，typeId可以为-1，此时不关联文章
    */
-  @ManyToOne(() => Article)
-  @JoinColumn({ name: 'type_id' })
+  @ManyToOne(() => Article, { nullable: true })
+  @JoinColumn({ name: 'type_id', referencedColumnName: 'id' })
   article: Article;
 
   /**

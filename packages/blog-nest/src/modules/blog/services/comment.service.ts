@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Comment } from '../entities/comment.entity';
+import { Comment, CommentType } from '../entities/comment.entity';
 import { SiteConfig } from '../entities/site-config.entity';
 import { ContentCensorService } from './content-censor.service';
 import { LocalTextFilterService } from '../../tools/services/local-text-filter.service';
@@ -29,6 +29,12 @@ export class CommentService {
   async create(comment: Partial<Comment>): Promise<Comment> {
     try {
       console.log('创建评论:', comment);
+
+      // 处理友链评论的特殊情况
+      if (comment.commentType === CommentType.FRIEND) {
+        // 友链评论不需要关联到具体文章，设置为null以避开外键约束
+        comment.typeId = null;
+      }
 
       // 检查百度审核服务状态，可能会自动切换到手动审核模式
       await this.contentCensorService.checkBaiduServiceStatus();

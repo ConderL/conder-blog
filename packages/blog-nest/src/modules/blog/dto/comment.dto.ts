@@ -9,9 +9,15 @@ export class CreateCommentDto {
   @MaxLength(500, { message: '评论内容不能超过500个字符' })
   commentContent: string;
 
-  @ApiProperty({ description: '类型ID (文章ID、友链ID或说说ID)', example: 1 })
-  @IsNumber()
-  typeId: number;
+  @ApiProperty({
+    description: '类型ID (文章ID、友链ID或说说ID)',
+    example: 1,
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'typeId必须是数字' })
+  typeId?: number;
 
   @ApiProperty({
     description: '评论类型 (1: 文章评论, 2: 友链评论, 3: 说说评论, 4: 留言评论)',

@@ -66,6 +66,12 @@ export class CommentController {
         userId: userId,
       };
 
+      // 特殊处理友链评论，将 typeId 设置为 null
+      if (createCommentDto.commentType === 2) {
+        // CommentType.FRIEND = 2
+        comment.typeId = null;
+      }
+
       console.log('构建的评论数据:', comment);
 
       const result = await this.commentService.create(comment);
