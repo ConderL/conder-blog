@@ -16,7 +16,7 @@
           <div class="comment-content">
             <div class="info">
               <!-- 昵称 -->
-              <span class="comment-name">{{ comment.nickname }}</span>
+              <span class="comment-name">{{ comment.fromNickname }}</span>
               <!-- 时间 -->
               <div>{{ formatCommentDate(comment.createTime) }}</div>
             </div>
@@ -27,14 +27,10 @@
       </div>
   
       <!-- 当没有评论时显示的内容 -->
-      <div v-if="commentList.length === 0 && !loading" class="no-comment">
+      <div v-if="commentList.length === 0" class="no-comment">
         暂无评论
       </div>
-    
-      <!-- 加载中状态 -->
-      <div v-if="loading" class="no-comment">
-        加载中...
-      </div>
+
     </template>
     
     <!-- 服务端渲染的占位内容 -->
@@ -56,10 +52,11 @@ defineComponent({
   name: 'RecentComment'
 });
 
-const loading = ref(true);
 const { comment: commentApi } = useApi();
 
-const { recordList: commentList } = await commentApi.getList();
+const { data, status } = await commentApi.getList();
+
+const { recordList: commentList } = unref(data);
 
 // 处理评论内容，转换表情代码为图片
 const processCommentContent = (content: string) => {

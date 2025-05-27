@@ -1,6 +1,6 @@
 <template>
 	<ClientOnly>
-	<NuxtLink v-if="talkList.length > 0" to="/talk" class="talk-swiper">
+	<NuxtLink v-if="talkList" to="/talk" class="talk-swiper">
 		<UIcon name="icon:laba" class="laba-icon" />
 			<swiper
 				class="swiper-container"
@@ -12,7 +12,7 @@
 				:autoplay="{ delay: 3000, disableOnInteraction: false }"
 			>
 				<swiper-slide v-for="(t, index) in talkList" :key="index">
-					<div class="slide-content" v-html="t"></div>
+					<div class="slide-content" v-html="t.talkContent"></div>
 				</swiper-slide>
 			</swiper>
 		<UIcon name="icon:right-arrow" class="arrow" />
@@ -43,7 +43,8 @@ const modules = [Autoplay];
 const { talk } = useApi();
 
 // 使用useFetch获取说说数据
-const talkList = await talk.getTalkList();
+const { data } = await talk.getTalkList();
+const talkList = computed(() => unref(data).recordList);
 </script>
 
 <style lang="scss" scoped>

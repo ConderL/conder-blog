@@ -12,7 +12,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       toast.add({
         title: content,
         color: 'success',
-        duration: 30000000,
+        duration: 3000,
         progress: true
       });
     },

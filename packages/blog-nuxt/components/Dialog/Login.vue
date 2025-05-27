@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import { useAppStore, useBlogStore, useUserStore } from "~/stores";
-import { setToken } from "~/utils/token";
+import { useToken } from "~/composables/useToken";
 import { debounce } from "~/utils/debounce";
 import { encryptPassword } from "~/utils/secret";
 
@@ -99,6 +99,7 @@ const app = useAppStore();
 const user = useUserStore();
 const blog = useBlogStore();
 const { login: loginApi } = useApi();
+const { setToken } = useToken();
 const loading = ref(false);
 const loginForm = reactive<LoginForm>({
   email: "",
@@ -191,13 +192,13 @@ const handleLogin = async () => {
   }
   
   // 密码验证
-  if (loginForm.password.trim().length == 0) {
+  if (loginForm.password.trim().length === 0) {
     window.$message?.warning("密码不能为空");
     return;
   }
   
   // 验证码验证
-  if (loginForm.code.trim().length == 0) {
+  if (loginForm.code.trim().length === 0) {
     window.$message?.warning("验证码不能为空");
     return;
   }
@@ -209,16 +210,23 @@ const handleLogin = async () => {
     const encryptedPassword = encryptPassword(loginForm.password);
     
     // 调用实际登录API
-    const res = await loginApi.login({
+    const response = await loginApi.login({
       ...loginForm,
       password: encryptedPassword
     });
-    
-    if (res.data.flag) {
-      setToken(res.data.data.token);
-      user.loadToken();
-      await user.fetchUserInfo(); // 获取用户信息
+
+    console.log('登录响应:', response);
+
+    // 检查响应是否包含token
+    if (response?.flag && response?.data?.token) {
+      // 设置token
+      setToken(response.data.token);
+      console.log('Token设置成功:', response.data.token);
+      
       window.$message?.success("登录成功");
+
+      // 获取用户信息
+      await user.fetchUserInfo();
       
       // 重置表单
       loginForm.email = "";
@@ -242,12 +250,9 @@ const initCaptcha = debounce(async () => {
   
   try {
     // 调用获取验证码API
-    const res = await loginApi.getCaptcha();
-    
-    if (res.data.flag) {
-      captcha.value = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(res.data.data.captchaImg)}`;
-      loginForm.captchaUUID = res.data.data.captchaUuid;
-    }
+    const { data } = await loginApi.getCaptcha();
+    captcha.value = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(data.captchaImg)}`;
+    loginForm.captchaUUID = data.captchaUuid;
   } catch (error) {
     console.error("获取验证码失败", error);
   } finally {

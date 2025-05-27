@@ -269,11 +269,11 @@ const { article: articleApi } = useApi();
 
 // 文章数据和推荐文章
 const loading = ref(true);
-const articleData = await articleApi.getArticle(articleId.value)
-const recommendData = await articleApi.getArticleRecommend()
+const { data: articleData } = await articleApi.getArticle(articleId.value)
+const { data: { recordList: recommendData } } = await articleApi.getArticleRecommend()
 
 // 获取文章数据
-const fetchArticleData = async () => {
+const handleArticleData =  () => {
   try {
     loading.value = true;
     
@@ -306,7 +306,6 @@ const fetchArticleData = async () => {
   }
 };
 
-fetchArticleData();
 
 // 点赞文章
 const like = async () => {
@@ -348,33 +347,10 @@ const like = async () => {
   }
 };
 
-// SEO优化
-useHead({
-  title: computed(() => articleData.value?.articleTitle 
-    ? `${articleData.value.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`
-    : '文章详情'),
-  meta: [
-    {
-      name: 'description',
-      content: computed(() => articleData.value?.articleContent
-        ? deleteHTMLTag(articleData.value.articleContent).slice(0, 150) + '...'
-        : '查看详细文章内容')
-    },
-    {
-      name: 'keywords',
-      content: computed(() => {
-        const tags = articleData.value?.tags || [];
-        return tags?.length
-          ? tags.map((tag: any) => tag.tagName).join(',')
-          : '博客,文章,技术';
-      })
-    }
-  ]
-});
-
 // 仅在客户端进行的操作
 onMounted(() => {
   console.log('文章页面挂载...');
+  handleArticleData();
 
   scrollElement.value = document.documentElement;
   isMounted.value = true;
@@ -441,6 +417,32 @@ const formatDateString = (dateString: string | undefined) => {
   const day = date.getDate();
   return `${year}年${month}月${day}日`;
 };
+
+
+// SEO优化
+useHead({
+  title: computed(() => articleData.value?.articleTitle 
+    ? `${articleData.value.articleTitle} - ${blog.blogInfo.siteConfig?.siteName || '博客'}`
+    : '文章详情'),
+  meta: [
+    {
+      name: 'description',
+      content: computed(() => articleData.value?.articleContent
+        ? deleteHTMLTag(articleData.value.articleContent).slice(0, 150) + '...'
+        : '查看详细文章内容')
+    },
+    {
+      name: 'keywords',
+      content: computed(() => {
+        const tags = articleData.value?.tags || [];
+        return tags?.length
+          ? tags.map((tag: any) => tag.tagName).join(',')
+          : '博客,文章,技术';
+      })
+    }
+  ]
+});
+
 </script>
 
 <style lang="scss" scoped>

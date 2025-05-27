@@ -73,7 +73,6 @@ export interface UserActions {
   setToken(token: string): void;
   setUserInfo(info: any): void;
   logout(): void;
-  loadToken(): void;
   LogOut?(): void;
 }
 

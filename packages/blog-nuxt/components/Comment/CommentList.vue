@@ -9,7 +9,7 @@
 			:type-id="typeId"
 			@reload="reloadComments"
 		></ReplyBox>
-		<div v-if="count > 0 && reFresh" ref="commentListRef">
+		<div v-if="count > 0" ref="commentListRef">
 			<div
 				v-for="(comment, index) of commentList"
 				:key="comment.id"
@@ -31,6 +31,8 @@ v-if="comment.fromUid == 1"
 						class="reply-content"
 						v-html="processContent(comment.commentContent)"
 					></div>
+					<ClientOnly>
+						
 					<div class="reply-info">
 						<span class="reply-time">{{
 							formatDateTime(comment.createTime)
@@ -51,6 +53,7 @@ name="icon:like"
 							>回复</span
 						>
 					</div>
+					</ClientOnly>
 					<div
 					 	v-for="reply of comment.replyVOList"
 						:key="reply.id"
@@ -131,11 +134,6 @@ name="icon:like"
 					<div class="bottom-line"></div>
 				</div>
 			</div>
-			<div v-if="count > commentList.length" class="loading-warp">
-				<UButton class="btn" color="primary" @click="getList">
-					加载更多...
-				</UButton>
-			</div>
 		</div>
 		<div v-else style="padding: 1.25rem; text-align: center">
 			来发评论吧~
@@ -174,28 +172,28 @@ const props = defineProps({
 	},
 });
 
-const emit = defineEmits(["getCommentCount"]);
-
 const typeId = computed(() =>
 	Number(route.params.id) ? Number(route.params.id) : undefined
 );
 
-const isLike = computed(() => (id: number) => {
-	return user.commentLikeSet.includes(id) ? "like-flag" : "";
+onMounted(() => {
+	console.log(user, 'user')
 });
 
-const data = reactive({
-	count: 0,
-	reFresh: true,
-	queryParams: {
+const isLike = computed(() => (id: number) => {
+	return unref(user.commentLikeSet).includes(id) ? "like-flag" : "";
+});
+
+const queryParams = reactive({
 		current: 1,
 		typeId: typeId.value,
 		commentType: props.commentType,
-	},
-	commentList: [],
 });
 
-const { count, reFresh, queryParams, commentList } = toRefs(data);
+const { data, refresh: reloadComments } = await commentApi.getList(queryParams);
+
+const commentList = computed(() => unref(data).recordList);
+const count = computed(() => unref(data).count);
 
 // 格式化时间
 const formatDateTime = (dateString: string) => {
@@ -216,7 +214,7 @@ const processContent = (content: string) => {
 	return cleanupContent(content);
 };
 
-const like = (comment: any) => {
+const like = async (comment: any) => {
 	if (!user.id) {
 		app.setLoginFlag(true);
 		return;
@@ -232,49 +230,28 @@ const like = (comment: any) => {
 	// 判断当前是否已点赞
 	if (user.commentLikeSet.includes(id)) {
 		// 已点赞，调用取消点赞API
-		commentApi.unlike(id)
-			.then((response: any) => {
-				if (response.data.flag) {
-					comment.likeCount = Math.max(0, comment.likeCount - 1);
-					user.commentLike(id);
-				}
-			})
-			.catch((error) => {
-				console.error("取消点赞失败:", error);
-			});
+		const { data } = await commentApi.unlike(id);
+		if (data) {
+			comment.likeCount = Math.max(0, comment.likeCount - 1);
+			user.commentLike(id);
+		}
 	} else {
 		// 未点赞，调用点赞API
-		commentApi.like(id)
-			.then((response: any) => {
-				if (response.data.flag) {
-					comment.likeCount += 1;
-					user.commentLike(id);
-				}
-			})
-			.catch((error) => {
-				console.error("点赞失败:", error);
-			});
+		const { data } = await commentApi.like(id);
+		if (data) {
+			comment.likeCount += 1;
+			user.commentLike(id);
+		}
 	}
 };
 
-// 刷新评论列表
-watch(
-	commentList,
-	() => {
-		reFresh.value = false;
-		nextTick(() => {
-			reFresh.value = true;
-		});
-	},
-	{ deep: false }
-);
 
 // 查看更多评论
 const readMoreComment = (index: number, comment: any) => {
 	commentApi.getReplyList(comment.id, { current: 1, size: 5 })
 	.then((response: any) => {
-		if (response.data && response.data.data) {
-			comment.replyVOList = response.data.data;
+		if (response.data) {
+			comment.replyVOList = response.data;
 			// 回复大于5条展示分页
 			if (comment.replyCount > 5 && pageRef.value[index]) {
 				pageRef.value[index].setPaging(true);
@@ -325,37 +302,19 @@ const handleReply = (index: number, target: any) => {
 	currentReply.setReply(true);
 };
 
-const getList = async () => {
-	const { recordList: list } = await commentApi.getList(queryParams.value)
-	if(queryParams.value.current === 1) {
-		commentList.value = list || [];
-	} else {
-		commentList.value.push(...(list || []));
-	}
-	queryParams.value.current++;
-	count.value = list.data.data.count || 0;
-	emit("getCommentCount", count.value);
-};
-
-// 重新加载评论列表
-const reloadComments = () => {
-	queryParams.value.current = 1;
-	getList();
-};
-
 // 重新加载回复评论
 const reloadReplies = (index: number) => {
 	if (!commentList.value[index] || !pageRef.value[index]) {
 		return;
 	}
 	
-	comment.getReplyList(commentList.value[index].id, {
+	commentApi.getReplyList(commentList.value[index].id, {
 		current: pageRef.value[index].current,
 		size: 5,
 	})
 	.then((response: any) => {
-		if (response.data && response.data.data && commentList.value[index]) {
-			commentList.value[index].replyVOList = response.data.data;
+		if (response.data && commentList.value[index]) {
+			commentList.value[index].replyVOList = response.data;
 			commentList.value[index].replyCount++;
 			
 			// 隐藏回复框
@@ -386,10 +345,6 @@ const reloadReplies = (index: number) => {
 		}
 	});
 };
-
-onMounted(() => {
-	getList();
-});
 </script>
 
 <style lang="scss" scoped>

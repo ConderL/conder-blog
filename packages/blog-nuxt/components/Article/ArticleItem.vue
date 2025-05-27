@@ -56,7 +56,7 @@
       </div>
     </div>
     <!-- 分页器 -->
-    <div v-if="count > 5" class="pagination-container">
+    <div v-if="count > 10" class="pagination-container">
       <Pagination 
         :current="queryParams.current"
         :total="count"
@@ -81,10 +81,13 @@ defineExpose({
 const { article: articleApi } = useApi();
 const queryParams = reactive<PageQuery>({
   current: 1,
-  size: 5,
+  size: 10,
 });
 
-const { recordList: articleList, count } = await articleApi.getList(queryParams);
+const { data } = await articleApi.getList(queryParams);
+
+const articleList = computed(() => unref(data).recordList);
+const count = computed(() => unref(data).count);
 
 // 使用AutoAnimate为列表添加动画
 const { parent: listRef } = useAutoAnimate({

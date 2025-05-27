@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getSafeStorage, useStorage } from '~/utils/storage';
-import { getToken, removeToken, setToken as setTokenUtil } from '~/utils/token';
+import { useToken } from '~/composables/useToken';
+import { useApi } from '~/composables/useApi';
 
 export interface UserInfo {
   id: string;
@@ -14,7 +15,8 @@ export interface UserInfo {
 }
 
 export const useUserStore = defineStore('user', () => {
-  const token = ref('');
+  const { token, getToken, removeToken, setToken } = useToken();
+  
   const userInfo = ref<UserInfo>({} as UserInfo);
   const isLogin = ref(false);
   const articleLikeSet = ref<number[]>([]);
@@ -26,14 +28,9 @@ export const useUserStore = defineStore('user', () => {
   const intro = ref('');
   const webSite = ref('');
 
-  function setToken(newToken: string) {
-    token.value = newToken;
-    isLogin.value = !!newToken;
-    setTokenUtil(newToken);
-  }
-
   function setUserInfo(info: UserInfo) {
     userInfo.value = info;
+    isLogin.value = true;
     id.value = parseInt(info.id) || 0;
     nickname.value = info.nickname || '';
     avatar.value = info.avatar || '';
@@ -45,7 +42,6 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function logout() {
-    token.value = '';
     userInfo.value = {} as UserInfo;
     isLogin.value = false;
     id.value = 0;
@@ -59,23 +55,26 @@ export const useUserStore = defineStore('user', () => {
     removeToken();
   }
 
-  function loadToken() {
-    const storedToken = getToken();
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }
-
   // 获取用户信息
   async function fetchUserInfo() {
-    if (!token.value) return;
+
+    if (!token.value) {
+      console.log('没有token，无法获取用户信息');
+      return;
+    }
     
     try {
-      const res = await getUserInfo();
-      if (res.data.flag) {
-        setUserInfo(res.data.data);
+      const { login: loginApi } = useApi();
+      const { data } = await loginApi.getUserInfo();
+
+      console.log('获取用户信息结果:', data);
+
+      if (data) {
+        setUserInfo(data);
+        console.log('用户信息设置成功');
       } else {
         // 如果获取用户信息失败，可能是token已过期
+        console.log('获取用户信息失败，执行登出');
         logout();
       }
     } catch (error) {
@@ -132,7 +131,6 @@ export const useUserStore = defineStore('user', () => {
     setToken,
     setUserInfo,
     logout,
-    loadToken,
     fetchUserInfo,
     articleLike,
     commentLike,

@@ -55,8 +55,7 @@ const modules = [Pagination, Navigation, Mousewheel, Autoplay];
 
 const { article } = useApi();
 
-// 使用useFetch获取推荐文章数据
-const articleList = await article.getArticleRecommend();
+const { data: articleList } = await article.getArticleRecommend();
 
 const articleCover = computed(
 	() => (cover: string) => `background:url(${cover})`

@@ -22,7 +22,6 @@
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.10",
     "easy-typer-js": "^2.1.0",
-    "js-cookie": "^3.0.5",
     "lodash-es": "^4.17.21",
     "md-editor-v3": "^4.21.2",
     "nprogress": "^0.2.0",

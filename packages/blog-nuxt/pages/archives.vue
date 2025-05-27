@@ -57,7 +57,9 @@ const queryParams = reactive({
 });
 
 const { archives } = useApi();
-const { recordList: archivesList, count } = await archives.getList(queryParams);
+const { data, status } = await archives.getList(queryParams);
+const archivesList = computed(() => unref(data).recordList);
+const count = computed(() => unref(data).count);
 
 
 // SEO优化

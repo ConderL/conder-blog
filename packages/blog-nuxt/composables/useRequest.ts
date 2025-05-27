@@ -10,17 +10,10 @@ export const useRequest = () => {
   const userStore = useUserStore();
   const appStore = useAppStore();
   
-  // 获取token
-  const getToken = () => {
-    // 如果在客户端，从localStorage获取token
-    if (process.client) {
-      return localStorage.getItem('token');
-    }
-    return null;
-  };
+  // 使用新的token组合式函数
+  const { getToken, token_prefix } = useToken();
   
-  // token前缀
-  const token_prefix = 'Bearer ';
+  const token = getToken();
 
   /**
    * 处理响应数据和错误
@@ -40,29 +33,19 @@ export const useRequest = () => {
     }
   };
 
-  /**
-   * 处理401错误（未授权）
-   */
-  const handle401Error = () => {
-    if (process.client) {
-      try {
-        // 如果用户已登录但收到401，说明token可能已过期
-        if (userStore.isLogin) {
-          if (window.$message) {
-            window.$message.error("登录已过期，请重新登录");
-          }
-          userStore.logout();
-        } else if (window.$message) {
-          window.$message.error("请先登录");
-        }
-        
-        // 显示登录对话框
-        appStore.setLoginFlag(true);
-      } catch (error) {
-        console.error('处理401错误失败', error);
+  const customFetch = $fetch.create({
+    onRequest: ({ options }) => {
+      if (token) {
+        options.headers.Authorization = token_prefix + token;
+      }
+    },
+    onResponse: ({ response }) => {
+      console.log('response', response);
+      if(!response.ok) {
+        handleResponse(response._data);
       }
     }
-  };
+  })
 
   /**
    * 客户端直接请求函数 - 适用于用户交互场景
@@ -83,6 +66,9 @@ export const useRequest = () => {
       
       // 添加token
       const token = getToken();
+
+      console.log('发送请求时的token', token);
+
       if (token) {
         fetchOptions.headers.Authorization = token_prefix + token;
       }
@@ -93,10 +79,13 @@ export const useRequest = () => {
         baseURL
       });
 
-      if(fetchOptions.isNotify && response.code !== undefined) {
+      console.log('API响应:', response);
+
+      if(fetchOptions.isNotify || !response.flag) {
         handleResponse(response);
       }
       
+      // 返回完整响应，而不仅仅是data部分
       return response;
   };
 
@@ -113,6 +102,10 @@ export const useRequest = () => {
       key: `api-${url}:${options.key}`, // 使用带前缀的URL作为缓存键，避免与Nuxt内部缓存冲突
       server: true, // 在服务端渲染时获取数据
       lazy: false, // 不延迟加载
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
     };
 
     // 合并选项
@@ -121,34 +114,24 @@ export const useRequest = () => {
       ...options,
     };
 
-    try {
-      // 使用useFetch获取数据
-      const { data, error } = await useFetch(url, {
-        ...fetchOptions,
-        baseURL,
-        transform: (res) => {
-          if (res.flag) {
-            return res.data;
-          }
-          throw new Error(res.msg);
-          handleResponse(res)
-        },
-      });
-
-      if (error.value) {
-        console.error(`获取数据失败: ${url}`, error.value);
-        // 处理401错误
-        if (error.value.statusCode === 401) {
-          handle401Error();
-        }
-        throw error.value;
-      }
-
-      return unref(data);
-    } catch (err) {
-      console.error(`请求错误: ${url}`, err);
-      throw err;
+    if (token) {
+      fetchOptions.headers.Authorization = token_prefix + token;
     }
+    // 使用useFetch获取数据
+    return await useFetch(url, {
+      ...fetchOptions,
+      baseURL,
+      transform: (res) => {
+        if (res.flag) {
+          return res.data;
+        }
+      },
+      onResponse: ({ response }) => {
+        if(!response.flag) {
+          handleResponse(response);
+        }
+      }
+    });
   };
 
   return {

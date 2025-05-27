@@ -25,10 +25,10 @@ export const useApi = () => {
     getArticleRecommend: () => fetchData('/articles/recommend'),
     
     // 点赞文章 - 用于客户端交互
-    like: (id: string) => directFetch(`/articles/like/${id}`, { method: 'POST' }),
+    like: (id: string) => directFetch(`/articles/${id}/like`, { method: 'POST' }),
     
     // 取消点赞文章 - 用于客户端交互
-    unlike: (id: string) => directFetch(`/articles/unlike/${id}`, { method: 'POST' }),
+    unlike: (id: string) => directFetch(`/articles/${id}/like`, { method: 'POST', params: { type: 'unlike' } }),
   };
 
   // 归档相关API
@@ -57,17 +57,36 @@ export const useApi = () => {
   };
 
   const login = {
+
+    // 获取验证码 - 用于客户端交互
+    getCaptcha: () => directFetch('/captcha', { params: { type: 'ConderView' } }),
+
+    // 验证验证码 - 用于客户端交互
+    validateCaptcha: (captchaUUID: string, code: string) => directFetch('/captcha/validate', { method: 'POST', body: { captchaUUID, code, type: 'ConderView' } }),
+
     // 发送邮箱验证码 - 用于客户端交互
-    sendEmailCode: (email: string) => directFetch('/login/sendEmailCode', { method: 'POST', body: { email } }),
+    sendEmailCode: (email: string) => directFetch('/auth/email/code', { method: 'POST', body: { email, type: 'ConderView' } }),
 
     // 注册 - 用于客户端交互
-    register: (data: any) => directFetch('/login/register', { method: 'POST', body: data }),
+    register: (data: any) => directFetch('/auth/register', { method: 'POST', body: { ...data, type: 'ConderView' } }),
 
     // 登录 - 用于客户端交互
-    login: (data: any) => directFetch('/login/login', { method: 'POST', body: data }),
+    login: (data: any) => directFetch('/auth/login', { method: 'POST', body: { ...data, type: 'ConderView' } }),
 
-    // 获取用户信息 - 用于SSR
-    getUserInfo: () => fetchData('/login/getUserInfo'),
+    // 获取用户信息 - 修改为使用directFetch
+    getUserInfo: () => directFetch('/user/getUserInfo'),
+
+    // 退出登录 - 用于客户端交互
+    logout: () => directFetch('/auth/logout', { method: 'POST' }),
+
+    // 第三方登录 - 用于客户端交互
+    thirdLogin: (data: any) => directFetch('/oauth/login', { method: 'POST', body: { ...data, type: 'ConderView' } }),
+
+    // 获取第三方登录信息 - 用于SSR
+    getThirdLoginInfo: () => fetchData('/oauth/info'),
+
+    // 获取第三方登录授权 - 用于客户端交互
+    getThirdLoginAuth: (data: any) => directFetch('/oauth/auth', { method: 'POST', body: { ...data, type: 'ConderView' } }),
   };
 
   const comment = {
@@ -84,7 +103,7 @@ export const useApi = () => {
     like: (id: number) => directFetch(`/comments/${id}/like`, { method: 'POST' }),
 
     // 取消点赞评论 - 用于客户端交互
-    unlike: (id: number) => directFetch(`/comments/${id}/unlike`, { method: 'POST' }),
+    unlike: (id: number) => directFetch(`/comments/${id}/like`, { method: 'POST', body: { type: 'unlike' } }),
 
     // 获取回复评论 - 用于SSR
     getReplyList: (commentId: number, params: any) => fetchData(`/comments/${commentId}/reply`, { params }),

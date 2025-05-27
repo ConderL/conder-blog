@@ -56,6 +56,7 @@ import { processEmoji } from '../../utils/emojiProcessor';
 const userStore = useUserStore();
 const blogStore = useBlogStore();
 const appStore = useAppStore();
+const { comment: commentApi } = useApi();
 
 // 激活样式
 const lineStyle = {
@@ -138,7 +139,7 @@ function handleAdd() {
   );
 
   // 调用API发送评论
-  addComment({
+  commentApi.add({
     typeId: commentForm.typeId,
     commentType: commentForm.commentType,
     commentContent: commentForm.commentContent,
@@ -147,7 +148,7 @@ function handleAdd() {
     parentId: commentForm.parentId
   })
   .then((response: any) => {
-    if (response.data.flag) {
+    if (response.data) {
       sendActive.value = false;
       commentContent.value = "";
       
