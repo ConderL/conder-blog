@@ -31,7 +31,9 @@
     "pinia-plugin-persistedstate": "^2.4.0",
     "prismjs": "^1.29.0",
     "swiper": "^8.4.7",
+    "v-viewer": "^3.0.21",
     "vue": "^3.5.14",
+    "vue-masonry": "^0.16.0",
     "vue3-social-share": "^0.1.8"
   },
   "devDependencies": {

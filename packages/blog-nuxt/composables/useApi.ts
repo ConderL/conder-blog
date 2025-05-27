@@ -127,6 +127,15 @@ export const useApi = () => {
     getTagArticleList: (params: any) => fetchData('/tag/article', { params }),
   };
 
+  // 添加相册相关API
+  const album = {
+    // 获取相册列表
+    getAlbumList: () => directFetch('/album/list'),
+    
+    // 获取照片列表
+    getPhotoList: (albumId: number) => directFetch('/photo/list', { params: { albumId } }),
+  };
+
   return {
     blogInfo,
     article,
@@ -137,5 +146,6 @@ export const useApi = () => {
     comment,
     category,
     tag,
+    album,
   };
 }; 
