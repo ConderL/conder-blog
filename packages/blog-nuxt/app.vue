@@ -9,6 +9,7 @@
       <!-- 全局组件 -->
       <ClientOnly>
         <Provider />
+        <PerformanceMonitor />
       </ClientOnly>
     </NuxtLayout>
   </UApp>
@@ -21,7 +22,7 @@ useHead({
   titleTemplate: '%s - 技术与生活分享',
   meta: [
     { name: 'description', content: '一个基于Nuxt.js的服务端渲染博客系统' },
-    { name: 'keywords', content: 'Nuxt,Vue,SSR,博客,Blog' },
+    { name: 'keywords', content: "Conder,Nuxt,Vue,SSR,博客,Blog,ConderBlog,Conder's Blog" },
     { name: 'author', content: '@ConderL' },
     { name: 'robots', content: 'index, follow' },
     { property: 'og:type', content: 'website' },

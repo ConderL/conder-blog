@@ -23,6 +23,7 @@ declare module '@vue/runtime-core' {
     Loading: typeof import('./../components/Loading/index.vue')['default']
     Login: typeof import('./../components/Dialog/Login.vue')['default']
     LottieWeb: typeof import('./../components/LottieWeb/index.vue')['default']
+    Monitor: typeof import('./../components/Performance/Monitor.vue')['default']
     MusicPlayer: typeof import('./../components/MusicPlayer/index.vue')['default']
     NavBar: typeof import('./../components/Layout/Header/NavBar.vue')['default']
     NButton: typeof import('naive-ui')['NButton']

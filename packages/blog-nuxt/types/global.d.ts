@@ -47,6 +47,8 @@ interface Window {
     warning: (options: any) => void;
     info: (options: any) => void;
   };
+  showPerformanceMonitor: () => void;
+  hidePerformanceMonitor: () => void;
 }
 
 // 声明全局API

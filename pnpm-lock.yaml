@@ -491,6 +491,9 @@ importers:
       vue3-social-share:
         specifier: ^0.1.8
         version: 0.1.8(typescript@5.8.3)
+      web-vitals:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
       '@nuxt/devtools':
         specifier: latest
@@ -651,6 +654,9 @@ importers:
       vue3-social-share:
         specifier: ^0.1.8
         version: 0.1.8(typescript@4.9.5)
+      web-vitals:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -10790,6 +10796,9 @@ packages:
   web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
+
+  web-vitals@5.0.1:
+    resolution: {integrity: sha512-BsULPWaCKAAtNntUz0aJq1cu1wyuWmDzf4N6vYNMbYA6zzQAf2pzCYbyClf+Ui2MI54bt225AwugXIfL1W+Syg==}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -23918,6 +23927,8 @@ snapshots:
       defaults: 1.0.4
 
   web-streams-polyfill@3.3.3: {}
+
+  web-vitals@5.0.1: {}
 
   webidl-conversions@3.0.1: {}
 

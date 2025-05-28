@@ -20,3 +20,12 @@ declare module "APlayer";
 declare module "vue-cropper";
 declare module 'markdown-it-mark';
 declare module 'markdown-it-link-attributes';
+
+export {};
+
+declare global {
+  interface Window {
+    showPerformanceMonitor: () => void;
+    hidePerformanceMonitor: () => void;
+  }
+}

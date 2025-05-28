@@ -19,6 +19,7 @@
 			<Drawer></Drawer>
 			<MusicPlayer></MusicPlayer>
 			<ChatRoom></ChatRoom>
+			<PerformanceMonitor></PerformanceMonitor>
 		</div>
 	</Provider>
 </template>

@@ -1,10 +1,11 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import { setupDirectives } from "./directives";
-import { setupAssets, setupLazy, setupMasonry, setupViewer } from "./plugins";
+import { setupAssets, setupLazy, setupMasonry, setupViewer, setupPerformance } from "./plugins";
 import { setupRouter } from "./router";
 import { setupStore } from "./store";
 import { titleChange } from "@/utils/title";
+import PerformanceMonitor from "@/components/Performance/Monitor.vue";
 
 import { config } from "md-editor-v3";
 import { lineNumbers } from "@codemirror/view";
@@ -31,6 +32,11 @@ async function setupApp() {
 	setupMasonry(app);
 
 	setupViewer(app);
+
+	setupPerformance(app);
+	
+	// 注册性能监控组件
+	app.component('PerformanceMonitor', PerformanceMonitor);
 
 	await setupRouter(app);
 
