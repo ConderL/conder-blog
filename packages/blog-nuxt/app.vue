@@ -9,7 +9,7 @@
       <!-- 全局组件 -->
       <ClientOnly>
         <Provider />
-        <PerformanceMonitor />
+        <Monitor />
       </ClientOnly>
     </NuxtLayout>
   </UApp>
@@ -51,7 +51,6 @@ html {
 }
 
 body {
-  cursor: url("/icons/normal.ico"), default;
   background: var(--grey-0);
   color: var(--text-color);
   font-family: Mulish, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -65,7 +64,6 @@ body {
 a,
 button,
 img {
-  cursor: url(/icons/link.ico), default !important;
   display: inline-block;
 }
 
@@ -81,12 +79,6 @@ h6 {
   margin: 1.25rem 0 0.9375rem;
 }
 
-
-input,
-textarea {
-  cursor: url(/icons/text.ico), default !important;
-}
-
 li {
   list-style: none;
 }
@@ -99,7 +91,6 @@ a {
   overflow-wrap: break-word;
   word-wrap: break-word;
   transition: color 0.2s ease-in-out;
-  cursor: url(/icons/link.ico), default !important;
 }
 
 .clearfix:after {

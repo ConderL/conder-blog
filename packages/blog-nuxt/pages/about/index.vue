@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { MdPreview } from 'md-editor-v3';
 import { useBlogStore } from '~/stores';
 
 // 定义页面元数据

@@ -93,7 +93,11 @@ onMounted(() => {
     // 页面完全加载后收集更多指标
     window.addEventListener('load', () => {
       collectBasicMetrics();
-      collectResourceMetrics();
+      
+      // 延迟执行资源统计，确保所有资源都已加载
+      setTimeout(() => {
+        collectResourceMetrics();
+      }, 1000);
     });
     
     // 添加全局方法，通过控制台命令显示性能面板
@@ -152,8 +156,28 @@ function collectResourceMetrics() {
   
   // 获取资源加载时间
   const resources = performance.getEntriesByType('resource');
-  metrics.jsResourceCount = resources.filter(resource => resource.name.endsWith('.js')).length;
-  metrics.cssResourceCount = resources.filter(resource => resource.name.endsWith('.css')).length;
+  
+  // 筛选JS和CSS资源
+  const jsResources = resources.filter(resource => {
+    const url = resource.name.toLowerCase();
+    return url.endsWith('.js') || url.includes('.js?') || url.includes('script');
+  });
+  
+  const cssResources = resources.filter(resource => {
+    const url = resource.name.toLowerCase();
+    return url.endsWith('.css') || url.includes('.css?') || url.includes('style');
+  });
+  
+  metrics.jsResourceCount = jsResources.length;
+  metrics.cssResourceCount = cssResources.length;
+  
+  // 输出资源统计到控制台
+  console.log(`JS资源数量: ${metrics.jsResourceCount}`);
+  console.log(`CSS资源数量: ${metrics.cssResourceCount}`);
+  
+  // 如果需要更详细的资源信息，可以取消下面的注释
+  // console.log('JS资源列表:', jsResources.map(r => r.name));
+  // console.log('CSS资源列表:', cssResources.map(r => r.name));
 }
 
 function collectWebVitals() {

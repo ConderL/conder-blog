@@ -9,13 +9,14 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "clean": "node scripts/clear-cache.js",
-    "dev:clean": "npm run clean && npm run dev"
+    "dev:clean": "npm run clean && npm run dev",
+    "analyze": "node scripts/analyze.js"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
     "@juggle/resize-observer": "^3.4.0",
     "@nuxt/schema": "^3.17.4",
-    "@nuxt/ui": "^3.1.2",
+    "@nuxt/ui": "^3.1.3",
     "@nuxtjs/robots": "^5.2.10",
     "@vueuse/core": "^10.7.0",
     "aplayer": "^1.10.1",

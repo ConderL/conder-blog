@@ -10,8 +10,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (!route.meta) {
       route.meta = {};
     }
-    
-    // 打印当前路径和元数据，便于调试
-    console.log(`当前路径: ${route.path}, 元数据:`, route.meta);
   })
 }) 

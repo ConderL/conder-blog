@@ -1,0 +1,19 @@
+/* 光标样式 */
+body {
+  cursor: url("/icons/normal.ico"), default;
+}
+
+a,
+button,
+img {
+  cursor: url("/icons/link.ico"), default !important;
+}
+
+input,
+textarea {
+  cursor: url("/icons/text.ico"), default !important;
+}
+
+a {
+  cursor: url("/icons/link.ico"), default !important;
+} 

@@ -172,26 +172,26 @@
         <!-- 缩略图 -->
         <el-form-item label="缩略图" prop="articleCover">
           <div class="upload-container">
-            <el-upload
-              drag
-              :show-file-list="false"
-              :headers="authorization"
-              :action="baseURL + '/admin/article/upload'"
-              accept="image/*"
-              :before-upload="beforeUpload"
-              :on-success="handleSuccess"
+          <el-upload
+            drag
+            :show-file-list="false"
+            :headers="authorization"
+            :action="baseURL + '/admin/article/upload'"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            :on-success="handleSuccess"
+          >
+            <el-icon
+              class="el-icon--upload"
+              v-if="articleForm.articleCover === ''"
             >
-              <el-icon
-                class="el-icon--upload"
-                v-if="articleForm.articleCover === ''"
-              >
-                <upload-filled />
-              </el-icon>
-              <div class="el-upload__text" v-if="articleForm.articleCover === ''">
-                将文件拖到此处，或<em>点击上传</em>
-              </div>
-              <img v-else :src="articleForm.articleCover" width="360" />
-            </el-upload>
+              <upload-filled />
+            </el-icon>
+            <div class="el-upload__text" v-if="articleForm.articleCover === ''">
+              将文件拖到此处，或<em>点击上传</em>
+            </div>
+            <img v-else :src="articleForm.articleCover" width="360" />
+          </el-upload>
             <el-icon 
               v-if="articleForm.articleCover !== ''" 
               class="clear-icon" 

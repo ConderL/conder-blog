@@ -124,7 +124,7 @@ const isArticlePage = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-@use "~/assets/styles/mixin.scss";
+@use "~/assets/mixin.scss";
 
 .tool {
   position: fixed;

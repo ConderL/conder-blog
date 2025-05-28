@@ -445,7 +445,7 @@ useHead({
 </script>
 
 <style lang="scss" scoped>
-@use "~/assets/styles/mixin.scss";
+@use "~/assets/mixin.scss";
 
 /* 添加主容器样式 */
 .main-container {

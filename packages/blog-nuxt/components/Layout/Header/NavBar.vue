@@ -1,10 +1,5 @@
 <template>
 	<div class="menu">
-		<!-- 移动端菜单按钮 -->
-		<div class="mobile-menu-btn" @click="openDrawer">
-			<UIcon name="icon:menu" class="icon" />
-		</div>
-		
 		<div class="menu-item title">
 			<NuxtLink to="/" class="menu-btn">
 				{{ siteName }}
@@ -71,12 +66,6 @@ const blog = useBlogStore();
 // 获取路由，在Nuxt中使用相关函数
 const router = useRouter();
 const route = useRoute();
-
-// 打开抽屉菜单
-const openDrawer = () => {
-	app.toggleCollapse();
-	console.log('打开抽屉菜单', app.isCollapse);
-};
 
 // 使用计算属性获取用户头像
 const userAvatar = computed(() => user.userInfo?.avatar || '/images/avatar/default.jpg');
@@ -171,28 +160,6 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.mobile-menu-btn {
-	display: none;
-	padding: 0.5rem;
-	margin-right: 0.5rem;
-	cursor: pointer;
-	
-	.icon {
-		width: 1.5rem;
-		height: 1.5rem;
-	}
-}
-
-@media (max-width: 768px) {
-	.mobile-menu-btn {
-		display: block;
-	}
-	
-	.menu-item:not(.title) {
-		display: none;
-	}
-}
-
 .user-avatar {
 	display: inline-block;
 	position: relative;

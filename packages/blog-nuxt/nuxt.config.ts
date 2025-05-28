@@ -14,6 +14,11 @@ export default defineNuxtConfig({
     'nuxt-echarts',
   ],
 
+  // 添加服务器配置，设置端口为 4000
+  server: {
+    port: 4000
+  },
+  
   lazyLoad: {
     directiveOnly: false,
     defaultImage : '/images/loading.gif',
@@ -29,8 +34,8 @@ export default defineNuxtConfig({
   },
   
   css: [
-    '~/assets/styles/main.css',
-    '~/assets/styles/index.scss'
+    '~/assets/main.css',
+    '~/assets/index.scss'
   ],
   
   icon: {
@@ -43,7 +48,7 @@ export default defineNuxtConfig({
     customCollections: [
       {
         prefix: 'icon',
-        dir: './assets/icons'
+        dir: './public/icons'
       }
     ]
   },
@@ -52,14 +57,26 @@ export default defineNuxtConfig({
     // 优化构建性能
     optimizeDeps: {
       include: ['vue', 'vue-router', 'pinia', '@vueuse/core'],
-      exclude: ['lightningcss']
+      exclude: ['lightningcss', 'jsencrypt']
     },
     // 减少构建警告
     build: {
+      cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
-        external: ['lightningcss']
-      }
+        external: ['lightningcss', 'jsencrypt'],
+        output: {
+          manualChunks: {
+            'vue-vendor': ['vue', 'vue-router'],
+            'editor-vendor': ['md-editor-v3'],
+            'utils-vendor': ['@vueuse/core', 'pinia']
+          }
+        }
+      },
+      // 需要转译的依赖
+      transpile: [
+        '@nuxt/ui'
+      ]
     }
   },
 
@@ -95,7 +112,8 @@ export default defineNuxtConfig({
         { name: 'author', content: '@ConderL' },
       ],
       link: [
-        { rel: 'icon', href: '/favicon.ico', sizes: 'any' }
+        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        { rel: 'stylesheet', href: '/styles/cursor.css' }
       ]
     },
     pageTransition: {
@@ -116,6 +134,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'node-server',
+    static: false,
     devProxy: {
       '/api': {
         target: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
@@ -123,6 +142,18 @@ export default defineNuxtConfig({
         prependPath: true
       }
     },
+    minify: true,
+    compressPublicAssets: {
+      gzip: true,
+      brotli: true
+    },
+    externals: {
+      inline: [
+        '@nuxt/icon',
+        '@vueuse/core',
+        'pinia-plugin-persistedstate'
+      ]
+    }
   },
   typescript: {
     strict: false,
@@ -131,18 +162,26 @@ export default defineNuxtConfig({
     includeWorkspace: false
   },
   devServer: {
-    port: 3334
+    port: 4000
   },
   components: {
     global: true,
     dirs: [
       {
         path: '~/components',
-        pathPrefix: false,
-        extensions: ['.vue'],
-        priority: 1
+        pathPrefix: false
       }
-    ]
+    ],
+    // 自动懒加载大型组件
+    defaults: {
+      // 默认情况下不懒加载
+      lazy: false,
+      // 但对于这些组件，我们启用懒加载
+      LazyPerformanceMonitor: true,
+      LazyMdPreview: true,
+      LazyMdCatalog: true,
+      LazyLottieWeb: true
+    }
   },
   routeRules: {
     // 首页和常用页面使用服务端渲染(SSR)

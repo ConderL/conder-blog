@@ -1,4 +1,13 @@
-import JSEncrypt from 'jsencrypt';
+// 仅在客户端导入 jsencrypt
+let JSEncrypt: any = null;
+
+// 动态导入 jsencrypt
+export async function loadJSEncrypt() {
+  if (process.client && !JSEncrypt) {
+    JSEncrypt = (await import('jsencrypt')).default;
+  }
+  return JSEncrypt;
+}
 
 // RSA公钥
 const publicKey = `-----BEGIN PUBLIC KEY-----
@@ -16,13 +25,20 @@ QwIDAQAB
  * @param data 待加密数据
  * @returns 加密后的数据
  */
-export function encodeRSA(data: string): string | boolean {
-  // 创建JSEncrypt对象
-  const encryptor = new JSEncrypt();
-  // 设置公钥
-  encryptor.setPublicKey(publicKey);
-  // 加密数据
-  return encryptor.encrypt(data);
+export async function encodeRSA(data: string): Promise<string | boolean> {
+  // 仅在客户端执行
+  if (process.client) {
+    const JSEncryptClass = await loadJSEncrypt();
+    if (JSEncryptClass) {
+      // 创建JSEncrypt对象
+      const encryptor = new JSEncryptClass();
+      // 设置公钥
+      encryptor.setPublicKey(publicKey);
+      // 加密数据
+      return encryptor.encrypt(data);
+    }
+  }
+  return false;
 }
 
 /**
@@ -30,7 +46,10 @@ export function encodeRSA(data: string): string | boolean {
  * @param password 原始密码
  * @returns 加密后的密码
  */
-export function encryptPassword(password: string): string {
-  const encrypted = encodeRSA(password);
-  return typeof encrypted === 'string' ? encrypted : '';
+export async function encryptPassword(password: string): Promise<string> {
+  if (process.client) {
+    const encrypted = await encodeRSA(password);
+    return typeof encrypted === 'string' ? encrypted : '';
+  }
+  return '';
 } 
