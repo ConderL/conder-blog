@@ -9,9 +9,15 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@pinia/nuxt',
     '@nuxt/image',
+    'nuxt-lazy-load',
     '@nuxtjs/color-mode',
     'nuxt-echarts',
   ],
+
+  lazyLoad: {
+    directiveOnly: false,
+    defaultImage : '/images/loading.gif',
+  },
   
   echarts: {
     // 注册渲染器
@@ -192,6 +198,7 @@ export default defineNuxtConfig({
     '~/plugins/md-editor.client.ts',
     '~/plugins/socket-io.client.ts',
     '~/plugins/aplayer.client.ts',
+    '~/plugins/tianli-gpt.client.ts',
   ],
   // 禁用页面过渡动画的警告
   experimental: {

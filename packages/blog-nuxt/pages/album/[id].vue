@@ -26,7 +26,7 @@
               v-masonry-tile
               class="photo-card"
             >
-              <img class="photo-img" :src="photo.photoUrl" alt="相册照片" />
+              <img class="photo-img" data-not-lazy :src="photo.photoUrl" alt="相册照片" />
             </div>
           </div>
         </ClientOnly>

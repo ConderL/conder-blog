@@ -80,7 +80,7 @@ export function cleanupContent(content: string): string {
         
         if (currentEmojiList[fullMatch]) {
           const imgSize = emojiType === 0 ? 21 : 60;
-          const imgHtml = `<img src="${currentEmojiList[fullMatch]}" width="${imgSize}" height="${imgSize}" style="margin: 0 1px;vertical-align: text-bottom"/>`;
+          const imgHtml = `<img data-not-lazy src="${currentEmojiList[fullMatch]}" width="${imgSize}" height="${imgSize}" style="margin: 0 1px;vertical-align: text-bottom"/>`;
           
           // 替换原字符串中的表情标记
           processedContent = 

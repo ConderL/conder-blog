@@ -556,7 +556,7 @@
           label-position="left"
           v-hasPerm="['web:site:update']"
         >
-          <el-form-item label="文章默认封面">
+          <el-form-item label="文章默认封面" class="article-cover-item">
             <el-upload
               class="avatar-uploader"
               :headers="authorization"
@@ -575,6 +575,7 @@
                 <Plus />
               </el-icon>
             </el-upload>
+            <el-input v-model="siteConfig.articleCover" style="width: 400px" />
           </el-form-item>
           <el-form-item label="邮箱通知">
             <el-radio-group v-model="siteConfig.emailNotice">
@@ -825,5 +826,14 @@ onMounted(() => {
 
 .article-cover {
   width: 300px;
+}
+
+.article-cover-item :deep(.el-form-item__content) {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.article-cover-item :deep(.el-input) {
+  margin-top: 10px;
 }
 </style>

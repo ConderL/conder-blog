@@ -458,6 +458,9 @@ importers:
       nuxt-echarts:
         specifier: ^0.3.2
         version: 0.3.2(echarts@5.6.0)(magicast@0.3.5)
+      nuxt-lazy-load:
+        specifier: ^3.0.5
+        version: 3.0.5(magicast@0.3.5)
       nuxt-simple-sitemap:
         specifier: ^4.4.1
         version: 4.4.1(6wwq2nwucucknymmtykpegzvqe)
@@ -8016,6 +8019,9 @@ packages:
     resolution: {integrity: sha512-X/nVH3sE1GjU0BEsa7XsHKJFq5pAUcWXuWEzwqmSMATov/BQ4HAzst8h2rZf7M05P9gvUIAjVCuxYtaMukOKXg==}
     peerDependencies:
       echarts: ^5.5.1
+
+  nuxt-lazy-load@3.0.5:
+    resolution: {integrity: sha512-3Kv5ONptUik86Z1ulrDACSptM4HSAJDgc0HL+pzAreqVe9Rmt6C4R585HN24EoSKErBf1sSPQnUZOBSHpJenmg==}
 
   nuxt-simple-sitemap@4.4.1:
     resolution: {integrity: sha512-Srj0tNW2+qpOHpJJ2C2YXo9SYHux38vPTiAylFNHLmsw3dcVThiUm4w1acs8Vh116EegxQxzBIVtXMaFTKHZpw==}
@@ -20378,6 +20384,12 @@ snapshots:
     dependencies:
       '@nuxt/kit': 3.17.4(magicast@0.3.5)
       echarts: 5.6.0
+    transitivePeerDependencies:
+      - magicast
+
+  nuxt-lazy-load@3.0.5(magicast@0.3.5):
+    dependencies:
+      '@nuxt/kit': 3.17.4(magicast@0.3.5)
     transitivePeerDependencies:
       - magicast
 

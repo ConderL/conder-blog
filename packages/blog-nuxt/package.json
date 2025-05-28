@@ -28,6 +28,7 @@
     "md-editor-v3": "^4.21.3",
     "nprogress": "^0.2.0",
     "nuxt-echarts": "^0.3.2",
+    "nuxt-lazy-load": "^3.0.5",
     "nuxt-simple-sitemap": "^4.4.1",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^2.4.0",

@@ -1,15 +1,18 @@
 <template>
-  <div v-if="articleList.length > 0" ref="listRef" class="article-container">
+  <div ref="listRef" class="article-container">
     <div
       v-for="article of articleList"
       :key="article.id"
-      v-animate="['slideUpBigIn']"
       class="article-item"
     >
       <!-- 文章缩略图 -->
       <div class="article-cover">
         <NuxtLink :to="`/article/${article.id}`">
-          <img class="cover" :src="article.articleCover" />
+          <img 
+            class="cover"
+            :src="article.articleCover"
+            :alt="article.articleTitle"
+          />
         </NuxtLink>
       </div>
       <!-- 文章信息 -->
@@ -56,7 +59,7 @@
       </div>
     </div>
     <!-- 分页器 -->
-    <div v-if="count > 10" class="pagination-container">
+    <div v-if="count > 4" class="pagination-container">
       <Pagination 
         :current="queryParams.current"
         :total="count"
@@ -69,8 +72,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
-import type { PageQuery } from "../../model";
-import { formatDate } from "../../utils/date";
+import type { PageQuery } from "~/model";
+import { formatDate } from "~/utils/date";
 import { useAutoAnimate } from "~/composables/useAutoAnimate";
 
 // 默认导出
@@ -81,7 +84,7 @@ defineExpose({
 const { article: articleApi } = useApi();
 const queryParams = reactive<PageQuery>({
   current: 1,
-  size: 10,
+  size: 4,
 });
 
 const { data } = await articleApi.getList(queryParams);
@@ -91,8 +94,8 @@ const count = computed(() => unref(data).count);
 
 // 使用AutoAnimate为列表添加动画
 const { parent: listRef } = useAutoAnimate({
-  duration: 300,
-  easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+  duration: 500,
+  easing: 'cubic-bezier(0.2, 0.7, 0.4, 1)' // 更平滑的缓动函数
 });
 
 // 安全的日期格式化
@@ -111,6 +114,11 @@ const changePage = (page: number) => {
   queryParams.current = page;
 };
 
+// 监听页码变化，重新获取数据
+watch(() => queryParams.current, async () => {
+  const { data: newData } = await articleApi.getList(queryParams);
+  // 数据会自动更新，AutoAnimate 会处理动画效果
+});
 </script>
 
 <style lang="scss" scoped>
@@ -125,6 +133,7 @@ const changePage = (page: number) => {
   border-radius: 0.5rem;
   box-shadow: 0 0.625rem 1.875rem -0.9375rem var(--box-bg-shadow);
   transition: all 0.2s ease-in-out 0s;
+  animation: fadeInUp 0.5s ease-out forwards;
 
   &:hover {
     box-shadow: 0 0 1.5rem var(--box-bg-shadow);
@@ -357,5 +366,16 @@ const changePage = (page: number) => {
   width: 0.9rem;
   height: 0.9rem;
   margin-right: 0.15rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style> 

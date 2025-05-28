@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { Autoplay, Mousewheel, Navigation, Pagination } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { formatDate } from '../../../utils/date';
+import { formatDate } from '~/utils/date';
 
 // 导入Swiper样式
 import 'swiper/css';

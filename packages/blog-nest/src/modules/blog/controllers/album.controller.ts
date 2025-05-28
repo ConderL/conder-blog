@@ -1,8 +1,8 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { Controller, Get, Logger } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AlbumService } from '../services/album.service';
 import { Result } from '../../../common/result';
-
+import { Public } from '../../../common/decorators/public.decorator';
 /**
  * 相册数据传输对象
  */
@@ -49,6 +49,7 @@ export class AlbumController {
       },
     },
   })
+  @Public()
   @Get('list')
   async findAll() {
     try {

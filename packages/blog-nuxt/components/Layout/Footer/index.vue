@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, defineComponent } from 'vue';
-import { formatDate } from '../../utils/date';
+import { formatDate } from '~/utils/date';
 
 // Nuxt自动导入
 const route = useRoute();

@@ -131,3 +131,50 @@ a {
     }
   }
 }
+
+// 添加 TianliGPT 组件的样式
+.tianli-gpt {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  background-color: rgba(var(--primary-rgb), 0.05);
+  border: 1px solid rgba(var(--primary-rgb), 0.1);
+  
+  .tianli-gpt__title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    
+    &::before {
+      content: "";
+      display: inline-block;
+      width: 0.25rem;
+      height: 1.2rem;
+      margin-right: 0.5rem;
+      background-color: var(--primary-color);
+      border-radius: 0.125rem;
+    }
+  }
+  
+  .tianli-gpt__summary {
+    color: var(--text-color);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  
+  .tianli-gpt__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    
+    &::after {
+      content: "正在生成摘要...";
+      color: var(--grey-5);
+      font-size: 0.9rem;
+    }
+  }
+}

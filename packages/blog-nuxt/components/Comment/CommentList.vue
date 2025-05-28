@@ -22,7 +22,7 @@
 					<div class="user-info">
 						<div class="user-name">{{ comment.fromNickname }}</div>
 						<UIcon
-v-if="comment.fromUid == 1"
+							v-if="comment.fromUid == 1"
 							name="icon:badge"
 							class="icon"
 							style="color: #EA387E"
@@ -89,7 +89,7 @@ v-if="comment.fromUid == 1"
 							}}</span>
 							<span class="reply-like" @click="like(reply)">
 								<UIcon
-name="icon:like"
+									name="icon:like"
 									class="icon"
 									:class="isLike(reply.id)"
 								/>
@@ -145,7 +145,6 @@ name="icon:like"
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useAutoAnimate } from '@formkit/auto-animate/vue';	
 import { useAppStore } from '~/stores/app';
 import { useUserStore } from '~/stores/user';
 import { ClickDebouncer } from '~/utils/debounce';
@@ -161,7 +160,7 @@ const pageRef = ref<any>([]);
 const readMoreRef = ref<any>([]);
 const { comment: commentApi } = useApi();
 // 使用AutoAnimate添加评论列表动画
-const [commentListRef] = useAutoAnimate({
+const { parent: commentListRef } = useAutoAnimate({
 	duration: 300,
 	easing: 'ease-in-out'
 });

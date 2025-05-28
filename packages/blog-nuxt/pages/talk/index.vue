@@ -27,7 +27,7 @@
             <div class="talk-info">
               <span class="talk-user-name">
                 {{ t.nickname }}
-                <UIcon name="icon:badge" class="badge-icon" />
+                <UIcon name="icon:badge" class="badge-icon" style="color: #EA387E" />
               </span>
               <span class="talk-time">{{ formatDateTime(t.createTime) }}</span>
             </div>

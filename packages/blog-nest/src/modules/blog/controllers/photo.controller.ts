@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PhotoService } from '../services/photo.service';
 import { AlbumService } from '../services/album.service';
 import { Result } from '../../../common/result';
-
+import { Public } from '../../../common/decorators/public.decorator';
 /**
  * 前台照片控制器
  * 用于博客前台展示照片
@@ -45,6 +45,7 @@ export class PhotoController {
       },
     },
   })
+  @Public()
   @Get('list')
   async findAll(@Query('albumId') albumId: number) {
     try {

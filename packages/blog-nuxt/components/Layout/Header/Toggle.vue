@@ -1,5 +1,5 @@
 <template>
-  <div :class="app.isCollapse ? 'toggle close' : 'toggle'" @click="app.isCollapse = true">
+  <div :class="app.isCollapse ? 'toggle close' : 'toggle'" @click="app.toggleCollapse()">
     <div class="lines">
       <span class="line"></span>
       <span class="line"></span>

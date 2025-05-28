@@ -187,7 +187,7 @@
               </div>
               
               <!-- 推荐文章 -->
-              <div v-if="recommendData && recommendData.length > 0" key="recommended" class="side-card">
+              <div v-if="recommendData" key="recommended" class="side-card">
                 <UIcon name="icon:top" class="side-icon" />
                 推荐文章
                 <div class="recommend-list">
@@ -270,8 +270,7 @@ const { article: articleApi } = useApi();
 // 文章数据和推荐文章
 const loading = ref(true);
 const { data: articleData } = await articleApi.getArticle(articleId.value)
-const { data: { recordList: recommendData } } = await articleApi.getArticleRecommend()
-
+const { data: recommendData } = await articleApi.getArticleRecommend()
 // 获取文章数据
 const handleArticleData =  () => {
   try {
@@ -470,6 +469,7 @@ useHead({
 }
 
 .article-container {
+  padding: 1rem;
   border-radius: 0.5rem;
   overflow: visible !important;
   box-shadow: 0 0 1rem var(--box-bg-shadow);

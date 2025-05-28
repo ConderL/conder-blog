@@ -171,26 +171,35 @@
         </el-form-item>
         <!-- 缩略图 -->
         <el-form-item label="缩略图" prop="articleCover">
-          <el-upload
-            drag
-            :show-file-list="false"
-            :headers="authorization"
-            :action="baseURL + '/admin/article/upload'"
-            accept="image/*"
-            :before-upload="beforeUpload"
-            :on-success="handleSuccess"
-          >
-            <el-icon
-              class="el-icon--upload"
-              v-if="articleForm.articleCover === ''"
+          <div class="upload-container">
+            <el-upload
+              drag
+              :show-file-list="false"
+              :headers="authorization"
+              :action="baseURL + '/admin/article/upload'"
+              accept="image/*"
+              :before-upload="beforeUpload"
+              :on-success="handleSuccess"
             >
-              <upload-filled />
+              <el-icon
+                class="el-icon--upload"
+                v-if="articleForm.articleCover === ''"
+              >
+                <upload-filled />
+              </el-icon>
+              <div class="el-upload__text" v-if="articleForm.articleCover === ''">
+                将文件拖到此处，或<em>点击上传</em>
+              </div>
+              <img v-else :src="articleForm.articleCover" width="360" />
+            </el-upload>
+            <el-icon 
+              v-if="articleForm.articleCover !== ''" 
+              class="clear-icon" 
+              @click.stop="clearCover"
+            >
+              <CircleClose />
             </el-icon>
-            <div class="el-upload__text" v-if="articleForm.articleCover === ''">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
-            <img v-else :src="articleForm.articleCover" width="360" />
-          </el-upload>
+          </div>
         </el-form-item>
         <!-- 置顶 -->
         <el-form-item label="置顶" prop="isTop">
@@ -290,6 +299,7 @@ import { storeToRefs } from "pinia";
 import { getBaseURL } from "@/utils/request";
 import { Mark, Emoji, ExportPDF } from "@vavt/v3-extension";
 import { MdEditor } from "md-editor-v3";
+import { CircleClose } from '@element-plus/icons-vue';
 
 const editorId = "editor-preview";
 const route = useRoute();
@@ -556,6 +566,9 @@ const onSuccess = () => {
     zIndex: 999999,
   });
 };
+const clearCover = () => {
+  articleForm.value.articleCover = "";
+};
 onMounted(() => {
   if (articleId) {
     editArticle(Number(articleId)).then(({ data }) => {
@@ -617,5 +630,27 @@ onMounted(() => {
   margin-bottom: 1rem;
   cursor: not-allowed;
   color: #ccccd8 !important;
+}
+
+.upload-container {
+  position: relative;
+  display: inline-block;
+}
+
+.clear-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 20px;
+  color: #f56c6c;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s;
+}
+
+.clear-icon:hover {
+  transform: scale(1.2);
 }
 </style>
