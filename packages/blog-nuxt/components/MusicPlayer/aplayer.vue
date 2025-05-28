@@ -1,5 +1,5 @@
 <template>
-	<div ref="playerRef" class="aplayer-container"></div>
+	<div ref="playerRef" class="cursor-pointer"></div>
 </template>
 
 <script setup lang="ts">
@@ -193,7 +193,4 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
-.aplayer-container {
-	cursor: pointer;
-}
 </style>

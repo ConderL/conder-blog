@@ -38,7 +38,7 @@
 							<span class="reply-time">{{
 								formatDateTime(comment.createTime)
 							}}</span>
-							<span class="reply-like" @click="like(comment)">
+							<span class="reply-like cursor-pointer" @click="like(comment)">
 								<UIcon
 									name="icon:like"
 									class="icon"
@@ -49,7 +49,7 @@
 								}}</span>
 							</span>
 							<span
-								class="reply-btn"
+								class="reply-btn cursor-pointer"
 								@click="handleReply(index, comment)"
 								>回复</span
 							>
@@ -111,7 +111,7 @@
 					>
 						<span>共{{ comment.replyCount }}条回复, </span>
 						<span
-							class="view-more-btn"
+							class="view-more-btn cursor-pointer"
 							@click="readMoreComment(index, comment)"
 							>点击查看</span
 						>
@@ -441,7 +441,6 @@ const reloadReplies = (index: number) => {
 		display: flex;
 		align-items: center;
 		margin-right: 17px;
-		cursor: pointer;
 
 		&:hover .icon {
 			color: var(--color-pink);
@@ -459,8 +458,6 @@ const reloadReplies = (index: number) => {
 	}
 
 	.reply-btn {
-		cursor: pointer;
-
 		&:hover {
 			color: var(--color-pink);
 		}
@@ -482,8 +479,6 @@ const reloadReplies = (index: number) => {
 	color: var(--grey-6);
 
 	.view-more-btn {
-		cursor: pointer;
-
 		&:hover {
 			color: var(--color-pink);
 		}

@@ -11,7 +11,7 @@
           @click="show = true"
           @keyup.enter="send"
         />
-        <button v-show="show" class="send" @click="send">发送</button>
+        <button v-show="show" class="send cursor-pointer" @click="send">发送</button>
       </div>
     </div>
     
@@ -203,7 +203,6 @@ const send = () => {
   animation: slideUpIn 0.3s;
   background-color: rgba(0, 0, 0, 0.3);
   margin-left: 0.5rem;
-  cursor: pointer;
 }
 
 .danmaku-container {

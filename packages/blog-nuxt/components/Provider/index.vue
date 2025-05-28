@@ -3,6 +3,8 @@
   <div>
     <!-- 登录相关对话框管理器 -->
     <LoginManager />
+    <!-- 搜索对话框 -->
+    <Search />
   </div>
 </template>
 

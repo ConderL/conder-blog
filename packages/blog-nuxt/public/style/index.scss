@@ -7,7 +7,7 @@
 @use "./icons.scss";
 
 body {
-	cursor: url("../icons/normal.ico"), default;
+	cursor: url(/icons/normal.svg), default;
 	background: var(--grey-0);
 	color: var(--text-color);
 	font-family: Mulish, -apple-system, "PingFang SC", "Microsoft YaHei",
@@ -20,7 +20,7 @@ body {
 a,
 button,
 img {
-	cursor: url(../icons/link.ico), default !important;
+	cursor: url(/icons/link.svg), pointer !important;
 }
 
 h1,
@@ -43,9 +43,13 @@ h6 {
 // 	border-style: none;
 // }
 
+.cursor-pointer {
+  cursor: url(/icons/link.svg), pointer !important;
+}
+
 input,
 textarea {
-	cursor: url(../icons/text.ico), default !important;
+	cursor: url(/icons/text.svg), text !important;
 }
 
 li {
@@ -54,12 +58,12 @@ li {
 
 .n-pagination-item--disabled {
 	color: rgba(194, 194, 194, 1);
-	cursor: url(../icons/ban.ico), default !important;
+	cursor: url(/icons/ban.svg), not-allowed !important;
 }
 
 .swiper-button-next,
 .n-pagination-item--clickable {
-	cursor: url(../icons/link.ico), default !important;
+	cursor: url(/icons/link.svg), pointer !important;
 }
 
 a {
@@ -70,7 +74,7 @@ a {
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 	transition: all 0.2s ease-in-out 0s;
-	cursor: url(../icons/link.ico), default !important;
+	cursor: url(/icons/link.svg), pointer !important;
 }
 
 .clearfix:after {

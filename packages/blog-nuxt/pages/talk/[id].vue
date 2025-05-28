@@ -32,7 +32,7 @@
               <img
                 v-for="(img, index) in talk.imgList"
                 :key="index"
-                class="image"
+                class="image cursor-pointer"
                 :src="img"
                 alt="说说图片"
                 @click.stop.prevent="viewImage(talk.imgList, index)"
@@ -48,7 +48,7 @@
                   />
                   {{ talk.likeCount }}
                 </span>
-                <span class="talk-comment info">
+                <span class="talk-comment info cursor-pointer">
                   <UIcon name="icon:comment" class="meta-icon" />
                   {{ commentCount }}
                 </span>
@@ -334,7 +334,6 @@ useHead({
     aspect-ratio: 1;
     border-radius: 4px;
     object-fit: cover;
-    cursor: pointer;
     transition: all 0.3s;
     
     &:hover {
@@ -354,7 +353,6 @@ useHead({
     font-size: 0.9rem;
     color: var(--grey-5);
     margin-right: 1.5rem;
-    cursor: pointer;
     
     .meta-icon,
     .like-icon {

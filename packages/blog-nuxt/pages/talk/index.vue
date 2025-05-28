@@ -39,7 +39,7 @@
             <img
               v-for="(img, index) in t.imgList"
               :key="index"
-              class="image"
+              class="image cursor-pointer"
               :src="img"
               alt="说说图片"
               @click="viewImage(t.imgList, index)"
@@ -267,7 +267,6 @@ useHead({
     aspect-ratio: 1;
     border-radius: 4px;
     object-fit: cover;
-    cursor: pointer;
     transition: all 0.3s;
     
     &:hover {

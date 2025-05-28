@@ -25,7 +25,7 @@
 					<span
 						v-for="(value, key, index) of emojiMap"
 						:key="index"
-						class="emoji-item"
+						class="emoji-item cursor-pointer"
 						@click="addEmoji(key)"
 					>
 						<img
@@ -73,7 +73,7 @@
 					<span
 						v-for="(value, index) in textList"
 						:key="index"
-						class="text-emoji"
+						class="text-emoji cursor-pointer"
 						@click="addEmoji(value)"
 					>
 						{{ value }}
@@ -81,7 +81,7 @@
 				</div>
 				<div class="emoji-tabs">
 					<div
-						class="emoji-tab"
+						class="emoji-tab cursor-pointer"
 						:class="{ on: emojiType === 0 }"
 						@click="chooseType(0)"
 					>
@@ -187,7 +187,6 @@ const chooseType = (key: number) => {
 }
 
 .emoji-item {
-	cursor: pointer;
 	display: inline-block;
 
 	.emoji {
@@ -200,7 +199,6 @@ const chooseType = (key: number) => {
 
 .text-emoji {
 	display: inline-block;
-	cursor: pointer;
 	padding: 5px 8px;
 	font-size: 12px;
 	line-height: 22px;
@@ -224,7 +222,6 @@ const chooseType = (key: number) => {
 		width: 58px;
 		height: 36px;
 		padding: 7px 18px;
-		cursor: pointer;
 
 		&:hover {
 			background-color: #ddd;

@@ -1,13 +1,14 @@
 <template>
-  <div class="view-more-pagination" v-show="show">
+  <div v-show="show" class="view-more-pagination">
     <span class="pagination-page-count">共{{ totalPage }}页</span>
-    <span class="pagination-btn" v-if="current !== 1" @click="prePage">上一页</span>
-    <template v-for="(number, index) in visibleNumber">
-      <span :key="`num-${index}`" @click="changePage(number)" v-if="typeof number == 'number'" class="pagination-page-number"
-        :class="current == number ? 'current-page' : ''">{{ number }}</span>
-      <span class="pagination-page-do" v-else :key="`dot-${index}`">...</span>
+    <span v-if="current !== 1" class="pagination-btn cursor-pointer" @click="prePage">上一页</span>
+    <template v-for="(number, i) in visibleNumber">
+      <span
+v-if="typeof number == 'number'" :key="`num-${i}`" class="pagination-page-number cursor-pointer" :class="current == number ? 'current-page' : ''"
+        @click="changePage(number)">{{ number }}</span>
+      <span v-else :key="`dot-${i}`" class="pagination-page-do">...</span>
     </template>
-    <span class="pagination-btn" v-if="current !== totalPage" @click="nextPage">下一页</span>
+    <span v-if="current !== totalPage" class="pagination-btn" @click="nextPage">下一页</span>
   </div>
 </template>
 
@@ -38,8 +39,7 @@ const totalPage = computed(() => Math.ceil(props.total / page.value));
 const visibleNumber = computed(() => {
   if (totalPage.value <= 5) {
     return totalPage.value;
-  } else {
-    if (current.value <= 4) {
+  } else if (current.value <= 4) {
       return [1, 2, 3, 4, 5, "...", totalPage.value];
     } else if (current.value >= totalPage.value - 4) {
       return [1, "...", totalPage.value - 5, totalPage.value - 4, totalPage.value - 3, totalPage.value - 2, totalPage.value - 1, totalPage.value];
@@ -56,7 +56,6 @@ const visibleNumber = computed(() => {
         totalPage.value,
       ];
     }
-  }
 });
 
 const prePage = () => {
@@ -104,7 +103,6 @@ defineExpose({ current, setPaging });
   }
 
   .pagination-btn {
-    cursor: pointer;
 
     &:hover {
       color: var(--color-pink);
@@ -117,7 +115,6 @@ defineExpose({ current, setPaging });
 
   .pagination-page-number {
     margin: 0 4px;
-    cursor: pointer;
 
     &:hover {
       color: var(--color-pink);

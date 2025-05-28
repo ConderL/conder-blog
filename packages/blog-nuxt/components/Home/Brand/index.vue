@@ -20,7 +20,7 @@
 			<Waves></Waves>
 		</client-only>
 		<!-- 向下按钮 -->
-		<UIcon name="icon:down" class="arrow-down" @click="scrollDown" />
+		<UIcon name="icon:down" class="arrow-down cursor-pointer" @click="scrollDown" />
 	</div>
 </template>
 
@@ -185,7 +185,6 @@ const fetchData = () => {
 }
 
 .arrow-down {
-	cursor: pointer;
 	position: absolute;
 	bottom: 70px;
 	animation: arrow-shake 1.5s ease-out infinite;

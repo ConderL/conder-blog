@@ -29,6 +29,9 @@ export const useApi = () => {
     
     // 取消点赞文章 - 用于客户端交互
     unlike: (id: string) => directFetch(`/articles/${id}/like`, { method: 'POST', params: { type: 'unlike' } }),
+    
+    // 搜索文章 - 用于客户端交互
+    searchArticle: (keyword: string) => directFetch('/articles/search', { params: { keyword } }),
   };
 
   // 归档相关API

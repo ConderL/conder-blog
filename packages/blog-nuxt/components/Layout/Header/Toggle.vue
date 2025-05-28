@@ -1,5 +1,5 @@
 <template>
-  <div :class="app.isCollapse ? 'toggle close' : 'toggle'" @click="app.toggleCollapse()">
+  <div :class="app.isCollapse ? 'toggle close cursor-pointer' : 'toggle cursor-pointer'" @click="app.toggleCollapse()">
     <div class="lines">
       <span class="line"></span>
       <span class="line"></span>
@@ -46,7 +46,6 @@ defineExpose({
 
 .toggle {
   line-height: 0;
-  cursor: pointer;
 
   .line {
     display: inline-block;

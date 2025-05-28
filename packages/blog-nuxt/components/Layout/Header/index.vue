@@ -8,12 +8,12 @@
     <ul class="right">
       <li class="item">
         <ClientOnly>
-          <UIcon :name="isDark ? 'icon:moon' : 'icon:sun'" class="clickable-icon" @click="toggle()" />
+          <UIcon :name="isDark ? 'icon:moon' : 'icon:sun'" class="clickable-icon cursor-pointer" @click="toggle()" />
         </ClientOnly>
       </li>
       <li class="item">
         <ClientOnly>
-          <UIcon name="icon:search" class="clickable-icon" @click="app.searchFlag = true" />
+          <UIcon name="icon:search" class="clickable-icon cursor-pointer" @click="app.setSearchFlag(true)" />
         </ClientOnly>
       </li>
     </ul>
@@ -126,7 +126,6 @@ defineExpose({
 .clickable-icon {
   width: 1.25rem;
   height: 1.25rem;
-  cursor: pointer;
   transition: transform 0.2s ease;
   
   &:hover {

@@ -16,7 +16,7 @@
         <LazySocialList />
         <ul class="side-menu">
           <template v-for="(menu, index) of menuList" :key="index">
-            <li v-if="!menu.children" class="item" :class="{ active: route.path === menu.path }">
+            <li v-if="!menu.children" class="item cursor-pointer" :class="{ active: route.path === menu.path }">
                 <NuxtLink :to="menu.path" @click="closeDrawer">
                   <UIcon :name="'icon:' + menu.icon" class="menu-icon" /> {{ menu.name }}
                 </NuxtLink>
@@ -263,7 +263,6 @@ function logout() {
     border-radius: 0.9375rem;
     margin-bottom: 0.625rem;
     transition: all 0.2s ease-in-out 0s;
-    cursor: pointer;
     
     a {
       display: flex;

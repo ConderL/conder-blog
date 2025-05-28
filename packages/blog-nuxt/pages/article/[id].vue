@@ -73,7 +73,7 @@
                 </div>
                 
                 <div class="reward">
-                  <button class="btn" :class="isLiked ? 'like-btn-active' : 'like-btn'" @click="like">
+                  <button class="btn cursor-pointer" :class="isLiked ? 'like-btn-active' : 'like-btn'" @click="like">
                     <UIcon name="icon:like" class="btn-icon" />
                     点赞
                     <span>{{ articleData?.likeCount || 0 }}</span>
@@ -81,7 +81,7 @@
                   
                   <ClientOnly v-if="isReward">
                     <div class="reward-container">
-                      <button class="btn reward-btn" @click="showReward = !showReward">
+                      <button class="btn reward-btn cursor-pointer" @click="showReward = !showReward">
                         <UIcon name="icon:qr-code" class="btn-icon" />
                         打赏
                       </button>
@@ -445,7 +445,7 @@ useHead({
 </script>
 
 <style lang="scss" scoped>
-@use "~/assets/mixin.scss";
+@use "~/public/style/mixin.scss";
 
 /* 添加主容器样式 */
 .main-container {
@@ -515,7 +515,6 @@ useHead({
   .btn {
     border-radius: 0.3125rem;
     color: var(--grey-0);
-    cursor: pointer !important;
     padding: 0 0.9375rem;
     font: inherit;
   }

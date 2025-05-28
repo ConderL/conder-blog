@@ -76,7 +76,7 @@
         />
       </div>
     </div>
-    <div class="chat-btn" @click="handleOpen">
+    <div class="chat-btn cursor-pointer" @click="handleOpen">
       <span v-if="unreadCount > 0" class="unread">{{ unreadCount }}</span>
       <img src="https://img.conder.top/config/chat_room.svg" alt="聊天按钮" />
     </div>
@@ -622,7 +622,6 @@ function processMessageContent(content: string): string {
   width: 60px;
   height: 60px;
   border-radius: 100px;
-  cursor: pointer;
   z-index: 1000;
 }
 

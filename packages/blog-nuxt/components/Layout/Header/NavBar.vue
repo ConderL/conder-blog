@@ -36,7 +36,7 @@
 					登录
 				</a>
 				<template v-else>
-					<img class="user-avatar drop" :src="userAvatar"/>
+					<img class="user-avatar drop cursor-pointer" :src="userAvatar"/>
 					<ul class="submenu">
 						<li class="subitem" :class="{ active: route?.meta?.title === '个人中心' }">
 							<NuxtLink to="/user" class="link">
@@ -167,7 +167,6 @@ defineExpose({
 	width: 24px;
 	height: 24px;
 	border-radius: 50%;
-	cursor: pointer;
 }
 
 .menu {

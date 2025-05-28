@@ -34,8 +34,8 @@ export default defineNuxtConfig({
   },
   
   css: [
-    '~/assets/main.css',
-    '~/assets/index.scss'
+    '~/public/style/main.css',
+    '~/public/style/index.scss'
   ],
   
   icon: {

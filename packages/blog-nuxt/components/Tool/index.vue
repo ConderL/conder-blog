@@ -1,12 +1,12 @@
 <template>
   <div ref="toolRef" class="tool" :style="y > 0 ? show : ''">
-    <div v-if="isArticlePage" class="item" @click="handleSide">
+    <div v-if="isArticlePage" class="item cursor-pointer" @click="handleSide">
       <UIcon name="icon:heng" class="!size-6 text-center"></UIcon>
     </div>
-    <div v-if="commentShow(route.name as string)" class="item" @click="handleToComment">
+    <div v-if="commentShow(route.name as string)" class="item cursor-pointer" @click="handleToComment">
       <UIcon name="icon:comments" class="!size-6 text-center"></UIcon>
     </div>
-    <div class="item back-to-top" @click="handleBackToTop">
+    <div class="item back-to-top cursor-pointer" @click="handleBackToTop">
       <UIcon name="icon:up" class="!size-4 mb-1 text-center"></UIcon>
       <span class="count">{{ process }}%</span>
     </div>
@@ -124,7 +124,7 @@ const isArticlePage = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-@use "~/assets/mixin.scss";
+@use "~/public/style/mixin.scss";
 
 .tool {
   position: fixed;
@@ -143,7 +143,6 @@ const isArticlePage = computed(() => {
     width: 2.1rem;
     padding: 0.4rem 0.2125rem;
     opacity: 0.6;
-    cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
 
