@@ -19,8 +19,6 @@ declare module '@vue/runtime-core' {
     Footer: typeof import('./../components/Layout/Footer/index.vue')['default']
     Forget: typeof import('./../components/Dialog/Forget.vue')['default']
     Header: typeof import('./../components/Layout/Header/index.vue')['default']
-    LazyLoading: typeof import('./../components/LazyLoading/index.vue')['default']
-    Loading: typeof import('./../components/Loading/index.vue')['default']
     Login: typeof import('./../components/Dialog/Login.vue')['default']
     LottieWeb: typeof import('./../components/LottieWeb/index.vue')['default']
     Monitor: typeof import('./../components/Performance/Monitor.vue')['default']

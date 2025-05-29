@@ -11,6 +11,19 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production'
       }
+    },
+    {
+      name: 'blog-nuxt',
+      script: '.output/server/index.mjs',  // Nuxt 3的服务器入口文件
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env_production: {
+        NODE_ENV: 'production',
+        NITRO_PORT: 80,
+        NITRO_HOST: '0.0.0.0'
+      }
     }
   ]
 }; 

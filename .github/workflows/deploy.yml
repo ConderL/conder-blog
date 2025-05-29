@@ -123,11 +123,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./docker/blog-web.Dockerfile
+          file: ./docker/blog-nuxt.Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }}
-            ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest
+            ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:latest
           no-cache: true
 
       - name: 构建并推送后台镜像
@@ -257,7 +257,7 @@ jobs:
 
             # 安全删除旧的 latest 镜像（存在则删，不存在忽略）
             docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest 2>/dev/null || echo "镜像 blog-nest:latest 不存在，跳过删除"
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest 2>/dev/null || echo "镜像 blog-web:latest 不存在，跳过删除"
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:latest 2>/dev/null || echo "镜像 blog-nuxt:latest 不存在，跳过删除"
             docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest 2>/dev/null || echo "镜像 blog-admin:latest 不存在，跳过删除"
 
             # 拉取镜像
@@ -265,7 +265,7 @@ jobs:
             for i in {1..6}; do
               echo "尝试拉取镜像 (第 $i 次)"
               if docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }} && \
-                 docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }} && \
+                 docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }} && \
                  docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}; then
                 echo "镜像拉取成功"
                 break
@@ -280,12 +280,12 @@ jobs:
 
             # 新镜像指定为latest
             docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest
-            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-web:latest
+            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:latest
             docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest
 
             # 删除旧镜像
             docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-web:${{ env.TAG }}
+            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }}
             docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}
 
       - name: 部署到服务器 - 启动数据库
@@ -323,7 +323,7 @@ jobs:
             cd ${{ env.SERVER_DEPLOY_PATH }}
 
             # 先启动除Nginx外的服务
-            docker compose up -d mysql redis nest web admin
+            docker compose up -d mysql redis nest nuxt admin
             echo "等待前后端服务启动完成..."
             sleep 30
 
