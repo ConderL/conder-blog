@@ -5,7 +5,7 @@
         <img
           width="32"
           height="32"
-          src="https://img.conder.top/config/chat.png"
+          src="/icons/chat.svg"
           alt="聊天室图标"
         />
         <div style="margin-left: 12px">
@@ -78,7 +78,7 @@
     </div>
     <div class="chat-btn cursor-pointer" @click="handleOpen">
       <span v-if="unreadCount > 0" class="unread">{{ unreadCount }}</span>
-      <img src="https://img.conder.top/config/chat_room.svg" alt="聊天按钮" />
+      <UIcon name="icon:chat" class="!w-8 !h-8 text-[var(--color-pink)]" alt="聊天按钮" />
     </div>
   </div>
 </template>
@@ -617,10 +617,10 @@ function processMessageContent(content: string): string {
 
 .chat-btn {
   position: fixed;
-  bottom: 15px;
-  right: 5px;
-  width: 60px;
-  height: 60px;
+  bottom: 36px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
   border-radius: 100px;
   z-index: 1000;
 }

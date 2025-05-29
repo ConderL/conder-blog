@@ -19,16 +19,24 @@ export const useRequest = () => {
    * 处理响应数据和错误
    * @param response 响应对象
    */
-  const handleResponse = (res: any) => {
-    if (!res.msg) return;
 
-    // 客户端处理
-    if (process.client) {
-      const {flag, msg} = res;
-      if(flag) {
-        window.$message.success(msg);
-      } else {
-        window.$message.error(msg);
+  const handleResponse = (response: any) => {
+    if(process.client) {
+      switch (response.code) {
+        case -1:
+          window.$message?.error(response.msg);
+          break;
+        case 400:
+          window.$message?.error(response.msg);
+          break;
+        case 402:
+          const user = useUserStore();
+          user.forceLogOut();
+          window.$message?.error(response.msg);
+          break;
+        case 500:
+          window.$message?.error(response.msg);
+          break;
       }
     }
   };
@@ -40,10 +48,7 @@ export const useRequest = () => {
       }
     },
     onResponse: ({ response }) => {
-      console.log('response', response);
-      if(!response.ok) {
-        handleResponse(response._data);
-      }
+      handleResponse(response._data);
     }
   })
 
@@ -74,12 +79,11 @@ export const useRequest = () => {
       // 发送请求
       const response = await $fetch(url, {
         ...fetchOptions,
-        baseURL
+        baseURL,
+        onResponse: ({ response }) => {
+          handleResponse(response._data);
+        }
       });
-
-      if(fetchOptions.isNotify || !response.flag) {
-        handleResponse(response);
-      }
       
       // 返回完整响应，而不仅仅是data部分
       return response;
@@ -123,9 +127,7 @@ export const useRequest = () => {
         }
       },
       onResponse: ({ response }) => {
-        if(!response.flag) {
-          handleResponse(response);
-        }
+        handleResponse(response._data);
       }
     });
   };

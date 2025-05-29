@@ -207,8 +207,9 @@ const handleLogin = async () => {
   
   try {
     // 加密密码
-    const encryptedPassword = encryptPassword(loginForm.password);
-    
+
+    const encryptedPassword = await encryptPassword(loginForm.password);
+
     // 调用实际登录API
     const response = await loginApi.login({
       ...loginForm,

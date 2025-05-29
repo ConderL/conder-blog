@@ -13,7 +13,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         title: content,
         color: 'success',
         duration: 3000,
-        progress: true
+        progress: true,
+        icon: 'icon:success'
       });
     },
     error: (content: string) => {
@@ -21,7 +22,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         title: content,
         color: 'error',
         timeout: 5000,
-        progress: true
+        progress: true,
+        icon: 'icon:error'
       });
     },
     warning: (content: string) => {
@@ -29,15 +31,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         title: content,
         color: 'warning',
         timeout: 4000,
-        progress: true
-      });
-    },
-    info: (content: string) => {
-      toast.add({
-        title: content,
-        color: 'info',
-        timeout: 3000,
-        progress: true
+        progress: true,
+        icon: 'icon:warning'
       });
     }
   };

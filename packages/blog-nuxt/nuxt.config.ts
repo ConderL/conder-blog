@@ -123,7 +123,9 @@ export default defineNuxtConfig({
     layoutTransition: {
       name: 'layout',
       mode: 'out-in'
-    }
+    },
+    // 添加性能优化配置
+    keepalive: true,
   },
   runtimeConfig: {
     public: {
@@ -146,6 +148,10 @@ export default defineNuxtConfig({
     compressPublicAssets: {
       gzip: true,
       brotli: true
+    },
+    // 简化缓存配置
+    cache: {
+      ttl: 60 * 60 * 1000 // 1小时缓存，以毫秒为单位
     },
     externals: {
       inline: [
@@ -176,7 +182,7 @@ export default defineNuxtConfig({
     defaults: {
       // 默认情况下不懒加载
       lazy: false,
-      // 但对于这些组件，我们启用懒加载
+      // 对于这些组件，明确启用懒加载
       LazyPerformanceMonitor: true,
       LazyMdPreview: true,
       LazyMdCatalog: true,
@@ -189,20 +195,31 @@ export default defineNuxtConfig({
       ssr: true,
       prerender: true,
       cache: {
-        maxAge: 60 * 60 // 1小时缓存
-      }
+        maxAge: 3600 // 1小时缓存
+      },
+      isr: 300 // 5分钟自动更新
     },
     '/article/**': { 
       ssr: true,
-      swr: 600 // 10分钟缓存刷新
+      swr: 600, // 10分钟缓存刷新
+      isr: 600 // 10分钟可手动更新
     },
-    '/category/**': { ssr: true },
-    '/tag/**': { ssr: true },
+    '/category/**': { 
+      ssr: true,
+      isr: 900 // 15分钟缓存
+    },
+    '/tag/**': { 
+      ssr: true,
+      isr: 900 // 15分钟缓存
+    },
     '/about': { 
       ssr: true,
       prerender: true,
     },
-    '/archives': { ssr: true },
+    '/archives': { 
+      ssr: true,
+      isr: 900 // 15分钟缓存
+    },
     '/talk': { ssr: true },
     '/message': { ssr: true },
     // 测试页面使用客户端渲染(CSR)
@@ -210,14 +227,6 @@ export default defineNuxtConfig({
     // 非关键页面使用客户端渲染(CSR)
     '/user/**': { ssr: false },
     '/admin/**': { ssr: false },
-    // 首页缓存5分钟，自动更新
-    '/': { isr: 300 },
-    // 文章页缓存10分钟，可手动更新
-    '/article/**': { isr: 600 },
-    // 标签页和分类页缓存15分钟
-    '/tag/**': { isr: 900 },
-    '/category/**': { isr: 900 },
-    '/archives': { isr: 900 },
   },
   colorMode: {
     preference: 'system',
@@ -243,5 +252,9 @@ export default defineNuxtConfig({
   experimental: {
     emitRouteChunkError: false,
     restoreState: true,
+    payloadExtraction: true,
+    inlineSSRStyles: true,
+    renderJsonPayloads: true,
+    viewTransition: true
   }
 })
