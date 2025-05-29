@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
+    "build:analyze": "nuxt build --analyze",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "clean": "node scripts/clear-cache.js",

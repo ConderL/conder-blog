@@ -39,9 +39,6 @@ router.beforeEach((to, from) => {
   if (!to.meta) {
     to.meta = {};
   }
-  
-  // 打印路由信息，便于调试
-  console.log(`路由切换: ${from.path} -> ${to.path}`, to.meta);
 });
 </script>
 

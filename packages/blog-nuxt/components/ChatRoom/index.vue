@@ -90,6 +90,7 @@ import { formatDateTime } from "~/utils/date";
 import { emojiGenshinList } from "~/utils/emojiGenshin";
 import { emojiList } from "~/utils/emoji";
 import { emojiMygoList } from "~/utils/emojiMygo";
+import { cleanupContent } from "~/utils/emojiProcessor";
 
 // 导入基本类型
 interface ChatRecord {
@@ -445,40 +446,7 @@ onUpdated(() => {
 function processMessageContent(content: string): string {
   if (!content) return '';
   
-  try {
-    let processedContent = content;
-    const emojiPattern = /\[([^\[\]]+?)\]/g;
-    const matches = [...processedContent.matchAll(emojiPattern)];
-    
-    // 从后向前替换，避免替换过程中改变索引位置
-    for (let i = matches.length - 1; i >= 0; i--) {
-      const match = matches[i];
-      const fullMatch = match[0];
-      const startIndex = match.index || 0;
-      const endIndex = startIndex + fullMatch.length;
-      
-      // 尝试所有表情集
-      for (let emojiType = 0; emojiType < 3; emojiType++) {
-        const currentEmojiList = [emojiList, emojiGenshinList, emojiMygoList][emojiType];
-        
-        if (currentEmojiList[fullMatch]) {
-          const imgSize = emojiType === 0 ? 21 : 60;
-          const imgHtml = `<img src="${currentEmojiList[fullMatch]}" width="${imgSize}" height="${imgSize}" style="margin: 0 1px;vertical-align: text-bottom"/>`;
-          
-          processedContent = 
-            processedContent.substring(0, startIndex) + 
-            imgHtml + 
-            processedContent.substring(endIndex);
-          break;
-        }
-      }
-    }
-    
-    return processedContent;
-  } catch (error) {
-    console.error("处理消息内容时出错:", error);
-    return content;
-  }
+  return cleanupContent(content)
 }
 </script>
 

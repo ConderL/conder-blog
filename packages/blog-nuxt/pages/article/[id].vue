@@ -81,33 +81,49 @@
                   
                   <ClientOnly v-if="isReward">
                     <div class="reward-container">
-                      <button class="btn reward-btn cursor-pointer" @click="showReward = !showReward">
-                        <UIcon name="icon:qr-code" class="btn-icon" />
-                        打赏
-                      </button>
-                      
-                      <div v-if="showReward" class="reward-popup">
-                        <div class="reward-all">
-                          <span>
-                            <img
-                              class="reward-img"
-                              :src="weiXinCode"
-                              alt="微信打赏"
-                            />
-                            <div class="reward-desc">微信</div>
-                          </span>
-                          <span style="margin-left: 0.3rem">
-                            <img
-                              class="reward-img"
-                              :src="aliCode"
-                              alt="支付宝打赏"
-                            />
-                            <div class="reward-desc">支付宝</div>
-                          </span>
-                        </div>
-                      </div>
+                      <UTooltip 
+                        v-model:open="showReward"
+                        arrow
+                        :open="true"
+                        :content="{
+                          side: 'top',
+                          sideOffset: 100,
+                          align: 'center'
+                        }"
+                        :delay-duration="0"
+                      >
+                        <template #default>
+                          <button class="btn reward-btn cursor-pointer">
+                            <UIcon name="icon:qr-code" class="btn-icon" />
+                            打赏
+                          </button>
+                        </template>
+                        
+                        <template #content>
+                          <div class="flex flex-col items-center">
+                            <div class="reward-all">
+                              <span>
+                                <img
+                                  class="reward-img"
+                                  :src="weiXinCode"
+                                  alt="微信打赏"
+                                />
+                                <div class="reward-desc">微信</div>
+                              </span>
+                              <span style="margin-left: 0.3rem">
+                                <img
+                                  class="reward-img"
+                                  :src="aliCode"
+                                  alt="支付宝打赏"
+                                />
+                                <div class="reward-desc">支付宝</div>
+                              </span>
+                            </div>
+                            <p class="tea text-center">请我喝[茶]~(￣▽￣)~*</p>
+                          </div>
+                        </template>
+                      </UTooltip>
                     </div>
-                    <p class="tea">请我喝[茶]~(￣▽￣)~*</p>
                   </ClientOnly>
                 </div>
                 
@@ -214,9 +230,6 @@ import { ref, computed, onMounted, watch, reactive } from 'vue';
 import { MdCatalog, MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
 import { ClickDebouncer } from '~/utils/debounce';
-
-// 开发环境标识
-const isDev = process.env.NODE_ENV === 'development';
 
 // 在store初始化之前获取侧边栏状态
 const initialSideFlag = ref(false);
@@ -348,7 +361,6 @@ const like = async () => {
 
 // 仅在客户端进行的操作
 onMounted(() => {
-  console.log('文章页面挂载...');
   handleArticleData();
 
   scrollElement.value = document.documentElement;
@@ -361,18 +373,6 @@ onMounted(() => {
     // 同步侧边栏状态
     sideFlag.value = app.sideFlag;
   }, 0);
-  
-  // 添加点击外部关闭打赏弹窗的事件监听
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const rewardBtn = document.querySelector('.reward-btn');
-    const rewardPopup = document.querySelector('.reward-popup');
-    
-    if (showReward.value && rewardBtn && rewardPopup && 
-        !rewardBtn.contains(target) && !rewardPopup.contains(target)) {
-      showReward.value = false;
-    }
-  });
 });
 
 // 监听侧边栏状态变化
@@ -445,7 +445,7 @@ useHead({
 </script>
 
 <style lang="scss" scoped>
-@use "~/public/style/mixin.scss";
+@use "~/assets/style/mixin.scss";
 
 /* 添加主容器样式 */
 .main-container {
@@ -543,6 +543,9 @@ useHead({
 .reward-all {
   display: flex;
   align-items: center;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
 }
 
 .reward-img {
@@ -552,22 +555,9 @@ useHead({
 }
 
 .reward-desc {
-  margin: -5px 0;
+  margin: 5px 0;
   color: #858585;
   text-align: center;
-}
-
-.reward-popup {
-  position: absolute;
-  z-index: 100;
-  background-color: white;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  margin-top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 .reward-container {
@@ -708,6 +698,13 @@ useHead({
 :deep(.u-popover) {
   --popover-background-color: var(--color-white);
   --popover-border-color: var(--color-gray-200);
+}
+
+:deep(.u-tooltip-content) {
+  padding: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !important;
 }
 </style>
 

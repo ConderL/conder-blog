@@ -20,7 +20,6 @@ export default defineNuxtConfig({
   },
   
   lazyLoad: {
-    directiveOnly: false,
     defaultImage : '/images/loading.gif',
   },
   
@@ -34,8 +33,8 @@ export default defineNuxtConfig({
   },
   
   css: [
-    '~/public/style/main.css',
-    '~/public/style/index.scss'
+    '~/assets/style/main.css',
+    '~/assets/style/index.scss'
   ],
   
   icon: {
@@ -75,6 +74,11 @@ export default defineNuxtConfig({
       },
       // 需要转译的依赖
       transpile: [
+        'vue3-social-share',
+        'md-editor-v3',
+        'reka-ui',
+        '@iconify/utils',
+        'pinia-plugin-persistedstate',
         '@nuxt/ui'
       ]
     }
@@ -116,6 +120,8 @@ export default defineNuxtConfig({
         { rel: 'stylesheet', href: '/styles/cursor.css' }
       ]
     },
+    baseURL: '/',
+    buildAssetsDir: '/_nuxt/',
     pageTransition: {
       name: 'page',
       mode: 'out-in'
@@ -136,30 +142,30 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'node-server',
-    static: false,
-    devProxy: {
-      '/api': {
-        target: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
-        changeOrigin: true,
-        prependPath: true
-      }
-    },
     minify: true,
     compressPublicAssets: {
       gzip: true,
       brotli: true
     },
+    // 静态资源配置
+    publicAssets: [
+      {
+        dir: '~/public',
+        baseURL: '/'
+      }
+    ],
     // 简化缓存配置
     cache: {
       ttl: 60 * 60 * 1000 // 1小时缓存，以毫秒为单位
     },
-    externals: {
-      inline: [
-        '@nuxt/icon',
-        '@vueuse/core',
-        'pinia-plugin-persistedstate'
-      ]
-    }
+    sourceMap: false,
+    // externals: {
+    //   inline: [
+    //     '@nuxt/icon',
+    //     '@vueuse/core',
+    //     'pinia-plugin-persistedstate'
+    //   ]
+    // }
   },
   typescript: {
     strict: false,
@@ -214,7 +220,7 @@ export default defineNuxtConfig({
     },
     '/about': { 
       ssr: true,
-      prerender: true,
+      isr: 900 // 15分钟缓存
     },
     '/archives': { 
       ssr: true,

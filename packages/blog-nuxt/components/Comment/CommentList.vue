@@ -32,29 +32,26 @@
 						class="reply-content"
 						v-html="processContent(comment.commentContent)"
 					></div>
-					<ClientOnly>
-						
-						<div class="reply-info">
-							<span class="reply-time">{{
-								formatDateTime(comment.createTime)
+					<div class="reply-info">
+						<span class="reply-time">{{
+							formatDateTime(comment.createTime)
+						}}</span>
+						<span class="reply-like cursor-pointer" @click="like(comment)">
+							<UIcon
+								name="icon:like"
+								class="icon"
+								:class="isLike(comment.id)"
+							/>
+							<span v-show="comment.likeCount">{{
+								comment.likeCount
 							}}</span>
-							<span class="reply-like cursor-pointer" @click="like(comment)">
-								<UIcon
-									name="icon:like"
-									class="icon"
-									:class="isLike(comment.id)"
-								/>
-								<span v-show="comment.likeCount">{{
-									comment.likeCount
-								}}</span>
-							</span>
-							<span
-								class="reply-btn cursor-pointer"
-								@click="handleReply(index, comment)"
-								>回复</span
-							>
-						</div>
-					</ClientOnly>
+						</span>
+						<span
+							class="reply-btn cursor-pointer"
+							@click="handleReply(index, comment)"
+							>回复</span
+						>
+					</div>
 					<div
 					 	v-for="reply of comment.replyVOList"
 						:key="reply.id"
@@ -124,7 +121,7 @@
 						@get-current-page="getCurrentPage"
 					></Paging>
 					<ReplyBox
-						ref="replyRef"
+						:ref="el => { if (el) replyRef[index] = el }"
 						class="mt-4"
 						:show="false"
 						:comment-type="commentType"
@@ -158,6 +155,7 @@ const route = useRoute();
 const replyRef = ref<any>([]);
 const pageRef = ref<any>([]);
 const readMoreRef = ref<any>([]);
+
 const { comment: commentApi } = useApi();
 // 使用AutoAnimate添加评论列表动画
 const { parent: commentListRef } = useAutoAnimate({
