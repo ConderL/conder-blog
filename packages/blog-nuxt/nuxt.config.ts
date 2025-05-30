@@ -55,7 +55,7 @@ export default defineNuxtConfig({
   vite: {
     // 优化构建性能
     optimizeDeps: {
-      include: ['vue', 'vue-router', 'pinia', '@vueuse/core'],
+      include: ['vue', 'pinia', '@vueuse/core'],
       exclude: ['lightningcss', 'jsencrypt']
     },
     // 减少构建警告
@@ -66,7 +66,7 @@ export default defineNuxtConfig({
         external: ['lightningcss', 'jsencrypt'],
         output: {
           manualChunks: {
-            'vue-vendor': ['vue', 'vue-router'],
+            'vue-vendor': ['vue'],
             'editor-vendor': ['md-editor-v3'],
             'utils-vendor': ['@vueuse/core', 'pinia']
           }
@@ -147,13 +147,6 @@ export default defineNuxtConfig({
       gzip: true,
       brotli: true
     },
-    // 静态资源配置
-    publicAssets: [
-      {
-        dir: '~/public',
-        baseURL: '/'
-      }
-    ],
     // 简化缓存配置
     cache: {
       ttl: 60 * 60 * 1000 // 1小时缓存，以毫秒为单位
