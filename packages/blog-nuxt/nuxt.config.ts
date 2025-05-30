@@ -68,7 +68,8 @@ export default defineNuxtConfig({
           manualChunks: {
             'vue-vendor': ['vue'],
             'editor-vendor': ['md-editor-v3'],
-            'utils-vendor': ['@vueuse/core', 'pinia']
+            'utils-vendor': ['@vueuse/core', 'pinia'],
+            'danmaku-vendor': ['vue3-danmaku']
           }
         }
       },
