@@ -53,10 +53,8 @@ defineComponent({
 });
 
 const { comment: commentApi } = useApi();
-
 const { data, status } = await commentApi.getList();
-
-const { recordList: commentList } = unref(data);
+const commentList = computed(() => unref(data)?.recordList ?? []);
 
 // 处理评论内容，转换表情代码为图片
 const processCommentContent = (content: string) => {

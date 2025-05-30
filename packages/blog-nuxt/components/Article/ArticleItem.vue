@@ -89,8 +89,8 @@ const queryParams = reactive<PageQuery>({
 
 const { data } = await articleApi.getList(queryParams);
 
-const articleList = computed(() => unref(data).recordList);
-const count = computed(() => unref(data).count);
+const articleList = computed(() => unref(data)?.recordList ?? []);
+const count = computed(() => unref(data)?.count ?? 0);
 
 // 使用AutoAnimate为列表添加动画
 const { parent: listRef } = useAutoAnimate({

@@ -78,8 +78,7 @@ export default defineNuxtConfig({
         'md-editor-v3',
         'reka-ui',
         '@iconify/utils',
-        'pinia-plugin-persistedstate',
-        '@nuxt/ui'
+        'pinia-plugin-persistedstate'
       ]
     }
   },

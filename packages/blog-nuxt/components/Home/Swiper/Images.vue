@@ -17,7 +17,8 @@ defineExpose({
 
 // 使用useFetch获取轮播图数据
 const { carousel } = useApi();
-const { data: carouselList } = await carousel.getList();
+const { data } = await carousel.getList();
+const carouselList = computed(() => unref(data)?.recordList ?? []);
 </script>
 
 <style lang="scss" scoped>
