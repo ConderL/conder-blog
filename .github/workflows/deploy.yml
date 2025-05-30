@@ -346,5 +346,15 @@ jobs:
             # 保存日志
             docker compose logs > deployment.log
 
+            # 执行预渲染
+            echo "开始执行Nuxt预渲染..."
+            # 确保所有服务已经正常启动
+            docker compose ps
+            # 等待额外的时间确保API服务完全就绪
+            sleep 20
+            # 进入nuxt容器执行预渲染
+            docker compose exec -T nuxt node /app/.output/server/index.mjs --prerender
+            echo "预渲染完成"
+
             # 重新加载Nginx配置
             docker compose exec nginx nginx -s reload || echo "Nginx配置重载失败"

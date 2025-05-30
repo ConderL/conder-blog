@@ -47,7 +47,7 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 
 # 设置环境变量
 ENV NODE_ENV=production
-ENV NITRO_PORT=3000
+ENV NITRO_PORT=4000
 ENV NITRO_HOST=0.0.0.0
 
 # 暴露端口

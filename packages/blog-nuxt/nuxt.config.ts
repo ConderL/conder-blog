@@ -4,6 +4,8 @@ export default defineNuxtConfig({
     enabled: true,
   },
   ssr: true,
+  baseURL: '/',
+  buildAssetsDir: '/_nuxt/',
   compatibilityDate: '2025-05-16',
   modules: [
     '@nuxt/ui',
@@ -62,17 +64,17 @@ export default defineNuxtConfig({
     build: {
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        external: ['lightningcss', 'jsencrypt'],
-        output: {
-          manualChunks: {
-            'vue-vendor': ['vue'],
-            'editor-vendor': ['md-editor-v3'],
-            'utils-vendor': ['@vueuse/core', 'pinia'],
-            'danmaku-vendor': ['vue3-danmaku']
-          }
-        }
-      },
+      // rollupOptions: {
+      //   external: ['lightningcss', 'jsencrypt'],
+      //   output: {
+      //     manualChunks: {
+      //       'vue-vendor': ['vue'],
+      //       'editor-vendor': ['md-editor-v3'],
+      //       'utils-vendor': ['@vueuse/core', 'pinia'],
+      //       'danmaku-vendor': ['vue3-danmaku']
+      //     }
+      //   }
+      // },
       // 需要转译的依赖
       transpile: [
         'vue3-social-share',
@@ -120,8 +122,6 @@ export default defineNuxtConfig({
         { rel: 'stylesheet', href: '/styles/cursor.css' }
       ]
     },
-    baseURL: '/',
-    buildAssetsDir: '/_nuxt/',
     pageTransition: {
       name: 'page',
       mode: 'out-in'
@@ -152,6 +152,11 @@ export default defineNuxtConfig({
       ttl: 60 * 60 * 1000 // 1小时缓存，以毫秒为单位
     },
     sourceMap: false,
+    // 禁用构建时预渲染，改为部署后执行
+    prerender: {
+      crawlLinks: false,
+      routes: []
+    }
     // externals: {
     //   inline: [
     //     '@nuxt/icon',
@@ -192,7 +197,8 @@ export default defineNuxtConfig({
     // 首页和常用页面使用服务端渲染(SSR)
     '/': { 
       ssr: true,
-      prerender: true,
+      // 移除prerender配置，改为部署后执行
+      // prerender: true,
       cache: {
         maxAge: 3600 // 1小时缓存
       },

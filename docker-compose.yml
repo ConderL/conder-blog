@@ -44,7 +44,7 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     ports:
-      - "6380:6379"
+      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -120,11 +120,11 @@ services:
       - ./docker/supervisord.conf:/etc/supervisord.conf
     environment:
       - NODE_ENV=production
-      - NITRO_PORT=3000
+      - NITRO_PORT=4000
       - NITRO_HOST=0.0.0.0
     restart: always
     ports:
-      - "3333:80"
+      - "4000:80"
     networks:
       - blog-network
 
