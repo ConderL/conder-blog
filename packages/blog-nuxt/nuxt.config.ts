@@ -64,17 +64,17 @@ export default defineNuxtConfig({
     build: {
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
-      // rollupOptions: {
-      //   external: ['lightningcss', 'jsencrypt'],
-      //   output: {
-      //     manualChunks: {
-      //       'vue-vendor': ['vue'],
-      //       'editor-vendor': ['md-editor-v3'],
-      //       'utils-vendor': ['@vueuse/core', 'pinia'],
-      //       'danmaku-vendor': ['vue3-danmaku']
-      //     }
-      //   }
-      // },
+      rollupOptions: {
+        external: ['lightningcss', 'jsencrypt'],
+        output: {
+          manualChunks: {
+            'vue-vendor': ['vue'],
+            'editor-vendor': ['md-editor-v3'],
+            'utils-vendor': ['@vueuse/core', 'pinia'],
+            'danmaku-vendor': ['vue3-danmaku']
+          }
+        }
+      },
       // 需要转译的依赖
       transpile: [
         'vue3-social-share',

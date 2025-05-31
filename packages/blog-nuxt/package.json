@@ -25,6 +25,7 @@
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.10",
     "easy-typer-js": "^2.1.0",
+    "jsencrypt": "^3.3.2",
     "lodash-es": "^4.17.21",
     "lottie-web": "^5.12.2",
     "md-editor-v3": "^4.21.3",
