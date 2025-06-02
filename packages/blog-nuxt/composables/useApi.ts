@@ -42,7 +42,7 @@ export const useApi = () => {
 
   const carousel = {
     // 获取轮播图列表 - 用于SSR
-    getList: () => fetchData('/carousel/list'),
+    getList: () => directFetch('/carousel/list'),
   };
 
   const talk = {

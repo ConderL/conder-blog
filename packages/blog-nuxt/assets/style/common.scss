@@ -141,18 +141,6 @@
 	}
 }
 
-/* 对话框 */
-.dialog-wrapper {
-	width: 600px !important;
-}
-
-@media (min-width: 760px) {
-	.dialog-wrapper {
-		padding: 2rem 2.5rem 0;
-		height: 500px;
-	}
-}
-
 .dialog-text {
 	color: var(--grey-5);
 }

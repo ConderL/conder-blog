@@ -119,7 +119,6 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
-        { rel: 'stylesheet', href: '/styles/cursor.css' }
       ]
     },
     pageTransition: {

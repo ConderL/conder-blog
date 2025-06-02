@@ -156,12 +156,7 @@ const menuList = [
         name: "相册",
         icon: "album",
         path: "/album"
-      },
-      {
-        name: "图床",
-        icon: "upload",
-        path: "/picture"
-      },
+      }
     ]
   },
   {
@@ -192,7 +187,7 @@ function loginAndClose() {
   
   // 延迟显示登录框，等待抽屉动画完成
   setTimeout(() => {
-    app.loginDialogVisible = true;
+    app.setLoginFlag(true);
   }, 300);
 }
 

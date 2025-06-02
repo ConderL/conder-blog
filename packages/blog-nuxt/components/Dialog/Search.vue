@@ -1,5 +1,5 @@
 <template>
-  <UModal v-model:open="app.searchFlag" class="dialog-wrapper !w-[800px]" :ui="ui" close-icon="icon:close">
+  <UModal v-model:open="app.searchFlag" class="dialog-wrapper" :ui="ui" close-icon="icon:close">
     <template #header>
       <span class="text-lg font-semibold text-blue-500">本地搜索</span>
     </template>

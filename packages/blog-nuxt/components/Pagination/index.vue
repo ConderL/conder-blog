@@ -16,8 +16,7 @@
     >
       <template #first>
         <UButton class="!bg-transparent text-[var(--grey-5)]">
-          <UIcon name="icon:angle-left" class="pagination-icon" />
-          <UIcon name="icon:angle-left" class="pagination-icon !ml-[-8px]" />
+          <UIcon name="icon:angle-double-left" class="pagination-icon scale-150" />
         </UButton>
       </template>
       <template #prev>
@@ -35,8 +34,7 @@
       </template>
       <template #last>
         <UButton class="!bg-transparent text-[var(--grey-5)]">
-          <UIcon name="icon:angle-right" class="pagination-icon" />
-          <UIcon name="icon:angle-right" class="pagination-icon !ml-[-8px]" />
+          <UIcon name="icon:angle-double-right" class="pagination-icon scale-150" />
         </UButton>
       </template>
     </UPagination>

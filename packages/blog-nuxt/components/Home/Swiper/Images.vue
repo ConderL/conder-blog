@@ -1,12 +1,12 @@
 <template>
-  <div class="imgs">
-    <ul v-if="carouselList.length">	
-      <li
-		v-for="(img, index) of carouselList" :key="index"
-        class="item" :style="{'background-image': 'url(' + img.imgUrl + ')'}">
-      </li>
-    </ul>
-  </div>
+	<div class="imgs">
+		<ul>	
+			<li
+				v-for="(img, index) of carouselList" :key="index"
+				class="item" :style="{'background-image': 'url(' + img.imgUrl + ')'}">
+			</li>
+		</ul>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -18,7 +18,7 @@ defineExpose({
 // 使用useFetch获取轮播图数据
 const { carousel } = useApi();
 const { data } = await carousel.getList();
-const carouselList = computed(() => unref(data)?.recordList ?? []);
+const carouselList = computed(() => unref(data) || []);
 </script>
 
 <style lang="scss" scoped>

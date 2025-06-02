@@ -50,7 +50,7 @@ export default defineAppConfig({
     modal: {
       slots: {
         overlay: 'fixed inset-0 bg-black/50 backdrop-blur-sm',
-        content: '!w-[446px] max-w-[calc(100vw-32px)] !p-2 bg-white dark:bg-gray-900 flex flex-col focus:outline-none rounded-md shadow-lg',
+        content: 'max-w-[calc(100vw-32px)] !p-2 bg-white dark:bg-gray-900 flex flex-col focus:outline-none rounded-md shadow-lg',
         header: 'min-h-0 border-none',
         wrapper: '',
         body: 'flex-1 overflow-y-auto p-4 sm:p-6',
