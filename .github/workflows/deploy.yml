@@ -351,13 +351,14 @@ jobs:
             # 确保所有服务已经正常启动
             docker compose ps
             # 等待额外的时间确保API服务完全就绪
-            sleep 60
-            timeout 600 docker compose exec -T nuxt sh -c "cd /app && NODE_ENV=production NITRO_PRESET=node NITRO_PRERENDER_TIMEOUT=300000 node .output/server/index.mjs --prerender"
-            if [ $? -eq 124 ]; then
-              echo "预渲染超时，但继续执行后续步骤"
-            else
-              echo "预渲染完成"
-            fi
+            sleep 300
+            
+            # 增加超时时间到20分钟，并添加错误处理
+            timeout 1200 docker compose exec -T nuxt sh -c "cd /app && NODE_ENV=production NITRO_PRESET=node NITRO_PRERENDER_TIMEOUT=600000 node .output/server/index.mjs --prerender" || {
+              echo "预渲染超时或失败，但继续执行后续步骤"
+              # 记录预渲染日志以便调试
+              docker compose logs nuxt > nuxt_prerender_logs.txt
+            }
 
             # 重新加载Nginx配置
             docker compose exec nginx nginx -s reload || echo "Nginx配置重载失败"
