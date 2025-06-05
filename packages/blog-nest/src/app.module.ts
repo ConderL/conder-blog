@@ -32,7 +32,6 @@ import {
 import { LogModule } from './modules/log/log.module';
 import { OnlineModule } from './modules/online/online.module';
 import { MiddlewaresModule } from './common/middlewares/middlewares.module';
-import { HitokotoModule } from './hitokoto/hitokoto.module';
 
 import configuration from './config/configuration';
 import { createTypeOrmOptions } from './config/database.config';
@@ -84,8 +83,6 @@ import { AdminModule } from './modules/admin/admin.modules';
     ToolsModule,
     OnlineModule,
     AdminModule,
-    // 一言模块
-    HitokotoModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api*'],

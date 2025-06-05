@@ -49,6 +49,7 @@ import { AlbumService } from './services/album.service';
 import { PhotoService } from './services/photo.service';
 import { ContentCensorService } from './services/content-censor.service';
 import { OperationLogService } from './services/operation-log.service';
+import { HitokotoService } from './services/hitokoto.service';
 
 // 控制器
 import {
@@ -87,6 +88,7 @@ import { PhotoController } from './controllers/photo.controller';
 import { AdminPhotoController } from './controllers/admin-photo.controller';
 import { ContentCensorController } from './controllers/content-censor.controller';
 import { AdminOperationLogController } from './controllers/admin-operation-log.controller';
+import { HitokotoController } from './controllers/hitokoto.controller';
 
 // 拦截器
 import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interceptor';
@@ -168,6 +170,7 @@ import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interce
     AdminPhotoController,
     ContentCensorController,
     AdminOperationLogController,
+    HitokotoController,
   ],
   providers: [
     ArticleService,
@@ -188,6 +191,7 @@ import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interce
     PhotoService,
     ContentCensorService,
     OperationLogService,
+    HitokotoService,
     {
       provide: IpService,
       useFactory: (httpService: HttpService, configService: ConfigService) => {
@@ -215,6 +219,7 @@ import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interce
     PhotoService,
     ContentCensorService,
     OperationLogService,
+    HitokotoService,
     IpService,
   ],
 })
