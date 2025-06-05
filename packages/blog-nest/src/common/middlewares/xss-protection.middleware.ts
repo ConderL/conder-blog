@@ -16,10 +16,24 @@ export class XssProtectionMiddleware implements NestMiddleware {
     '/api/article/create',
     '/api/article/update',
     '/api/comment/create',
+    '/api/admin/talk/add',
+    '/api/admin/talk/update',
+    '/api/admin/article/create',
+    '/api/admin/article/update',
+    '/api/admin/comment/create',
+    '/api/admin/comment/update',
   ];
 
   // 需要排除XSS过滤的字段
-  private readonly excludeFields: string[] = ['content', 'html', 'richText'];
+  private readonly excludeFields: string[] = [
+    'content',
+    'html',
+    'richText',
+    'talkContent',
+    'articleContent',
+    'commentContent',
+    'images',
+  ];
 
   use(req: Request, res: Response, next: NextFunction) {
     // 设置安全相关的HTTP头

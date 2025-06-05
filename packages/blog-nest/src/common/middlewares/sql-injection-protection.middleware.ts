@@ -39,7 +39,29 @@ export class SqlInjectionProtectionMiddleware implements NestMiddleware {
   ];
 
   // 需要排除SQL注入检查的路径
-  private readonly excludePaths: string[] = ['/api-docs', '/swagger-ui', '/public', '/uploads'];
+  private readonly excludePaths: string[] = [
+    '/api-docs',
+    '/swagger-ui',
+    '/public',
+    '/uploads',
+    '/api/admin/talk/add',
+    '/api/admin/talk/update',
+    '/api/admin/article/create',
+    '/api/admin/article/update',
+    '/api/admin/comment/create',
+    '/api/admin/comment/update',
+  ];
+
+  // 需要排除SQL注入检查的字段
+  private readonly excludeFields: string[] = [
+    'talkContent',
+    'articleContent',
+    'commentContent',
+    'html',
+    'content',
+    'richText',
+    'images',
+  ];
 
   use(req: Request, res: Response, next: NextFunction) {
     // 检查是否在排除路径中
@@ -100,6 +122,10 @@ export class SqlInjectionProtectionMiddleware implements NestMiddleware {
     if (typeof obj === 'object') {
       for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          // 如果字段在排除列表中，则不进行SQL注入检查
+          if (this.excludeFields.includes(key)) {
+            continue;
+          }
           if (this.checkForSqlInjection(obj[key])) {
             return true;
           }
