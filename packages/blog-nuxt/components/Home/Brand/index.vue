@@ -27,7 +27,8 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted } from 'vue';
 import Waves from '../../Waves/index.vue';
-import request from '~/utils/http';
+
+const { directFetch } = useRequest();
 
 // 默认导出
 defineExpose({
@@ -35,6 +36,8 @@ defineExpose({
 });
 
 const blog = useBlogStore();
+
+// 打字机配置对象
 const obj = reactive({
 	output: "",
 	isEnd: false,
@@ -42,94 +45,108 @@ const obj = reactive({
 	singleBack: false,
 	sleep: 5000,
 	type: "rollback",
-	backSpeed: 10,
-	sentencePause: false,
+	backSpeed: 40,
+	sentencePause: false
 });
+
+// 存储从接口获取的一言数据
+const hitokotoList = ref([]);
+// 当前选择的一言索引
+const currentIndex = ref(0);
+// 保存当前打字机实例
+const typerInstance = ref(null);
 
 const brandRef = ref<HTMLElement>();
 const scrollDown = () => {
 	nextTick(() => {
-    if (brandRef.value) {
-      window.scrollTo({
-        behavior: "smooth",
-        top: brandRef.value.clientHeight,
-      });
-    }
+		if (brandRef.value) {
+			window.scrollTo({
+				behavior: "smooth",
+				top: brandRef.value.clientHeight,
+			});
+		}
 	});
 };
 
 onMounted(() => {
 	// 仅在客户端获取一言数据
 	if (process.client) {
-		fetchData();
+		fetchHitokotoData();
 	}
 });
 
-// 一言数据接口返回类型
-interface HitokotoResponse {
-  hitokoto: string;
-  from: string;
-  [key: string]: any;
-}
+// 从本地接口获取一言数据
+const fetchHitokotoData = async () => {
+	try {
+		const { data: hitokoto } = await directFetch('/hitokoto');
+		hitokotoList.value = hitokoto;
+		currentIndex.value = 0;
+		showNextHitokoto();
+	} catch (error) {
+		console.error('获取一言数据失败:', error);
+		useDefaultText();
+	}
+};
 
-// 将fetchData函数移到onMounted之后，确保只在客户端执行
-const fetchData = () => {
-	request<HitokotoResponse>({
-		url: "https://v1.hitokoto.cn",
-		method: "get"
-	})
-		.then(({ data }) => {
-			const { hitokoto, from } = data;
-			// 动态导入，避免SSR问题
-			import('easy-typer-js').then(({ default: EasyTyper }) => {
-				try {
-					// 创建打字机实例
-					const typer = new EasyTyper({
-						output: obj.output,
-						isEnd: obj.isEnd,
-						speed: obj.speed,
-						singleBack: obj.singleBack,
-						sleep: obj.sleep,
-						type: obj.type,
-						backSpeed: obj.backSpeed,
-						sentencePause: obj.sentencePause
-					}, `${hitokoto} —— ${from}`, fetchData);
-					
-					// 保持引用，避免被垃圾回收
-					obj._typer = typer;
-				} catch (error) {
-					console.error('初始化打字机失败:', error);
-					// 设置默认文本
-					obj.output = `${hitokoto} —— ${from}`;
-				}
+// 显示下一条一言数据
+const showNextHitokoto = () => {
+	if (hitokotoList.value && hitokotoList.value.length > 0) {
+		// 检查是否需要重新获取数据
+		if (currentIndex.value >= hitokotoList.value.length) {
+			currentIndex.value = 0;
+			fetchHitokotoData();
+			return;
+		}
+		
+		const item = hitokotoList.value[currentIndex.value];
+		currentIndex.value++;
+		
+		// 显示当前数据
+		showTyperEffect(`${item.hitokoto} —— ${item.from}`);
+	} else {
+		useDefaultText();
+	}
+};
+
+// 显示打字机效果
+const showTyperEffect = (text) => {
+	// 动态导入打字机库
+	import('easy-typer-js').then(({ default: EasyTyper }) => {
+		try {
+			// 如果有之前的实例，先清理
+			if (typerInstance.value) {
+				typerInstance.value = null;
+			}
+			
+			// 重置输出
+			obj.output = '';
+			
+			// 创建新实例
+			typerInstance.value = new EasyTyper(obj, text, () => {
+				// 当前文本完成后的回调
+				console.log('打字效果完成，准备显示下一条');
+				// 延迟一点时间再显示下一条，避免立即切换
+				setTimeout(() => {
+					showNextHitokoto();
+				}, 1000);
 			});
-		})
-		.catch((error) => {
-			console.error('获取一言数据失败:', error);
-			// 如果API请求失败，使用默认文字
-			import('easy-typer-js').then(({ default: EasyTyper }) => {
-				try {
-					// 创建打字机实例
-					const typer = new EasyTyper({
-						output: obj.output,
-						isEnd: obj.isEnd,
-						speed: obj.speed,
-						singleBack: obj.singleBack,
-						sleep: obj.sleep,
-						type: obj.type,
-						backSpeed: obj.backSpeed,
-						sentencePause: obj.sentencePause
-					}, "让思想在文字中流淌，让灵感在记录中延伸。", fetchData);
-					
-					// 保持引用，避免被垃圾回收
-					obj._typer = typer;
-				} catch (error) {
-					console.error('初始化打字机失败:', error);
-					// 设置默认文本
-					obj.output = "让思想在文字中流淌，让灵感在记录中延伸。";
-				}
-			});
-		});
+		} catch (error) {
+			console.error('初始化打字机失败:', error);
+			obj.output = text;
+			// 出错时也尝试显示下一条
+			setTimeout(() => {
+				showNextHitokoto();
+			}, 5000);
+		}
+	}).catch(error => {
+		console.error('加载打字机库失败:', error);
+		obj.output = text;
+	});
+};
+
+// 使用默认文本
+const useDefaultText = () => {
+	showTyperEffect("让思想在文字中流淌，让灵感在记录中延伸。");
 };
 </script>
 
