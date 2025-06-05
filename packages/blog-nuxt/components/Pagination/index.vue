@@ -2,7 +2,7 @@
   <div class="pagination-wrapper">
     <UPagination
       v-model:page="currentPage"
-      class="pagination"
+      class="pagination w-full"
       :total="total"
       :items-per-page="perPage"
       :show-controls="true"

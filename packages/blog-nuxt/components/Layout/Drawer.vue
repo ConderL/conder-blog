@@ -129,7 +129,7 @@ const menuList = [
       {
         name: "归档",
         icon: "archives",
-        path: "/archive"
+        path: "/archives"
       },
       {
         name: "分类",

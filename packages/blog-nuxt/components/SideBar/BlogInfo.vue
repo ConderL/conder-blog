@@ -1,6 +1,6 @@
 <template>
   <div class="blog-container">
-    <div class="blog-item" v-for="(item, index) in blogInfo" :key="index">
+    <div v-for="(item, index) in blogInfo" :key="index" class="blog-item">
       <NuxtLink :to="item.path">
         <div class="count">{{ item.count }}</div>
         <div class="name">{{ item.name }}</div>
@@ -15,7 +15,7 @@ const blog = useBlogStore();
 
 // 全部使用固定值作为默认值，确保服务端和客户端渲染完全一致
 const blogInfo = computed(() => [
-  { path: "/archive", count: 2, name: "文章" },
+  { path: "/archives", count: 2, name: "文章" },
   { path: "/category", count: 1, name: "分类" },
   { path: "/tag", count: 1, name: "标签" },
 ]);

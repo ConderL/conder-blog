@@ -7,8 +7,8 @@
     >
       <!-- 文章缩略图 -->
       <div class="article-cover">
-        <NuxtLink :to="`/article/${article.id}`">
-          <img 
+        <NuxtLink class="w-full h-full" :to="`/article/${article.id}`">
+          <NuxtImg
             class="cover"
             :src="article.articleCover"
             :alt="article.articleTitle"
