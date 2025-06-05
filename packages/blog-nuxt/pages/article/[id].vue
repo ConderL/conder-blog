@@ -41,7 +41,7 @@
     <div class="bg">
       <div class="main-container">
         <div v-auto-animate="{duration: 300}" class="flex w-full">
-          <div key="main" class="bg-white rounded-lg">
+          <div key="main" class="bg-white rounded-lg w-full">
             <div class="article-container">
               <MdPreview
                 editor-id="preview-only"

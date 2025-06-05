@@ -18,7 +18,7 @@ export default defineNuxtPlugin(() => {
     // 脚本加载完成后配置参数
     script.onload = () => {
       // 设置全局变量
-      window.tianliGPT_postSelector = 'div.md-editor-preview';
+      window.tianliGPT_postSelector = '#preview-only-preview';
       window.tianliGPT_postURL = "*/article/*";
       window.tianliGPT_Title = 'Conder 文章摘要';
       window.tianliGPT_key = 'S-CIOJ6OWF1BJGVNJK';
