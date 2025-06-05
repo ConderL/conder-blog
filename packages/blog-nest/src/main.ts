@@ -8,6 +8,8 @@ import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import { initDatabase } from './database';
+// 导入helmet
+import helmet from 'helmet';
 
 async function bootstrap() {
   // 创建应用实例
@@ -16,6 +18,9 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
   const logger = new Logger('Bootstrap');
+
+  // 应用helmet中间件增强安全性 - 使用函数调用方式
+  app.use(helmet());
 
   // 获取配置服务
   const configService = app.get(ConfigService);

@@ -31,6 +31,7 @@ import {
 } from './common/exceptions/http.exception.filter';
 import { LogModule } from './modules/log/log.module';
 import { OnlineModule } from './modules/online/online.module';
+import { MiddlewaresModule } from './common/middlewares/middlewares.module';
 
 import configuration from './config/configuration';
 import { createTypeOrmOptions } from './config/database.config';
@@ -63,6 +64,8 @@ import { AdminModule } from './modules/admin/admin.modules';
         }
       },
     }),
+    // 安全中间件模块
+    MiddlewaresModule,
     // 业务模块
     EmailModule,
     UploadModule,
