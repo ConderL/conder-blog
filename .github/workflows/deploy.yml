@@ -346,19 +346,19 @@ jobs:
             # 保存日志
             docker compose logs > deployment.log
 
-            # 执行预渲染
-            echo "开始执行Nuxt预渲染..."
-            # 确保所有服务已经正常启动
-            docker compose ps
-            # 等待额外的时间确保API服务完全就绪
-            sleep 300
+            # # 执行预渲染
+            # echo "开始执行Nuxt预渲染..."
+            # # 确保所有服务已经正常启动
+            # docker compose ps
+            # # 等待额外的时间确保API服务完全就绪
+            # sleep 300
             
-            # 增加超时时间到20分钟，并添加错误处理
-            timeout 1200 docker compose exec -T nuxt sh -c "cd /app && NODE_ENV=production NITRO_PRESET=node NITRO_PRERENDER_TIMEOUT=600000 node .output/server/index.mjs --prerender" || {
-              echo "预渲染超时或失败，但继续执行后续步骤"
-              # 记录预渲染日志以便调试
-              docker compose logs nuxt > nuxt_prerender_logs.txt
-            }
+            # # 增加超时时间到20分钟，并添加错误处理
+            # timeout 1200 docker compose exec -T nuxt sh -c "cd /app && NODE_ENV=production NITRO_PRESET=node NITRO_PRERENDER_TIMEOUT=600000 node .output/server/index.mjs --prerender" || {
+            #   echo "预渲染超时或失败，但继续执行后续步骤"
+            #   # 记录预渲染日志以便调试
+            #   docker compose logs nuxt > nuxt_prerender_logs.txt
+            # }
 
-            # 重新加载Nginx配置
-            docker compose exec nginx nginx -s reload || echo "Nginx配置重载失败"
+            # # 重新加载Nginx配置
+            # docker compose exec nginx nginx -s reload || echo "Nginx配置重载失败"

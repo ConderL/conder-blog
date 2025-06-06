@@ -27,7 +27,7 @@ export async function initSiteConfig(siteConfigRepository: Repository<SiteConfig
       siteAddress: 'https://www.conder.top',
       siteIntro: '每天进步一点点。',
       siteNotice:
-        '小站新开，有点小bug很正常，欢迎大家来多多测试。\n后端基于NestJs开发，前端基于Vue3 Ts Navie UI开发',
+        '小站新开，有点小bug很正常，欢迎大家来多多测试。\n后端基于NestJs开发，前端基于Nuxt3开发',
       createSiteTime: '2025-5-20',
       recordNumber: '豫ICP备2024068028号',
       authorAvatar: 'https://img.conder.top/config/avatar.jpg',

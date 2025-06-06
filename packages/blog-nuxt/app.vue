@@ -19,14 +19,14 @@
 // 设置默认的站点元数据，确保服务端和客户端渲染一致
 useHead({
   title: "Conder's blog",
-  titleTemplate: '%s - 技术与生活分享',
+  titleTemplate: '%s',
   meta: [
-    { name: 'description', content: '一个基于Nuxt.js的服务端渲染博客系统' },
+    { name: 'description', content: '一个基于Nuxt.js的服务端渲染博客系统，后端为NestJs、MySQL，用于记录生活日常' },
     { name: 'keywords', content: "Conder,Nuxt,Vue,SSR,博客,Blog,ConderBlog,Conder's Blog" },
     { name: 'author', content: '@ConderL' },
     { name: 'robots', content: 'index, follow' },
     { property: 'og:type', content: 'website' },
-    { property: 'og:title', content: "Conder's blog - 技术与生活分享" },
+    { property: 'og:title', content: "Conder's blog" },
     { property: 'og:description', content: '一个使用Nuxt.js构建的博客网站，提供优质的技术文章和生活分享' },
     { property: 'og:site_name', content: "Conder's blog" }
   ]

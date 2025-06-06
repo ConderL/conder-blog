@@ -7,23 +7,23 @@
 </p>
 
 <p align="center">
-   基于 NestJS + Vue3 开发的全栈博客系统
+   基于 NestJS + Vue3 + Nuxt3 开发的全栈博客系统，初版并不支持SEO，现重构出了Nuxt3版本，便于开发者学习与参考。
 </p>
 
 <p align="center">
-   <a target="_blank" href="https://github.com/yourusername/conder-blog">
-      <img src="https://img.shields.io/badge/Node.js-19.6+-green"/>
-      <img src="https://img.shields.io/badge/nestjs-10.x-green"/>
-      <img src="https://img.shields.io/badge/vue-3.x-green"/>
-      <img src="https://img.shields.io/badge/vite-4.x-green"/>
-      <img src="https://img.shields.io/badge/typescript-5.x-green"/>
-      <img src="https://img.shields.io/badge/mysql-8.0-green"/>
-      <img src="https://img.shields.io/badge/redis-7.0-green"/>
-      <img src="https://img.shields.io/badge/docker-24.x-green"/>
-      <img src="https://img.shields.io/badge/nginx-1.24.x-green"/>
-      <img src="https://img.shields.io/badge/element--plus-2.x-green"/>
-      <img src="https://img.shields.io/badge/tailwindcss-3.x-green"/>
-   </a>
+   <img src="https://img.shields.io/badge/Node.js-19.6+-green"/>
+   <img src="https://img.shields.io/badge/nestjs-10.x-green"/>
+   <img src="https://img.shields.io/badge/vue-3.x-green"/>
+   <img src="https://img.shields.io/badge/nuxt-3.x-green"/>
+   <img src="https://img.shields.io/badge/vite-4.x-green"/>
+   <img src="https://img.shields.io/badge/typescript-5.x-green"/>
+   <img src="https://img.shields.io/badge/mysql-8.0-green"/>
+   <img src="https://img.shields.io/badge/redis-7.0-green"/>
+   <img src="https://img.shields.io/badge/docker-24.x-green"/>
+   <img src="https://img.shields.io/badge/nginx-1.24.x-green"/>
+   <img src="https://img.shields.io/badge/element--plus-2.x-green"/>
+   <img src="https://img.shields.io/badge/nuxt--ui-3.x-green"/>
+   <img src="https://img.shields.io/badge/tailwindcss-3.x-green"/>
 </p>
 
 ## 在线演示
@@ -53,13 +53,14 @@
 - `packages/blog-nest` - 后端API服务，基于NestJS开发
 - `packages/blog-web` - 博客前台，基于Vue3开发
 - `packages/blog-admin` - 管理后台，基于Vue3开发
+- `packages/blog-nuxt` - 重构的博客前台，基于Nuxt3和Nuxt UI开发，支持SSR
 - `docker/` - Docker相关配置文件
 - `.github/workflows/` - GitHub Actions工作流配置
 - `nginx/` - Nginx配置文件
 
 ## 技术栈
 
-- **前端**：Vue3、Vite、TypeScript
+- **前端**：Vue3、Vite、TypeScript、Nuxt3、Nuxt UI
 - **后端**：NestJS、TypeScript、MySQL、Redis
 - **部署**：Docker、Docker Compose、GitHub Actions
 - **数据库**：MySQL 8.0
@@ -84,13 +85,6 @@ pnpm install
 ```bash
 # 启动所有服务
 pnpm dev
-
-# 仅启动后端
-pnpm dev:nest
-
-# 仅启动前端和管理后台
-pnpm dev:admin
-pnpm dev:web
 ```
 
 ## 构建
@@ -271,7 +265,7 @@ ENV VITE_SERVICE_BASE_URL=https://api.youserver.com
 感谢开源社区的前辈们无私分享技术成果，尤其要致敬kramrs的Java实现给予的架构启发。本项目的技术方案文档已完整开源，包含详细的设计决策文档和踩坑记录。
 
 - [kramrs's blog](https://github.com/kramrs/blog)
-- [ 掐指yi算’逢考必过 ](https://gitee.com/wu_shengdong/blog)
+- [ 掐指yi算'逢考必过 ](https://gitee.com/wu_shengdong/blog)
 - [hexo-theme-shoka](https://github.com/amehime/hexo-theme-shoka)
 - [A Hexo Theme: Butterfly](https://github.com/jerryc127/hexo-theme-butterfly)
 - [RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue)
