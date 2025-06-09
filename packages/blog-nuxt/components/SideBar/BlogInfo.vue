@@ -1,7 +1,7 @@
 <template>
   <div class="blog-container">
     <div v-for="(item, index) in blogInfo" :key="index" class="blog-item">
-      <NuxtLink :to="item.path">
+      <NuxtLink :to="item.path" @click="app.isCollapse = false">
         <div class="count">{{ item.count }}</div>
         <div class="name">{{ item.name }}</div>
       </NuxtLink>
@@ -12,6 +12,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 const blog = useBlogStore();
+const app = useAppStore();
 
 // 从 store 中获取博客信息
 const blogInfo = computed(() => [

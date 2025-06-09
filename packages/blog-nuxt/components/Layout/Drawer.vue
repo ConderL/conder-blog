@@ -3,6 +3,8 @@
     v-model:open="isOpen"
     direction="right"
     :overlay="true"
+    :title="blog.blogInfo.siteConfig?.siteName"
+    :description="blog.blogInfo.siteConfig?.aboutMe"
   >
     <!-- 触发按钮在 NavBar 组件中，这里不需要默认插槽内容 -->
     <template #content>
