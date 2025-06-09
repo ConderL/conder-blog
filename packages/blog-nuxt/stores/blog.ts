@@ -45,21 +45,10 @@ export interface BlogInfo {
   [key: string]: any;
 }
 
-// 创建一个默认的空博客信息对象，避免空引用
-const defaultBlogInfo: BlogInfo = {
-  articleCount: 0,
-  categoryCount: 0,
-  tagCount: 0,
-  viewCount: 0,
-  commentCount: 0,
-  userCount: 0,
-  siteConfig: {}
-};
-
 // 博客信息 Store
 export const useBlogStore = defineStore('blog', () => {
   // 使用 ref 创建的状态
-  const blogInfo = ref<BlogInfo>(defaultBlogInfo);
+  const blogInfo = ref<BlogInfo>(null);
   
   // 获取博客信息
   const fetchBlogInfo = async () => {

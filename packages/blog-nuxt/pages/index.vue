@@ -18,11 +18,18 @@
         </div>
         
         <div v-auto-animate class="right-container" :class="app?.sideFlag ? 'temp' : ''">
-          <!-- 作者信息 -->
           <div class="side-card">
-            <AuthorInfo />
-            <!-- 博客信息 -->
-            <BlogInfo />
+            <ClientOnly fallback-tag="div" fallback-class="loading-fallback">
+              <template #fallback>
+                <div class="loading-container">
+                  <img src="/images/loading.gif" alt="loading" data-not-lazy class="loading-image" />
+                </div>
+              </template>
+              <!-- 作者信息 -->
+              <AuthorInfo />
+              <!-- 博客信息 -->
+              <BlogInfo />
+            </ClientOnly>
           </div>
           
           <!-- 公告 -->
@@ -55,6 +62,9 @@ const { blogInfo } = useApi();
 
 // 客户端上报访问信息
 onMounted(() => {
+  if (!blog.blogInfo) {
+    blog.fetchBlogInfo();
+  }
   if (process.client) {
     try {
       blogInfo.report();
@@ -81,6 +91,26 @@ onMounted(() => {
   &:not(:first-child) {
     margin-top: 1.25rem;
   }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.loading-image {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.loading-text {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--orange-6);
 }
 
 .author-avatar {

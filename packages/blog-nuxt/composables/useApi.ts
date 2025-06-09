@@ -7,7 +7,7 @@ export const useApi = () => {
   // 博客信息API
   const blogInfo = {
     // 获取博客信息 - 用于SSR
-    getBlogInfo: async () => fetchData('/'),
+    getBlogInfo: async () => directFetch('/'),
     
     // 上传访客信息 - 用于客户端
     report: () => directFetch('/report', { method: 'POST' }),

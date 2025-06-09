@@ -10,14 +10,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 const blog = useBlogStore();
 
-// 全部使用固定值作为默认值，确保服务端和客户端渲染完全一致
+// 从 store 中获取博客信息
 const blogInfo = computed(() => [
-  { path: "/archives", count: 2, name: "文章" },
-  { path: "/category", count: 1, name: "分类" },
-  { path: "/tag", count: 1, name: "标签" },
+  { path: "/archives", count: blog.blogInfo?.articleCount || 0, name: "文章" },
+  { path: "/category", count: blog.blogInfo?.categoryCount || 0, name: "分类" },
+  { path: "/tag", count: blog.blogInfo?.tagCount || 0, name: "标签" },
 ]);
 
 // 默认导出
