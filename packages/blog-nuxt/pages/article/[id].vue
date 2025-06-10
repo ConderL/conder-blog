@@ -254,7 +254,9 @@ const articleId = computed(() => {
   console.error('无效的文章ID:', id);
   return 1; // 默认返回ID为1的文章，避免NaN
 });
-const articleUrl = computed(() => `${config.public.siteUrl}/article/${articleId.value}`);
+const articleUrl = computed(() => {
+  return `${config.public.siteUrl}/article/${articleId.value}`
+});
 
 // 客户端状态
 const isMounted = ref(false);

@@ -17,27 +17,28 @@ import { ref, computed } from 'vue';
 import { useDark } from "@vueuse/core";
 
 const isDark = useDark();
+const blog = useBlogStore();
 
 // 由于当前store中没有社交媒体链接，我们使用静态链接作为示例
-const showSocialList = ref([
+const showSocialList = computed(() => [
   {
     type: isDark.value ? "icon:github-dark" : "icon:github",
-    href: "https://github.com",
+    href: blog.blogInfo.siteConfig.github,
     color: "#24292e"
   },
   {
     type: "icon:gitee",
-    href: "https://gitee.com",
+    href: blog.blogInfo.siteConfig.gitee,
     color: "#c71d23"
   },
   {
     type: "icon:bilibili",
-    href: "https://bilibili.com",
+    href: blog.blogInfo.siteConfig.bilibili,
     color: "#00a1d6"
   },
   {
     type: "icon:qq",
-    href: "https://im.qq.com",
+    href: blog.blogInfo.siteConfig.qq,
     color: "#00aeec"
   },
 ]);

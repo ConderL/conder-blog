@@ -2,6 +2,9 @@
 export default defineNuxtConfig({
   devtools: {
     enabled: true,
+    timeline: {
+      enabled: true
+    }
   },
   ssr: true,
   baseURL: '/',
@@ -18,7 +21,14 @@ export default defineNuxtConfig({
 
   // 添加服务器配置，设置端口为 4000
   server: {
-    port: 4000
+    port: 4000,
+    host: '0.0.0.0', // 允许局域网访问
+    hmr: {
+      // HMR 连接设置
+      port: 24678,
+      // 禁用 HMR 重载覆盖
+      overlay: false
+    }
   },
   
   lazyLoad: {
@@ -83,6 +93,13 @@ export default defineNuxtConfig({
         '@iconify/utils',
         'pinia-plugin-persistedstate'
       ]
+    },
+    // 添加热更新配置
+    server: {
+      watch: {
+        usePolling: true,
+        interval: 1000
+      }
     }
   },
 
@@ -137,6 +154,7 @@ export default defineNuxtConfig({
       baseURL: process.env.VITE_BASE_URL || '/',
       serviceBaseUrl: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
       apiBase: process.env.VITE_SERVICE_BASE_URL || 'http://localhost:3000',
+      siteUrl: process.env.VITE_SITE_URL || 'https://conder.top',
     }
   },
   nitro: {

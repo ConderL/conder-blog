@@ -1,50 +1,35 @@
 // 清除 Nuxt 缓存的脚本
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
+import { existsSync, rmSync } from 'fs';
+import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 // 获取当前文件的目录
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const rootDir = resolve(__dirname, '..');
 
-// 需要清除的目录
-const cacheDirs = [
+// 需要清理的目录
+const dirsToClean = [
   '.nuxt',
   '.output',
   'node_modules/.vite',
   'node_modules/.cache'
 ];
 
-// 清除缓存目录
-function clearCache() {
-  console.log('开始清除缓存...');
-  
-  const rootDir = path.resolve(__dirname, '..');
-  
-  cacheDirs.forEach(dir => {
-    const fullPath = path.join(rootDir, dir);
-    if (fs.existsSync(fullPath)) {
-      console.log(`删除目录: ${fullPath}`);
-      try {
-        if (process.platform === 'win32') {
-          // Windows 平台使用 rimraf 命令
-          execSync(`rmdir /s /q "${fullPath}"`, { stdio: 'inherit' });
-        } else {
-          // Unix 平台使用 rm 命令
-          execSync(`rm -rf "${fullPath}"`, { stdio: 'inherit' });
-        }
-        console.log(`✅ 成功删除: ${dir}`);
-      } catch (error) {
-        console.error(`❌ 删除失败: ${dir}`, error);
-      }
-    } else {
-      console.log(`目录不存在，跳过: ${fullPath}`);
-    }
-  });
-  
-  console.log('缓存清除完成!');
-}
+console.log('🧹 清理缓存中...');
 
-// 执行清除
-clearCache(); 
+// 清理每个目录
+dirsToClean.forEach(dir => {
+  const path = resolve(rootDir, dir);
+  if (existsSync(path)) {
+    try {
+      rmSync(path, { recursive: true, force: true });
+      console.log(`✅ 已清理: ${dir}`);
+    } catch (error) {
+      console.error(`❌ 清理失败: ${dir}`, error);
+    }
+  } else {
+    console.log(`ℹ️ 目录不存在，跳过: ${dir}`);
+  }
+});
+
+console.log('🎉 缓存清理完成!'); 

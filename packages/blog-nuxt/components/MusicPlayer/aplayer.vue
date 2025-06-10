@@ -123,21 +123,8 @@ const props = defineProps({
 	},
 });
 
-// 处理播放
-const handlePlay = () => {
-	if (instance && !hasInteracted.value) {
-		hasInteracted.value = true;
-		instance.play();
-		// 恢复音量
-		instance.volume(props.volume);
-	}
-};
-
 // 初始化
 onMounted(() => {
-	// 添加全局点击事件监听
-	document.addEventListener("click", handlePlay, { once: true });
-
 	nextTick(async () => {
 		try {
 			// 动态导入 APlayer
@@ -153,7 +140,6 @@ onMounted(() => {
 					container: playerRef.value,
 					fixed: props.fixed,
 					mini: props.mini,
-					autoplay: true, // 启用自动播放
 					theme: props.theme,
 					loop: props.loop,
 					order: props.order,
@@ -182,14 +168,6 @@ onMounted(() => {
 	});
 });
 
-// 销毁
-onBeforeUnmount(() => {
-	// 移除全局点击事件监听
-	document.removeEventListener("click", handlePlay);
-	if (instance) {
-		instance.destroy();
-	}
-});
 </script>
 
 <style scoped lang="scss">

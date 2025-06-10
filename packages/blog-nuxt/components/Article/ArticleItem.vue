@@ -1,5 +1,5 @@
 <template>
-  <div ref="listRef" class="article-container">
+  <div class="article-container">
     <div
       v-for="article of articleList"
       :key="article.id"
@@ -59,19 +59,18 @@
       </div>
     </div>
     <!-- 分页器 -->
-    <div v-if="count > 4" class="pagination-container">
+    <div v-if="count > 6" class="pagination-container">
       <Pagination 
-        :current="queryParams.current"
+        v-model:current="queryParams.current"
         :total="count"
         :per-page="queryParams.size"
-        @update:current="changePage"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, nextTick } from "vue";
 import type { PageQuery } from "~/model";
 import { formatDate } from "~/utils/date";
 import { useAutoAnimate } from "~/composables/useAutoAnimate";
@@ -84,19 +83,14 @@ defineExpose({
 const { article: articleApi } = useApi();
 const queryParams = reactive<PageQuery>({
   current: 1,
-  size: 4,
+  size: 6,
 });
 
 const { data } = await articleApi.getList(queryParams);
 
 const articleList = computed(() => unref(data)?.recordList ?? []);
 const count = computed(() => unref(data)?.count ?? 0);
-
-// 使用AutoAnimate为列表添加动画
-const { parent: listRef } = useAutoAnimate({
-  duration: 500,
-  easing: 'cubic-bezier(0.2, 0.7, 0.4, 1)' // 更平滑的缓动函数
-});
+const paginationRef = ref<HTMLElement | null>(null);
 
 // 安全的日期格式化
 const formatArticleDate = (date: string | Date | null | undefined) => {
@@ -110,15 +104,6 @@ const formatArticleDate = (date: string | Date | null | undefined) => {
   }
 };
 
-const changePage = (page: number) => {
-  queryParams.current = page;
-};
-
-// 监听页码变化，重新获取数据
-watch(() => queryParams.current, async () => {
-  const { data: newData } = await articleApi.getList(queryParams);
-  // 数据会自动更新，AutoAnimate 会处理动画效果
-});
 </script>
 
 <style lang="scss" scoped>

@@ -12,7 +12,6 @@
       :variant="'outline'"
       :sibling-count="1"
       :show-edges="true"
-      @update:page="handlePageChange"
     >
       <template #first>
         <UButton class="!bg-transparent text-[var(--grey-5)]">
@@ -64,13 +63,10 @@ const props = defineProps({
 const currentPage = computed<number>({
   get: () => props.current,
   set: (value) => {
-    // 由handlePageChange处理
+    emit("update:current", value);
   },
 });
 
-const handlePageChange = (page: number) => {
-  emit("update:current", page);
-};
 </script>
 
 <style lang="scss" scoped>
