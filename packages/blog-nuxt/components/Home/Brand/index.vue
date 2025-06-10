@@ -123,8 +123,6 @@ const showTyperEffect = (text) => {
 			
 			// 创建新实例
 			typerInstance.value = new EasyTyper(obj, text, () => {
-				// 当前文本完成后的回调
-				console.log('打字效果完成，准备显示下一条');
 				// 延迟一点时间再显示下一条，避免立即切换
 				setTimeout(() => {
 					showNextHitokoto();

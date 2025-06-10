@@ -117,8 +117,29 @@ export default defineNuxtConfig({
         { name: 'keywords', content: 'Nuxt,Vue,SSR,博客,Blog' },
         { name: 'author', content: '@ConderL' },
       ],
+      script: [
+        {
+          innerHTML: `
+            window.tianliGPT_postSelector = '#preview-only-preview';
+            window.tianliGPT_postURL = "*/article/*";
+            window.tianliGPT_Title = 'Conder 文章摘要';
+            window.tianliGPT_key = 'S-CIOJ6OWF1BJGVNJK';
+          `,
+          type: 'text/javascript',
+          charset: 'UTF-8'
+        },
+        {
+          src: 'https://ai.zhheo.com/static/public/tianli_gpt.min.js',
+          defer: true,
+          crossorigin: 'anonymous'
+        }
+      ],
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        {
+          rel: 'stylesheet',
+          href: 'https://ai.zhheo.com/static/public/tianli_gpt.min.css'
+        }
       ]
     },
     pageTransition: {
@@ -249,8 +270,7 @@ export default defineNuxtConfig({
     '~/plugins/vue-danmaku.client.ts',
     '~/plugins/md-editor.client.ts',
     '~/plugins/socket-io.client.ts',
-    '~/plugins/aplayer.client.ts',
-    '~/plugins/tianli-gpt.client.ts',
+    '~/plugins/aplayer.client.ts'
   ],
   // 禁用页面过渡动画的警告
   experimental: {
