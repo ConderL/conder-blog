@@ -49,6 +49,14 @@ interface Window {
   };
   showPerformanceMonitor: () => void;
   hidePerformanceMonitor: () => void;
+  tianliGPT: any;
+  tianliGPTIsRunning: boolean;
+  tianliGPT_postSelector: string;
+  tianliGPT_postURL: string;
+  tianliGPT_Title: string;
+  tianliGPT_key: string;
+  __TIANLI_SSR__: boolean;
+  __TIANLI_FIRST_REMOVE_DONE__: boolean;
 }
 
 // 声明全局API
