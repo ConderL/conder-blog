@@ -4,7 +4,7 @@ import { BaseEntity } from '../../../common/entities/base.entity';
 @Entity('t_menu')
 export class Menu extends BaseEntity {
   @Column({ name: 'menu_name', length: 50 })
-  name: string;
+  menuName: string;
 
   @Column({ name: 'path', length: 255, nullable: true })
   path: string;
@@ -22,11 +22,7 @@ export class Menu extends BaseEntity {
   orderNum: number;
 
   @Column({ name: 'is_hidden', type: 'tinyint', default: 0 })
-  hidden: number;
-
-  get isHidden(): number {
-    return this.hidden;
-  }
+  isHidden: number;
 
   @Column({ name: 'menu_type', type: 'char', length: 1 })
   type: string;
@@ -35,7 +31,7 @@ export class Menu extends BaseEntity {
   perms: string;
 
   @Column({ name: 'is_disable', type: 'tinyint', default: 0 })
-  disable: boolean;
+  isDisable: number;
 
   @Column({ name: 'create_time', type: 'datetime' })
   createTime: Date;

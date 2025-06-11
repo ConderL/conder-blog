@@ -78,7 +78,7 @@ export class MenuService {
     // 打印菜单项，便于调试
     menus.forEach((menu) => {
       console.log(
-        `菜单项: ID=${menu.id}, 名称=${menu.name}, 父ID=${menu.parentId}, 类型=${menu.type}`,
+        `菜单项: ID=${menu.id}, 名称=${menu.menuName}, 父ID=${menu.parentId}, 类型=${menu.type}`,
       );
     });
 
@@ -91,7 +91,7 @@ export class MenuService {
       const menuItem: any = { ...item };
 
       // 把boolean类型转换为前端所需的数值类型
-      menuItem.hidden = item.hidden ? 1 : 0;
+      menuItem.isHidden = item.isHidden;
       menuItem.children = [];
 
       // 添加前端路由需要的属性
@@ -114,7 +114,7 @@ export class MenuService {
           map[item.parentId].children.push(map[item.id]);
         } else {
           console.log(
-            `警告: 菜单项 ${item.name}(ID=${item.id}) 的父菜单 ID=${item.parentId} 不存在`,
+            `警告: 菜单项 ${item.menuName}(ID=${item.id}) 的父菜单 ID=${item.parentId} 不存在`,
           );
         }
       }
@@ -123,9 +123,9 @@ export class MenuService {
     // 打印生成的菜单树结构
     console.log('MenuService.buildTree - 菜单树结构:');
     result.forEach((menu) => {
-      console.log(`- ${menu.name} (${menu.children.length}个子菜单)`);
+      console.log(`- ${menu.menuName} (${menu.children.length}个子菜单)`);
       menu.children.forEach((child) => {
-        console.log(`  * ${child.name}`);
+        console.log(`  * ${child.menuName}`);
       });
     });
 

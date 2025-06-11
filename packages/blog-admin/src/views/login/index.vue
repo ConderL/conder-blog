@@ -164,7 +164,7 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
         // 跳转到主页
         router.push({ path: "/" });
         ElNotification({
-          message: "登陆成功",
+          message: "登录成功",
           type: "success",
           duration: 2 * 1000,
         });

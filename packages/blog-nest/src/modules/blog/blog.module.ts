@@ -30,6 +30,7 @@ import { Message } from './entities/message.entity';
 import { Talk } from './entities/talk.entity';
 import { Album } from './entities/album.entity';
 import { Photo } from './entities/photo.entity';
+import { Anime } from './entities/anime.entity';
 
 // 服务
 import { ArticleService } from './services/article.service';
@@ -50,6 +51,7 @@ import { PhotoService } from './services/photo.service';
 import { ContentCensorService } from './services/content-censor.service';
 import { OperationLogService } from './services/operation-log.service';
 import { HitokotoService } from './services/hitokoto.service';
+import { AnimeService } from './services/anime.service';
 
 // 控制器
 import {
@@ -89,6 +91,7 @@ import { AdminPhotoController } from './controllers/admin-photo.controller';
 import { ContentCensorController } from './controllers/content-censor.controller';
 import { AdminOperationLogController } from './controllers/admin-operation-log.controller';
 import { HitokotoController } from './controllers/hitokoto.controller';
+import { AnimeController } from './controllers/anime.controller';
 
 // 拦截器
 import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interceptor';
@@ -116,6 +119,7 @@ import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interce
       Talk,
       Album,
       Photo,
+      Anime,
     ]),
     MulterModule.register({
       storage: diskStorage({
@@ -171,6 +175,7 @@ import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interce
     ContentCensorController,
     AdminOperationLogController,
     HitokotoController,
+    AnimeController,
   ],
   providers: [
     ArticleService,
@@ -192,6 +197,7 @@ import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interce
     ContentCensorService,
     OperationLogService,
     HitokotoService,
+    AnimeService,
     {
       provide: IpService,
       useFactory: (httpService: HttpService, configService: ConfigService) => {
@@ -220,6 +226,7 @@ import { VisitLogInterceptor } from '../../common/interceptors/visit-log.interce
     ContentCensorService,
     OperationLogService,
     HitokotoService,
+    AnimeService,
     IpService,
   ],
 })

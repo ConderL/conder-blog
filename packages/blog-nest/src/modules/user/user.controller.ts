@@ -47,15 +47,15 @@ export class UserController {
    */
   private formatMenuTree(menu: any): any {
     // 添加调试日志
-    console.log(`格式化菜单: ${menu.name} (ID=${menu.id}), is_hidden=${menu.hidden}`);
+    console.log(`格式化菜单: ${menu.menuName} (ID=${menu.id}), is_hidden=${menu.hidden}`);
 
     // 基本菜单项结构
     const routerItem: any = {
-      name: menu.name,
+      name: menu.menuName,
       path: menu.parentId === 0 ? `/${menu.path}` : menu.path,
       component: menu.parentId === 0 ? 'Layout' : menu.component,
       meta: {
-        title: menu.name,
+        title: menu.menuName,
         icon: menu.icon,
         // 直接使用数据库原始值确定是否隐藏
         hidden: menu.hidden === true,
@@ -602,15 +602,15 @@ export class AdminUserController {
    */
   private formatMenuTree(menu: any): any {
     // 添加调试日志
-    console.log(`格式化菜单: ${menu.name} (ID=${menu.id}), is_hidden=${menu.hidden}`);
+    console.log(`格式化菜单: ${menu.menuName} (ID=${menu.id}), is_hidden=${menu.hidden}`);
 
     // 基本菜单项结构
     const routerItem: any = {
-      name: menu.name,
+      name: menu.menuName,
       path: menu.parentId === 0 ? `/${menu.path}` : menu.path,
       component: menu.parentId === 0 ? 'Layout' : menu.component,
       meta: {
-        title: menu.name,
+        title: menu.menuName,
         icon: menu.icon,
         // 直接使用数据库原始值确定是否隐藏
         hidden: menu.hidden === true,

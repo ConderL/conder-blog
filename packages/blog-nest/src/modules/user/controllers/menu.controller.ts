@@ -103,7 +103,7 @@ export class MenuController {
     return rootMenus.map((menu) => {
       const option = {
         value: menu.id,
-        label: menu.name,
+        label: menu.menuName,
         children: [],
       };
 
@@ -124,7 +124,7 @@ export class MenuController {
     childMenus.forEach((childMenu) => {
       const childOption = {
         value: childMenu.id,
-        label: childMenu.name,
+        label: childMenu.menuName,
         children: [],
       };
 

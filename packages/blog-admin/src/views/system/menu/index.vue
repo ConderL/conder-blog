@@ -66,7 +66,7 @@
     >
       <!-- 菜单名称 -->
       <el-table-column
-        prop="name"
+        prop="menuName"
         label="菜单名称"
         :show-overflow-tooltip="true"
         width="200"
@@ -133,7 +133,7 @@
       <el-table-column label="操作" align="center" width="210">
         <template #default="scope">
           <el-button
-            v-if="scope.row.menuType === 'M' || scope.row.menuType === 'C'"
+            v-if="scope.row.type === 'M' || scope.row.type === 'C'"
             type="success"
             link
             icon="Plus"
@@ -187,15 +187,15 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="菜单类型" prop="menuType">
-              <el-radio-group v-model="menuForm.menuType">
+            <el-form-item label="菜单类型" prop="type">
+              <el-radio-group v-model="menuForm.type">
                 <el-radio label="M">目录</el-radio>
                 <el-radio label="C">菜单</el-radio>
                 <el-radio label="B">按钮</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col :span="24" v-if="menuForm.menuType != 'B'">
+          <el-col :span="24" v-if="menuForm.type != 'B'">
             <el-form-item label="菜单图标" prop="icon">
               <el-popover placement="bottom-start" :width="540" trigger="click">
                 <template #reference>
@@ -237,7 +237,7 @@
               />
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="menuForm.menuType != 'B'">
+          <el-col :span="12" v-if="menuForm.type != 'B'">
             <el-form-item prop="path">
               <template #label>
                 <span>
@@ -253,7 +253,7 @@
               <el-input v-model="menuForm.path" placeholder="请输入路由地址" />
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="menuForm.menuType == 'C'">
+          <el-col :span="12" v-if="menuForm.type == 'C'">
             <el-form-item prop="component">
               <template #label>
                 <span>
@@ -272,7 +272,7 @@
               />
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="menuForm.menuType != 'M'">
+          <el-col :span="12" v-if="menuForm.type != 'M'">
             <el-form-item>
               <template #label>
                 <span>
@@ -292,7 +292,7 @@
               />
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="menuForm.menuType != 'B'">
+          <el-col :span="12" v-if="menuForm.type != 'B'">
             <el-form-item>
               <template #label>
                 <span>
@@ -316,7 +316,7 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="menuForm.menuType != 'B'">
+          <el-col :span="12" v-if="menuForm.type != 'B'">
             <el-form-item>
               <template #label>
                 <span>
@@ -447,7 +447,7 @@ const reset = () => {
     id: undefined,
     parentId: 0,
     menuName: "",
-    menuType: "C",
+    type: "C",
     path: undefined,
     icon: undefined,
     component: undefined,

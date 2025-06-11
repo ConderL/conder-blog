@@ -7,6 +7,7 @@ import { Result } from '../../../common/utils/result';
 import { OperationLog } from '../../../common/decorators/operation-log.decorator';
 import { OperationType } from '../../../common/constants/operation-type.enum';
 import { Like } from 'typeorm';
+import { CreateMenuDto, UpdateMenuDto } from '../dto/menu.dto';
 
 /**
  * 菜单管理控制器
@@ -31,11 +32,11 @@ export class AdminMenuController {
       const condition: any = {};
 
       if (menuName) {
-        condition.name = Like(`%${menuName}%`);
+        condition.menuName = Like(`%${menuName}%`);
       }
 
-      if (status !== undefined) {
-        condition.disable = status === 1 ? true : false;
+      if (status !== undefined && status !== null && !isNaN(status)) {
+        condition.isDisable = status;
       }
 
       let menus = await this.menuService.findAllWithCondition(condition);
@@ -57,8 +58,10 @@ export class AdminMenuController {
   @ApiOperation({ summary: '添加菜单' })
   @OperationLog(OperationType.INSERT)
   @Post('add')
-  async addMenu(@Body() menu: Partial<Menu>): Promise<Result<null>> {
+  async addMenu(@Body() menuDto: CreateMenuDto): Promise<Result<null>> {
     try {
+      // 将DTO转换为实体
+      const menu: Partial<Menu> = menuDto;
       await this.menuService.create(menu);
       return Result.ok(null, '添加成功');
     } catch (error) {
@@ -72,8 +75,10 @@ export class AdminMenuController {
   @ApiOperation({ summary: '修改菜单' })
   @OperationLog(OperationType.UPDATE)
   @Put('update')
-  async updateMenu(@Body() menu: Partial<Menu>): Promise<Result<null>> {
+  async updateMenu(@Body() menuDto: UpdateMenuDto): Promise<Result<null>> {
     try {
+      // 将DTO转换为实体
+      const menu: Partial<Menu> = menuDto;
       await this.menuService.update(menu.id, menu);
       return Result.ok(null, '修改成功');
     } catch (error) {
@@ -171,7 +176,7 @@ export class AdminMenuController {
     rootMenus.forEach((menu) => {
       const treeNode = {
         id: menu.id,
-        label: menu.name,
+        label: menu.menuName,
         children: this.getChildren(menu.id, menus),
       };
 
@@ -191,7 +196,7 @@ export class AdminMenuController {
       if (menu.parentId === parentId) {
         const childNode = {
           id: menu.id,
-          label: menu.name,
+          label: menu.menuName,
           children: this.getChildren(menu.id, menus),
         };
 
@@ -218,7 +223,7 @@ export class AdminMenuController {
     rootMenus.forEach((menu) => {
       const option = {
         value: menu.id,
-        label: menu.name,
+        label: menu.menuName,
         children: this.getOptions(menu.id, menus),
       };
 
@@ -242,7 +247,7 @@ export class AdminMenuController {
       if (menu.parentId === parentId) {
         const option = {
           value: menu.id,
-          label: menu.name,
+          label: menu.menuName,
           children: this.getOptions(menu.id, menus),
         };
 

@@ -355,7 +355,7 @@ export class UserService {
         if (map[menu.parentId]) {
           map[menu.parentId].children.push(map[menu.id]);
         } else {
-          console.log(`警告: 菜单 ${menu.name}(ID=${menu.id}) 的父菜单 ID=${menu.parentId} 不存在`);
+          console.log(`警告: 菜单 ${menu.menuName}(ID=${menu.id}) 的父菜单 ID=${menu.parentId} 不存在`);
         }
       }
     });
@@ -363,9 +363,9 @@ export class UserService {
     console.log('UserService.buildMenuTree - 完成构建，根菜单数量:', result.length);
     // 打印菜单结构用于调试
     result.forEach((menu) => {
-      console.log(`- ${menu.name} (ID=${menu.id}, ${menu.children.length}个子菜单)`);
+      console.log(`- ${menu.menuName} (ID=${menu.id}, ${menu.children.length}个子菜单)`);
       menu.children.forEach((child) => {
-        console.log(`  * ${child.name} (ID=${child.id})`);
+        console.log(`  * ${child.menuName} (ID=${child.id})`);
       });
     });
 
