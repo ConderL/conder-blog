@@ -11,31 +11,74 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { AnimeService } from '../services/anime.service';
 import { CreateAnimeDto, QueryAnimeDto, UpdateAnimeDto, UpdateAnimeInfoDto } from '../dto/anime.dto';
 import { Anime } from '../entities/anime.entity';
 import { Public } from '../../../common/decorators/public.decorator';
 import { Result } from '../../../common/result';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { UploadService } from '../../../modules/upload/services/upload/upload.service';
+
+/**
+ * B站番剧ID DTO
+ */
+class BilibiliAnimeDto {
+  @ApiProperty({ description: 'B站番剧ID' })
+  @IsNotEmpty({ message: 'B站番剧ID不能为空' })
+  @IsString()
+  animeId: string;
+}
+
+/**
+ * B站番剧导入DTO，包含自定义封面和追番状态
+ */
+class ImportBilibiliAnimeDto extends BilibiliAnimeDto {
+  @ApiProperty({ description: '自定义封面URL', required: false })
+  @IsOptional()
+  @IsString()
+  customCover?: string;
+
+  @ApiProperty({ description: '追番状态', required: false, default: 1, enum: [1, 2, 3] })
+  @IsOptional()
+  watchStatus?: number = 1;
+}
 
 @ApiTags('番剧管理')
 @Controller('anime')
 export class AnimeController {
   private logger = new Logger(AnimeController.name);
 
-  constructor(private readonly animeService: AnimeService) {}
+  constructor(
+    private readonly animeService: AnimeService,
+    private readonly uploadService: UploadService
+  ) {}
 
   @ApiOperation({ summary: '创建番剧' })
   @ApiResponse({ status: 201, description: '创建成功', type: Anime })
   @Post()
   async create(@Body() createAnimeDto: CreateAnimeDto) {
     try {
+      this.logger.log(`创建番剧: ${JSON.stringify(createAnimeDto)}`);
       const anime = await this.animeService.create(createAnimeDto);
-      return Result.ok(anime);
+      return {
+        code: 200,
+        message: '创建成功',
+        data: anime,
+      };
     } catch (error) {
       this.logger.error(`创建番剧失败: ${error.message}`);
-      return Result.fail('创建番剧失败');
+      return {
+        code: 500,
+        message: '创建番剧失败: ' + error.message,
+        data: null,
+      };
     }
   }
 
@@ -73,11 +116,20 @@ export class AnimeController {
   @Patch(':id')
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateAnimeDto: UpdateAnimeDto) {
     try {
+      this.logger.log(`更新番剧: id=${id}, data=${JSON.stringify(updateAnimeDto)}`);
       const anime = await this.animeService.update(id, updateAnimeDto);
-      return Result.ok(anime);
+      return {
+        code: 200,
+        message: '更新成功',
+        data: anime,
+      };
     } catch (error) {
       this.logger.error(`更新番剧失败: ${error.message}`);
-      return Result.fail('更新番剧失败');
+      return {
+        code: 500,
+        message: '更新番剧失败: ' + error.message,
+        data: null,
+      };
     }
   }
 
@@ -117,6 +169,127 @@ export class AnimeController {
     } catch (error) {
       this.logger.error(`执行更新任务失败: ${error.message}`);
       return Result.fail('执行更新任务失败');
+    }
+  }
+
+  @ApiOperation({ summary: '直接从B站API获取数据并保存到数据库' })
+  @ApiResponse({ status: 200, description: '获取并保存成功' })
+  @Post('fetch-bilibili')
+  async fetchBilibiliAnime(@Body() importDto: ImportBilibiliAnimeDto) {
+    try {
+      const anime = await this.animeService.fetchAndSaveBilibiliAnime(
+        importDto.animeId,
+        importDto.customCover
+      );
+      return Result.ok(anime, '获取并保存B站番剧信息成功');
+    } catch (error) {
+      this.logger.error(`获取并保存B站番剧信息失败: ${error.message}`);
+      return Result.fail(error.message || '获取并保存B站番剧信息失败');
+    }
+  }
+
+  @ApiOperation({ summary: '从B站导入番剧' })
+  @ApiResponse({ status: 200, description: '导入成功' })
+  @Post('import-from-bilibili')
+  async importFromBilibili(@Body() importDto: ImportBilibiliAnimeDto) {
+    try {
+      this.logger.log(`从B站导入番剧: ${JSON.stringify(importDto)}`);
+      
+      // 调用 fetchAndSaveBilibiliAnime 获取并保存番剧信息
+      const anime = await this.animeService.fetchAndSaveBilibiliAnime(
+        importDto.animeId,
+        importDto.customCover
+      );
+      
+      // 更新追番状态
+      if (importDto.watchStatus && importDto.watchStatus !== anime.watchStatus) {
+        this.logger.log(`更新追番状态: 从 ${anime.watchStatus} 到 ${importDto.watchStatus}`);
+        
+        // 创建完整的更新对象
+        const updateDto: UpdateAnimeDto = {
+          id: anime.id,
+          animeName: anime.animeName,
+          platform: anime.platform,
+          animeId: anime.animeId,
+          watchStatus: importDto.watchStatus,
+          cover: anime.cover
+        };
+        
+        await this.animeService.update(anime.id, updateDto);
+      }
+      
+      return {
+        code: 200,
+        message: '从B站导入番剧成功',
+        data: anime,
+      };
+    } catch (error) {
+      this.logger.error(`从B站导入番剧失败: ${error.message}`);
+      return {
+        code: 500,
+        message: error.message || '从B站导入番剧失败',
+        data: null,
+      };
+    }
+  }
+
+  @ApiOperation({ summary: '上传番剧封面' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: '封面图片文件',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: '上传成功' })
+  @Post('upload-cover')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: 2 * 1024 * 1024, // 2MB限制
+      },
+      storage: memoryStorage(), // 使用内存存储
+    }),
+  )
+  async uploadCover(@UploadedFile() file: Express.Multer.File) {
+    try {
+      if (!file) {
+        return {
+          code: 400,
+          message: '请选择要上传的封面图片',
+          data: null,
+        };
+      }
+
+      // 检查文件格式
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        return {
+          code: 400,
+          message: '只允许上传jpg, png, gif, webp格式的图片',
+          data: null,
+        };
+      }
+
+      const result = await this.uploadService.uploadFile(file, 'anime');
+      return {
+        code: 200,
+        message: '上传成功',
+        data: result.url,
+      };
+    } catch (error) {
+      this.logger.error(`上传番剧封面失败: ${error.message}`);
+      return {
+        code: 500,
+        message: '上传番剧封面失败: ' + error.message,
+        data: null,
+      };
     }
   }
 } 

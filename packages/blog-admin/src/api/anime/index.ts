@@ -86,4 +86,33 @@ export function runUpdateTask() {
     url: '/anime/run-update-task',
     method: 'post'
   })
+}
+
+/**
+ * 上传番剧封面
+ * @param file 封面图片文件
+ * @returns 上传结果，包含图片URL
+ */
+export function uploadAnimeCover(file: FormData) {
+  return request({
+    url: '/anime/upload-cover',
+    method: 'post',
+    data: file,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+/**
+ * 从B站导入番剧
+ * @param data 导入参数，包含B站番剧ID、追番状态和自定义封面信息
+ * @returns 导入结果
+ */
+export function importFromBilibili(data: any) {
+  return request({
+    url: '/anime/import-from-bilibili',
+    method: 'post',
+    data
+  })
 } 

@@ -43,8 +43,8 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-search" @click="handleQuery">搜索</el-button>
-          <el-button icon="el-icon-refresh" @click="resetQuery">重置</el-button>
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -54,16 +54,22 @@
       <div class="table-toolbar">
         <el-button
           type="primary"
-          icon="el-icon-plus"
+          icon="Plus"
           @click="handleAdd"
           v-hasPerm="['blog:anime:add']"
         >新增</el-button>
         <el-button
           type="success"
-          icon="el-icon-refresh"
+          icon="Refresh"
           @click="handleRunTask"
           v-hasPerm="['blog:anime:update']"
         >更新所有番剧信息</el-button>
+        <el-button
+          type="info"
+          icon="Download"
+          @click="showBilibiliImport = true"
+          v-hasPerm="['blog:anime:add']"
+        >从B站导入</el-button>
       </div>
 
       <!-- 表格区域 -->
@@ -78,23 +84,13 @@
         <el-table-column label="ID" prop="id" width="60" align="center" />
         <el-table-column label="封面" width="100" align="center">
           <template #default="scope">
-            <el-image
-              v-if="scope.row.cover"
-              :src="scope.row.cover"
-              style="width: 80px; height: 80px"
-              :preview-src-list="[scope.row.cover]"
-            />
-            <el-image
-              v-else
-              src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"
-              style="width: 80px; height: 80px"
-            />
+            <img :src="scope.row.cover" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />
           </template>
         </el-table-column>
-        <el-table-column label="番剧名称" prop="animeName" :show-overflow-tooltip="true" />
+        <el-table-column label="番剧名称" prop="animeName" min-width="150" :show-overflow-tooltip="true" />
         <el-table-column label="番剧平台" align="center" width="100">
           <template #default="scope">
-            <el-tag :type="getPlatformTagType(scope.row.platform)">
+            <el-tag :type="getPlatformTagType(scope.row.platform)" style="margin: 0 2px;">
               {{ getPlatformLabel(scope.row.platform) }}
             </el-tag>
           </template>
@@ -102,14 +98,14 @@
         <el-table-column label="番剧ID" prop="animeId" width="100" align="center" />
         <el-table-column label="番剧状态" align="center" width="100">
           <template #default="scope">
-            <el-tag :type="scope.row.animeStatus === 1 ? 'warning' : 'success'">
+            <el-tag :type="scope.row.animeStatus === 1 ? 'warning' : 'success'" style="margin: 0 2px;">
               {{ scope.row.animeStatus === 1 ? '连载中' : '已完结' }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="追番状态" align="center" width="100">
           <template #default="scope">
-            <el-tag :type="getWatchStatusTagType(scope.row.watchStatus)">
+            <el-tag :type="getWatchStatusTagType(scope.row.watchStatus)" style="margin: 0 2px;">
               {{ getWatchStatusLabel(scope.row.watchStatus) }}
             </el-tag>
           </template>
@@ -120,41 +116,46 @@
             {{ scope.row.currentEpisodes || 0 }}/{{ scope.row.totalEpisodes || '?' }}
           </template>
         </el-table-column>
-        <el-table-column label="更新时间" align="center" width="160">
+        <el-table-column label="更新时间" align="center" min-width="160">
           <template #default="scope">
             <span>{{ formatDateTime(scope.row.lastUpdateTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="250">
+        <el-table-column label="操作" align="center" min-width="250">
           <template #default="scope">
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-view"
-              @click="handleView(scope.row)"
-              v-hasPerm="['blog:anime:query']"
-            >查看</el-button>
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-edit"
-              @click="handleUpdate(scope.row)"
-              v-hasPerm="['blog:anime:edit']"
-            >编辑</el-button>
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-refresh"
-              @click="handleUpdateInfo(scope.row)"
-              v-hasPerm="['blog:anime:update']"
-            >更新信息</el-button>
-            <el-button
-              size="mini"
-              type="text"
-              icon="el-icon-delete"
-              @click="handleDelete(scope.row)"
-              v-hasPerm="['blog:anime:remove']"
-            >删除</el-button>
+            <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+              <el-button
+                size="small"
+                type="primary"
+                text
+                icon="View"
+                @click="handleView(scope.row)"
+              >查看</el-button>
+              <el-button
+                size="small"
+                type="primary"
+                text
+                icon="Edit"
+                @click="handleUpdate(scope.row)"
+                v-hasPerm="['blog:anime:edit']"
+              >编辑</el-button>
+              <el-button
+                size="small"
+                type="primary"
+                text
+                icon="Refresh"
+                @click="handleUpdateInfo(scope.row)"
+                v-hasPerm="['blog:anime:update']"
+              >更新信息</el-button>
+              <el-button
+                size="small"
+                type="danger"
+                text
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+                v-hasPerm="['blog:anime:remove']"
+              >删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -188,16 +189,6 @@
         <el-form-item label="番剧ID" prop="animeId">
           <el-input v-model="form.animeId" placeholder="请输入番剧ID" />
         </el-form-item>
-        <el-form-item label="番剧状态" prop="animeStatus">
-          <el-select v-model="form.animeStatus" placeholder="请选择番剧状态">
-            <el-option
-              v-for="dict in animeStatusOptions"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            />
-          </el-select>
-        </el-form-item>
         <el-form-item label="追番状态" prop="watchStatus">
           <el-select v-model="form.watchStatus" placeholder="请选择追番状态">
             <el-option
@@ -207,6 +198,23 @@
               :value="dict.value"
             />
           </el-select>
+        </el-form-item>
+        <el-form-item label="番剧封面" prop="cover">
+          <el-upload
+            drag
+            :show-file-list="false"
+            :headers="authorization"
+            :action="baseURL + '/anime/upload-cover'"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            :on-success="handleCoverSuccess"
+          >
+            <el-icon class="el-icon--upload" v-if="!form.cover"><upload-filled /></el-icon>
+            <div class="el-upload__text" v-if="!form.cover">
+              将文件拖到此处，或<em>点击上传</em>
+            </div>
+            <img v-else :src="form.cover" width="200" />
+          </el-upload>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -220,42 +228,95 @@
     <!-- 查看详情对话框 -->
     <el-dialog title="番剧详情" v-model="viewOpen" width="800px" append-to-body>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="番剧名称">{{ viewForm.animeName }}</el-descriptions-item>
-        <el-descriptions-item label="番剧平台">{{ getPlatformLabel(viewForm.platform) }}</el-descriptions-item>
-        <el-descriptions-item label="番剧ID">{{ viewForm.animeId }}</el-descriptions-item>
-        <el-descriptions-item label="番剧状态">
-          {{ viewForm.animeStatus === 1 ? '连载中' : '已完结' }}
+        <el-descriptions-item label="番剧名称" label-align="right" align="left">{{ viewForm.animeName }}</el-descriptions-item>
+        <el-descriptions-item label="番剧平台" label-align="right" align="left">{{ getPlatformLabel(viewForm.platform) }}</el-descriptions-item>
+        <el-descriptions-item label="番剧ID" label-align="right" align="left">{{ viewForm.animeId }}</el-descriptions-item>
+        <el-descriptions-item label="番剧状态" label-align="right" align="left">
+          <el-tag :type="viewForm.animeStatus === 1 ? 'warning' : 'success'">
+            {{ viewForm.animeStatus === 1 ? '连载中' : '已完结' }}
+          </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="追番状态">{{ getWatchStatusLabel(viewForm.watchStatus) }}</el-descriptions-item>
-        <el-descriptions-item label="评分">{{ viewForm.rating || '暂无评分' }}</el-descriptions-item>
-        <el-descriptions-item label="集数">
+        <el-descriptions-item label="追番状态" label-align="right" align="left">
+          <el-tag :type="getWatchStatusTagType(viewForm.watchStatus)">
+            {{ getWatchStatusLabel(viewForm.watchStatus) }}
+          </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="评分" label-align="right" align="left">{{ viewForm.rating || '暂无评分' }}</el-descriptions-item>
+        <el-descriptions-item label="集数" label-align="right" align="left">
           {{ viewForm.currentEpisodes || 0 }}/{{ viewForm.totalEpisodes || '?' }}
         </el-descriptions-item>
-        <el-descriptions-item label="更新时间">
+        <el-descriptions-item label="更新时间" label-align="right" align="left">
           {{ formatDateTime(viewForm.lastUpdateTime) }}
         </el-descriptions-item>
-        <el-descriptions-item label="封面" :span="2">
-          <el-image
-            v-if="viewForm.cover"
-            :src="viewForm.cover"
-            style="max-width: 200px; max-height: 200px"
-            :preview-src-list="[viewForm.cover]"
-          />
+        <el-descriptions-item label="封面" :span="2" label-align="right" align="left">
+          <img v-if="viewForm.cover" :src="viewForm.cover" style="max-width: 200px; max-height: 200px; border-radius: 4px;" />
           <span v-else>暂无封面</span>
         </el-descriptions-item>
-        <el-descriptions-item label="简介" :span="2">
+        <el-descriptions-item label="简介" :span="2" label-align="right" align="left">
           {{ viewForm.description || '暂无简介' }}
         </el-descriptions-item>
       </el-descriptions>
+    </el-dialog>
+
+    <!-- 从B站导入对话框 -->
+    <el-dialog title="从B站导入" v-model="showBilibiliImport" width="600px" append-to-body>
+      <el-form ref="importFormRef" :model="importForm" :rules="importRules" label-width="100px">
+        <el-form-item label="B站番剧ID" prop="bilibiliId">
+          <el-input v-model="importForm.bilibiliId" placeholder="请输入B站番剧ID（如：md28232401、ss36442、ep400002中的数字部分）" />
+        </el-form-item>
+        <el-form-item label="追番状态" prop="watchStatus">
+          <el-select v-model="importForm.watchStatus" placeholder="请选择追番状态">
+            <el-option
+              v-for="dict in watchStatusOptions"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="使用自定义封面">
+          <el-switch v-model="importForm.useCustomCover" />
+        </el-form-item>
+        <el-form-item label="自定义封面" v-if="importForm.useCustomCover" prop="customCover">
+          <el-upload
+            drag
+            :show-file-list="false"
+            :headers="authorization"
+            :action="baseURL + '/anime/upload-cover'"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            :on-success="handleImportCoverSuccess"
+          >
+            <el-icon class="el-icon--upload" v-if="!importForm.customCover"><upload-filled /></el-icon>
+            <div class="el-upload__text" v-if="!importForm.customCover">
+              将文件拖到此处，或<em>点击上传</em>
+            </div>
+            <img v-else :src="importForm.customCover" width="200" />
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showBilibiliImport = false">取 消</el-button>
+          <el-button type="primary" @click="handleBilibiliImport" :loading="importLoading">导 入</el-button>
+        </div>
+      </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick } from 'vue'
+import { ref, reactive, onMounted, nextTick, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getAnimeList, getAnimeDetail, addAnime, updateAnime, deleteAnime, updateAnimeInfo, runUpdateTask } from '@/api/anime'
+import { getAnimeList, getAnimeDetail, addAnime, updateAnime, deleteAnime, updateAnimeInfo, runUpdateTask, importFromBilibili } from '@/api/anime'
 import { formatDateTime } from "@/utils/date"
+import { getToken, token_prefix } from "@/utils/token"
+import { UploadRawFile } from "element-plus"
+import * as imageConversion from "image-conversion"
+import { getBaseURL } from "@/utils/request"
+import { UploadFilled } from '@element-plus/icons-vue'
+
+const baseURL = getBaseURL()
 
 // 遮罩层
 const loading = ref(false)
@@ -275,6 +336,35 @@ const title = ref('')
 const open = ref(false)
 // 是否显示查看详情弹出层
 const viewOpen = ref(false)
+// 是否显示从B站导入对话框
+const showBilibiliImport = ref(false)
+// 导入表单
+const importForm = reactive({
+  bilibiliId: '',
+  watchStatus: 1,
+  useCustomCover: false,
+  customCover: ''
+})
+// 导入表单校验
+const importRules = {
+  bilibiliId: [
+    { required: true, message: 'B站番剧ID不能为空', trigger: 'blur' }
+  ],
+  watchStatus: [
+    { required: true, message: '追番状态不能为空', trigger: 'change' }
+  ]
+}
+// 导入表单ref
+const importFormRef = ref(null)
+// 导入表单加载状态
+const importLoading = ref(false)
+
+// Authorization 请求头
+const authorization = computed(() => {
+  return {
+    Authorization: token_prefix + getToken(),
+  };
+})
 
 // 表单参数
 const form = reactive({
@@ -282,8 +372,8 @@ const form = reactive({
   animeName: '',
   platform: 1,
   animeId: '',
-  animeStatus: 1,
-  watchStatus: 1
+  watchStatus: 1,
+  cover: ''
 })
 
 // 查看详情表单
@@ -292,7 +382,6 @@ const viewForm = reactive({
   animeName: '',
   platform: undefined,
   animeId: '',
-  animeStatus: undefined,
   watchStatus: undefined,
   cover: '',
   rating: undefined,
@@ -301,6 +390,29 @@ const viewForm = reactive({
   lastUpdateTime: undefined,
   description: ''
 })
+
+// 上传前处理
+const beforeUpload = (rawFile: UploadRawFile) => {
+  return new Promise((resolve) => {
+    if (rawFile.size / 1024 < 200) {
+      resolve(rawFile);
+    }
+    // 压缩到200KB,这里的200就是要压缩的大小,可自定义
+    imageConversion.compressAccurately(rawFile, 200).then((res) => {
+      resolve(res);
+    });
+  });
+};
+
+// 上传成功处理
+const handleCoverSuccess = (response) => {
+  if (response.code === 200) {
+    form.cover = response.data;
+    ElMessage.success('封面上传成功');
+  } else {
+    ElMessage.error(response.message || '封面上传失败');
+  }
+};
 
 // 查询参数
 const queryParams = reactive({
@@ -322,9 +434,6 @@ const rules = {
   ],
   animeId: [
     { required: true, message: '番剧ID不能为空', trigger: 'blur' }
-  ],
-  animeStatus: [
-    { required: true, message: '番剧状态不能为空', trigger: 'change' }
   ],
   watchStatus: [
     { required: true, message: '追番状态不能为空', trigger: 'change' }
@@ -423,8 +532,8 @@ const reset = () => {
   form.animeName = ''
   form.platform = 1
   form.animeId = ''
-  form.animeStatus = 1
   form.watchStatus = 1
+  form.cover = ''
   
   nextTick(() => {
     if (formRef.value) {
@@ -530,20 +639,27 @@ const submitForm = () => {
   formRef.value.validate((valid) => {
     if (valid) {
       loading.value = true
+      
+      // 创建一个不包含 details 字段的数据对象
+      const submitData = { ...form };
+      if (submitData.details) {
+        delete submitData.details;
+      }
+      
       if (form.id) {
-        updateAnime(form.id, form).then(({ data }) => {
-          if (data.flag) {
-            ElMessage.success(data.msg || '修改成功')
+        updateAnime(form.id, submitData).then(({ data }) => {
+          if (data.code === 200) {
+            ElMessage.success(data.message || '修改成功')
             open.value = false
             getList()
           } else {
-            ElMessage.error(data.msg || '修改失败')
+            ElMessage.error(data.message || '修改失败')
           }
         }).finally(() => {
           loading.value = false
         })
       } else {
-        addAnime(form).then(({ data }) => {
+        addAnime(submitData).then(({ data }) => {
           if (data.flag) {
             ElMessage.success(data.msg || '新增成功')
             open.value = false
@@ -590,6 +706,52 @@ const cancel = () => {
 onMounted(() => {
   getList()
 })
+
+// 处理从B站导入
+const handleBilibiliImport = () => {
+  importFormRef.value.validate((valid) => {
+    if (valid) {
+      importLoading.value = true
+      
+      const importData = {
+        animeId: importForm.bilibiliId,
+        watchStatus: importForm.watchStatus,
+        customCover: importForm.useCustomCover ? importForm.customCover : undefined
+      }
+      
+      importFromBilibili(importData).then(({ data }) => {
+        if (data.code === 200) {
+          ElMessage.success(data.message || '导入成功')
+          showBilibiliImport.value = false
+          // 重置导入表单
+          importForm.bilibiliId = ''
+          importForm.watchStatus = 1
+          importForm.useCustomCover = false
+          importForm.customCover = ''
+          getList() // 刷新列表
+        } else {
+          ElMessage.error(data.message || '导入失败')
+        }
+      }).catch(() => {
+        ElMessage.error('导入失败，请稍后重试')
+      }).finally(() => {
+        importLoading.value = false
+      })
+    } else {
+      ElMessage.error('表单验证失败')
+    }
+  })
+}
+
+// 处理导入封面
+const handleImportCoverSuccess = (response) => {
+  if (response.code === 200) {
+    importForm.customCover = response.data;
+    ElMessage.success('自定义封面上传成功');
+  } else {
+    ElMessage.error(response.message || '自定义封面上传失败');
+  }
+}
 </script>
 
 <style scoped>
@@ -598,5 +760,38 @@ onMounted(() => {
 }
 .table-toolbar {
   margin-bottom: 20px;
+}
+
+/* 确保表格内容不会挤在一起 */
+:deep(.el-table) {
+  width: 100%;
+  table-layout: fixed;
+}
+
+:deep(.el-table .cell) {
+  word-break: break-word;
+  padding: 8px;
+  line-height: 1.5;
+}
+
+/* 确保标签有足够的空间 */
+:deep(.el-tag) {
+  margin: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  line-height: 22px;
+}
+
+/* 操作按钮样式 */
+:deep(.el-button--text) {
+  margin: 0 4px;
+}
+
+/* 详情对话框样式 */
+:deep(.el-descriptions__label) {
+  width: 120px;
+  text-align: right;
 }
 </style> 

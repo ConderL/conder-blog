@@ -189,9 +189,9 @@
           <el-col :span="24">
             <el-form-item label="菜单类型" prop="type">
               <el-radio-group v-model="menuForm.type">
-                <el-radio label="M">目录</el-radio>
-                <el-radio label="C">菜单</el-radio>
-                <el-radio label="B">按钮</el-radio>
+                <el-radio :value="'M'">目录</el-radio>
+                <el-radio :value="'C'">菜单</el-radio>
+                <el-radio :value="'B'">按钮</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -309,7 +309,7 @@
                 <el-radio
                   v-for="dict in isHidden"
                   :key="dict.value"
-                  :label="dict.value"
+                  :value="dict.value"
                 >
                   {{ dict.label }}
                 </el-radio>
@@ -333,7 +333,7 @@
                 <el-radio
                   v-for="dict in isDisable"
                   :key="dict.value"
-                  :label="dict.value"
+                  :value="dict.value"
                 >
                   {{ dict.label }}
                 </el-radio>

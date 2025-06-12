@@ -49,17 +49,22 @@ export class CreateAnimeDto {
   @IsString()
   animeId: string;
 
-  @ApiProperty({ description: '番剧状态', enum: AnimeStatus })
-  @IsNotEmpty({ message: '番剧状态不能为空' })
+  @ApiProperty({ description: '番剧状态', enum: AnimeStatus, required: false })
+  @IsOptional()
   @IsEnum(AnimeStatus, { message: '番剧状态值无效' })
   @Type(() => Number)
-  animeStatus: number;
+  animeStatus?: number;
 
   @ApiProperty({ description: '追番状态', enum: WatchStatus })
   @IsNotEmpty({ message: '追番状态不能为空' })
   @IsEnum(WatchStatus, { message: '追番状态值无效' })
   @Type(() => Number)
   watchStatus: number;
+
+  @ApiProperty({ description: '封面图片URL', required: false })
+  @IsOptional()
+  @IsString()
+  cover?: string;
 }
 
 /**

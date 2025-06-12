@@ -53,6 +53,10 @@ export class Anime {
   @Column({ name: 'rating', comment: '评分', type: 'decimal', precision: 3, scale: 1, nullable: true })
   rating: number;
 
+  @ApiProperty({ description: '评分人数' })
+  @Column({ name: 'rating_count', comment: '评分人数', type: 'int', nullable: true })
+  ratingCount: number;
+
   @ApiProperty({ description: '总集数' })
   @Column({ name: 'total_episodes', comment: '总集数', type: 'int', nullable: true })
   totalEpisodes: number;
@@ -64,6 +68,54 @@ export class Anime {
   @ApiProperty({ description: '简介' })
   @Column({ name: 'description', comment: '简介', type: 'text', nullable: true })
   description: string;
+
+  @ApiProperty({ description: '配音演员' })
+  @Column({ name: 'actors', comment: '配音演员', type: 'text', nullable: true })
+  actors: string;
+
+  @ApiProperty({ description: '地区' })
+  @Column({ name: 'areas', comment: '地区', length: 100, nullable: true })
+  areas: string;
+
+  @ApiProperty({ description: '播放量信息' })
+  @Column({ name: 'subtitle', comment: '播放量信息', length: 100, nullable: true })
+  subtitle: string;
+
+  @ApiProperty({ description: '作者' })
+  @Column({ name: 'uname', comment: '作者', length: 100, nullable: true })
+  uname: string;
+
+  @ApiProperty({ description: '发布时间' })
+  @Column({ name: 'publish_time', comment: '发布时间', length: 50, nullable: true })
+  publishTime: string;
+
+  @ApiProperty({ description: '链接' })
+  @Column({ name: 'link', comment: '链接', length: 255, nullable: true })
+  link: string;
+
+  @ApiProperty({ description: '类型' })
+  @Column({ name: 'styles', comment: '类型', type: 'json', nullable: true })
+  styles: Record<string, any>;
+
+  @ApiProperty({ description: '当前剧集信息' })
+  @Column({ name: 'index_show', comment: '当前剧集信息', length: 50, nullable: true })
+  indexShow: string;
+
+  @ApiProperty({ description: '更新星期几' })
+  @Column({ name: 'weekday', comment: '更新星期几 (0-6，对应周日到周六)', type: 'tinyint', width: 1, nullable: true })
+  weekday: number;
+
+  @ApiProperty({ description: '收藏数' })
+  @Column({ name: 'favorites', comment: '收藏数', type: 'int', nullable: true })
+  favorites: number;
+
+  @ApiProperty({ description: '播放量' })
+  @Column({ name: 'views', comment: '播放量', type: 'int', nullable: true })
+  views: number;
+
+  @ApiProperty({ description: '追番人数' })
+  @Column({ name: 'series_follow', comment: '追番人数', type: 'int', nullable: true })
+  seriesFollow: number;
 
   @ApiProperty({ description: '番剧详情JSON数据' })
   @Column({ name: 'details', comment: '番剧详情JSON数据', type: 'json', nullable: true })
