@@ -249,6 +249,7 @@ export default defineNuxtConfig({
     // 非关键页面使用客户端渲染(CSR)
     '/user/**': { ssr: false },
     '/admin/**': { ssr: false },
+    '/anime/**': { ssr: false }
   },
   colorMode: {
     preference: 'system',

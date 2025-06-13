@@ -70,6 +70,18 @@
           @click="showBilibiliImport = true"
           v-hasPerm="['blog:anime:add']"
         >从B站导入</el-button>
+        <el-button
+          type="warning"
+          icon="Download"
+          @click="showTencentImport = true"
+          v-hasPerm="['blog:anime:add']"
+        >从腾讯视频导入</el-button>
+        <el-button
+          type="danger"
+          icon="Download"
+          @click="showOtherImport = true"
+          v-hasPerm="['blog:anime:add']"
+        >其他平台导入</el-button>
       </div>
 
       <!-- 表格区域 -->
@@ -113,12 +125,17 @@
         <el-table-column label="评分" prop="rating" width="80" align="center" />
         <el-table-column label="集数" align="center" width="100">
           <template #default="scope">
-            {{ scope.row.currentEpisodes || 0 }}/{{ scope.row.totalEpisodes || '?' }}
+            <template v-if="scope.row.platform === 1">
+              {{ scope.row.currentEpisodes || 0 }}/{{ scope.row.totalEpisodes || '?' }}
+            </template>
+            <template v-else>
+              {{ scope.row.totalEpisodes || '?' }}集
+            </template>
           </template>
         </el-table-column>
         <el-table-column label="更新时间" align="center" min-width="160">
           <template #default="scope">
-            <span>{{ formatDateTime(scope.row.lastUpdateTime) }}</span>
+            <span>{{ formatDateTime(scope.row.lastUpdateTime || scope.row.updateTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" min-width="250">
@@ -177,18 +194,89 @@
           <el-input v-model="form.animeName" placeholder="请输入番剧名称" />
         </el-form-item>
         <el-form-item label="番剧平台" prop="platform">
-          <el-select v-model="form.platform" placeholder="请选择番剧平台">
-            <el-option
+          <el-radio-group v-model="form.platform">
+            <el-radio 
               v-for="dict in platformOptions"
               :key="dict.value"
-              :label="dict.label"
               :value="dict.value"
-            />
-          </el-select>
+            >{{ dict.label }}</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="番剧ID" prop="animeId">
-          <el-input v-model="form.animeId" placeholder="请输入番剧ID" />
-        </el-form-item>
+        
+        <!-- bilibili平台特有字段 -->
+        <template v-if="form.platform === 1">
+          <el-form-item label="番剧ID" prop="animeId">
+            <el-input v-model="form.animeId" placeholder="请输入B站番剧ID" />
+          </el-form-item>
+        </template>
+        
+        <!-- 腾讯视频平台特有字段 -->
+        <template v-if="form.platform === 2">
+          <el-form-item label="番剧ID" prop="animeId">
+            <el-input v-model="form.animeId" placeholder="请输入腾讯视频番剧ID" />
+          </el-form-item>
+          <el-form-item label="评分" prop="rating">
+            <el-input v-model="form.rating" placeholder="请输入评分(0-10)" maxlength="3">
+              <template #append>分</template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="番剧状态" prop="animeStatus">
+            <el-radio-group v-model="form.animeStatus">
+              <el-radio 
+                v-for="dict in animeStatusOptions"
+                :key="dict.value"
+                :value="dict.value"
+              >{{ dict.label }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="总集数" prop="totalEpisodes">
+            <el-input v-model="form.totalEpisodes" placeholder="请输入总集数" maxlength="4">
+              <template #append>集</template>
+            </el-input>
+          </el-form-item>
+        </template>
+        
+        <!-- 爱奇艺和优酷平台纯静态输入表单 -->
+        <template v-if="form.platform === 3 || form.platform === 4">
+          <el-form-item label="评分" prop="rating">
+            <el-input v-model="form.rating" placeholder="请输入评分(0-10)" maxlength="3">
+              <template #append>分</template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="番剧状态" prop="animeStatus">
+            <el-radio-group v-model="form.animeStatus">
+              <el-radio 
+                v-for="dict in animeStatusOptions"
+                :key="dict.value"
+                :value="dict.value"
+              >{{ dict.label }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="总集数" prop="totalEpisodes">
+            <el-input v-model="form.totalEpisodes" placeholder="请输入总集数" maxlength="4">
+              <template #append>集</template>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="视频链接" prop="link">
+            <el-input v-model="form.link" placeholder="请输入视频链接，如：https://www.iqiyi.com/v_19rr7pi4k4.html" />
+          </el-form-item>
+          <el-form-item label="简介" prop="description">
+            <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请输入番剧简介" />
+          </el-form-item>
+          <el-form-item label="配音演员" prop="actors">
+            <el-input v-model="form.actors" placeholder="请输入配音演员，多个用逗号分隔" />
+          </el-form-item>
+          <el-form-item label="地区" prop="areas">
+            <el-input v-model="form.areas" placeholder="请输入地区" />
+          </el-form-item>
+          <el-form-item label="发布时间" prop="publishTime">
+            <el-input v-model="form.publishTime" placeholder="请输入发布时间，如：2023" />
+          </el-form-item>
+          <el-form-item label="类型标签" prop="styles">
+            <el-input v-model="form.stylesInput" placeholder="请输入类型标签，多个用逗号分隔" />
+          </el-form-item>
+        </template>
+        
         <el-form-item label="追番状态" prop="watchStatus">
           <el-select v-model="form.watchStatus" placeholder="请选择追番状态">
             <el-option
@@ -243,10 +331,18 @@
         </el-descriptions-item>
         <el-descriptions-item label="评分" label-align="right" align="left">{{ viewForm.rating || '暂无评分' }}</el-descriptions-item>
         <el-descriptions-item label="集数" label-align="right" align="left">
-          {{ viewForm.currentEpisodes || 0 }}/{{ viewForm.totalEpisodes || '?' }}
+          <template v-if="viewForm.platform === 1">
+            {{ viewForm.currentEpisodes || 0 }}/{{ viewForm.totalEpisodes || '?' }}
+          </template>
+          <template v-else>
+            {{ viewForm.totalEpisodes || '?' }}集
+          </template>
         </el-descriptions-item>
         <el-descriptions-item label="更新时间" label-align="right" align="left">
           {{ formatDateTime(viewForm.lastUpdateTime) }}
+        </el-descriptions-item>
+        <el-descriptions-item label="视频链接" label-align="right" align="left" v-if="viewForm.link">
+          <a :href="viewForm.link" target="_blank">{{ viewForm.link }}</a>
         </el-descriptions-item>
         <el-descriptions-item label="封面" :span="2" label-align="right" align="left">
           <img v-if="viewForm.cover" :src="viewForm.cover" style="max-width: 200px; max-height: 200px; border-radius: 4px;" />
@@ -302,13 +398,176 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 从腾讯视频导入对话框 -->
+    <el-dialog title="从腾讯视频导入" v-model="showTencentImport" width="600px" append-to-body>
+      <el-alert
+        type="warning"
+        :closable="false"
+        show-icon
+      >
+        B站接口已开放权限可以做到实时更新，腾讯视频等其他平台接口做了反爬处理，目前暂时做不到数据的实时更新，采用静态数据展示。
+      </el-alert>
+      <el-form ref="tencentImportFormRef" :model="tencentImportForm" :rules="tencentImportRules" label-width="100px" style="margin-top: 20px;">
+        <el-form-item label="腾讯视频ID" prop="animeId">
+          <el-input v-model="tencentImportForm.animeId" placeholder="请输入腾讯视频番剧ID（如：m441e3rjq9kwpsc）" />
+        </el-form-item>
+        <el-form-item label="番剧状态" prop="animeStatus">
+          <el-radio-group v-model="tencentImportForm.animeStatus">
+            <el-radio 
+              v-for="dict in animeStatusOptions"
+              :key="dict.value"
+              :value="dict.value"
+            >{{ dict.label }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="追番状态" prop="watchStatus">
+          <el-select v-model="tencentImportForm.watchStatus" placeholder="请选择追番状态">
+            <el-option
+              v-for="dict in watchStatusOptions"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="评分" prop="rating">
+          <el-input v-model="tencentImportForm.rating" placeholder="请输入评分(0-10)" maxlength="3">
+            <template #append>分</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="总集数" prop="totalEpisodes">
+          <el-input v-model="tencentImportForm.totalEpisodes" placeholder="请输入总集数" maxlength="4">
+            <template #append>集</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="使用自定义封面">
+          <el-switch v-model="tencentImportForm.useCustomCover" />
+        </el-form-item>
+        <el-form-item label="自定义封面" v-if="tencentImportForm.useCustomCover" prop="customCover">
+          <el-upload
+            drag
+            :show-file-list="false"
+            :headers="authorization"
+            :action="baseURL + '/anime/upload-cover'"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            :on-success="handleTencentCoverSuccess"
+          >
+            <el-icon class="el-icon--upload" v-if="!tencentImportForm.customCover"><upload-filled /></el-icon>
+            <div class="el-upload__text" v-if="!tencentImportForm.customCover">
+              将文件拖到此处，或<em>点击上传</em>
+            </div>
+            <img v-else :src="tencentImportForm.customCover" width="200" />
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showTencentImport = false">取 消</el-button>
+          <el-button type="primary" @click="handleTencentImport" :loading="tencentImportLoading">导 入</el-button>
+        </div>
+      </template>
+    </el-dialog>
+    
+    <!-- 其他平台导入对话框 -->
+    <el-dialog title="其他平台导入" v-model="showOtherImport" width="600px" append-to-body>
+      <el-alert
+        type="warning"
+        :closable="false"
+        show-icon
+      >
+        爱奇艺和优酷等平台接口做了严格的反爬处理，目前采用纯静态数据录入的方式。
+      </el-alert>
+      <el-form ref="otherImportFormRef" :model="otherImportForm" :rules="otherImportRules" label-width="100px" style="margin-top: 20px;">
+        <el-form-item label="番剧名称" prop="animeName">
+          <el-input v-model="otherImportForm.animeName" placeholder="请输入番剧名称" />
+        </el-form-item>
+        <el-form-item label="番剧平台" prop="platform">
+          <el-radio-group v-model="otherImportForm.platform">
+            <el-radio :value="3">爱奇艺</el-radio>
+            <el-radio :value="4">优酷</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="番剧状态" prop="animeStatus">
+          <el-radio-group v-model="otherImportForm.animeStatus">
+            <el-radio 
+              v-for="dict in animeStatusOptions"
+              :key="dict.value"
+              :value="dict.value"
+            >{{ dict.label }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="追番状态" prop="watchStatus">
+          <el-select v-model="otherImportForm.watchStatus" placeholder="请选择追番状态">
+            <el-option
+              v-for="dict in watchStatusOptions"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="评分" prop="rating">
+          <el-input v-model="otherImportForm.rating" placeholder="请输入评分(0-10)" maxlength="3">
+            <template #append>分</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="总集数" prop="totalEpisodes">
+          <el-input v-model="otherImportForm.totalEpisodes" placeholder="请输入总集数" maxlength="4">
+            <template #append>集</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="视频链接" prop="link">
+          <el-input v-model="otherImportForm.link" placeholder="请输入视频链接，如：https://www.iqiyi.com/v_19rr7pi4k4.html" />
+        </el-form-item>
+        <el-form-item label="简介" prop="description">
+          <el-input v-model="otherImportForm.description" type="textarea" :rows="4" placeholder="请输入番剧简介" />
+        </el-form-item>
+        <el-form-item label="配音演员" prop="actors">
+          <el-input v-model="otherImportForm.actors" placeholder="请输入配音演员，多个用逗号分隔" />
+        </el-form-item>
+        <el-form-item label="地区" prop="areas">
+          <el-input v-model="otherImportForm.areas" placeholder="请输入地区" />
+        </el-form-item>
+        <el-form-item label="发布时间" prop="publishTime">
+          <el-input v-model="otherImportForm.publishTime" placeholder="请输入发布时间，如：2023" />
+        </el-form-item>
+        <el-form-item label="类型标签" prop="styles">
+          <el-input v-model="otherImportForm.stylesInput" placeholder="请输入类型标签，多个用逗号分隔" />
+        </el-form-item>
+        <el-form-item label="封面">
+          <el-upload
+            drag
+            :show-file-list="false"
+            :headers="authorization"
+            :action="baseURL + '/anime/upload-cover'"
+            accept="image/*"
+            :before-upload="beforeUpload"
+            :on-success="handleOtherCoverSuccess"
+          >
+            <el-icon class="el-icon--upload" v-if="!otherImportForm.cover"><upload-filled /></el-icon>
+            <div class="el-upload__text" v-if="!otherImportForm.cover">
+              将文件拖到此处，或<em>点击上传</em>
+            </div>
+            <img v-else :src="otherImportForm.cover" width="200" />
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showOtherImport = false">取 消</el-button>
+          <el-button type="primary" @click="handleOtherImport" :loading="otherImportLoading">导 入</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getAnimeList, getAnimeDetail, addAnime, updateAnime, deleteAnime, updateAnimeInfo, runUpdateTask, importFromBilibili } from '@/api/anime'
+import { getAnimeList, getAnimeDetail, addAnime, updateAnime, deleteAnime, updateAnimeInfo, runUpdateTask, importFromBilibili, importFromTencent } from '@/api/anime'
 import { formatDateTime } from "@/utils/date"
 import { getToken, token_prefix } from "@/utils/token"
 import { UploadRawFile } from "element-plus"
@@ -338,6 +597,10 @@ const open = ref(false)
 const viewOpen = ref(false)
 // 是否显示从B站导入对话框
 const showBilibiliImport = ref(false)
+// 是否显示从腾讯视频导入对话框
+const showTencentImport = ref(false)
+// 是否显示其他平台导入对话框
+const showOtherImport = ref(false)
 // 导入表单
 const importForm = reactive({
   bilibiliId: '',
@@ -388,7 +651,8 @@ const viewForm = reactive({
   totalEpisodes: undefined,
   currentEpisodes: undefined,
   lastUpdateTime: undefined,
-  description: ''
+  description: '',
+  link: ''
 })
 
 // 上传前处理
@@ -437,6 +701,12 @@ const rules = {
   ],
   watchStatus: [
     { required: true, message: '追番状态不能为空', trigger: 'change' }
+  ],
+  rating: [
+    { pattern: /^([0-9]|10)(\.[0-9])?$/, message: '评分必须是0-10之间的数字，最多一位小数', trigger: 'blur' }
+  ],
+  totalEpisodes: [
+    { pattern: /^[1-9]\d{0,3}$/, message: '总集数必须是1-9999之间的正整数', trigger: 'blur' }
   ]
 }
 
@@ -534,6 +804,17 @@ const reset = () => {
   form.animeId = ''
   form.watchStatus = 1
   form.cover = ''
+  // 添加腾讯视频相关字段的初始化
+  form.rating = undefined
+  form.animeStatus = 1
+  form.totalEpisodes = undefined
+  // 添加爱奇艺和优酷平台相关字段的初始化
+  form.description = ''
+  form.actors = ''
+  form.areas = ''
+  form.publishTime = ''
+  form.stylesInput = ''
+  form.link = ''
   
   nextTick(() => {
     if (formRef.value) {
@@ -646,6 +927,23 @@ const submitForm = () => {
         delete submitData.details;
       }
       
+      // 处理styles字段
+      if (form.platform === 3 || form.platform === 4) {
+        if (form.stylesInput) {
+          submitData.styles = form.stylesInput.split(',').map(item => item.trim());
+          delete submitData.stylesInput;
+        }
+      }
+      
+      // 确保评分和总集数是数字类型
+      if (submitData.rating) {
+        submitData.rating = parseFloat(submitData.rating);
+      }
+      
+      if (submitData.totalEpisodes) {
+        submitData.totalEpisodes = parseInt(submitData.totalEpisodes);
+      }
+      
       if (form.id) {
         updateAnime(form.id, submitData).then(({ data }) => {
           if (data.code === 200) {
@@ -751,6 +1049,209 @@ const handleImportCoverSuccess = (response) => {
   } else {
     ElMessage.error(response.message || '自定义封面上传失败');
   }
+}
+
+// 腾讯视频导入表单
+const tencentImportForm = reactive({
+  animeId: '',
+  animeStatus: 1,
+  watchStatus: 1,
+  rating: undefined,
+  totalEpisodes: undefined,
+  useCustomCover: false,
+  customCover: ''
+})
+
+// 腾讯视频导入表单校验规则
+const tencentImportRules = {
+  animeId: [
+    { required: true, message: '腾讯视频番剧ID不能为空', trigger: 'blur' }
+  ],
+  animeStatus: [
+    { required: true, message: '番剧状态不能为空', trigger: 'change' }
+  ],
+  watchStatus: [
+    { required: true, message: '追番状态不能为空', trigger: 'change' }
+  ],
+  rating: [
+    { pattern: /^([0-9]|10)(\.[0-9])?$/, message: '评分必须是0-10之间的数字，最多一位小数', trigger: 'blur' }
+  ],
+  totalEpisodes: [
+    { pattern: /^[1-9]\d{0,3}$/, message: '总集数必须是1-9999之间的正整数', trigger: 'blur' }
+  ]
+}
+
+// 腾讯视频导入表单ref
+const tencentImportFormRef = ref(null)
+
+// 腾讯视频导入加载状态
+const tencentImportLoading = ref(false)
+
+// 处理腾讯视频封面上传成功
+const handleTencentCoverSuccess = (response) => {
+  if (response.code === 200) {
+    tencentImportForm.customCover = response.data;
+    ElMessage.success('自定义封面上传成功');
+  } else {
+    ElMessage.error(response.message || '自定义封面上传失败');
+  }
+};
+
+// 处理从腾讯视频导入
+const handleTencentImport = () => {
+  tencentImportFormRef.value.validate((valid) => {
+    if (valid) {
+      tencentImportLoading.value = true;
+      
+      const importData = {
+        animeId: tencentImportForm.animeId,
+        animeStatus: tencentImportForm.animeStatus,
+        watchStatus: tencentImportForm.watchStatus,
+        rating: tencentImportForm.rating ? parseFloat(tencentImportForm.rating) : undefined,
+        totalEpisodes: tencentImportForm.totalEpisodes ? parseInt(tencentImportForm.totalEpisodes) : undefined,
+        customCover: tencentImportForm.useCustomCover ? tencentImportForm.customCover : undefined
+      };
+      
+      importFromTencent(importData).then(({ data }) => {
+        if (data.code === 200) {
+          ElMessage.success(data.message || '导入成功');
+          showTencentImport.value = false;
+          // 重置导入表单
+          tencentImportForm.animeId = '';
+          tencentImportForm.animeStatus = 1;
+          tencentImportForm.watchStatus = 1;
+          tencentImportForm.rating = undefined;
+          tencentImportForm.totalEpisodes = undefined;
+          tencentImportForm.useCustomCover = false;
+          tencentImportForm.customCover = '';
+          getList(); // 刷新列表
+        } else {
+          ElMessage.error(data.message || '导入失败');
+        }
+      }).catch(() => {
+        ElMessage.error('导入失败，请稍后重试');
+      }).finally(() => {
+        tencentImportLoading.value = false;
+      });
+    } else {
+      ElMessage.error('表单验证失败');
+    }
+  });
+}
+
+// 其他平台导入表单
+const otherImportForm = reactive({
+  animeName: '',
+  platform: 3,
+  animeStatus: 1,
+  watchStatus: 1,
+  rating: undefined,
+  totalEpisodes: undefined,
+  description: '',
+  actors: '',
+  areas: '',
+  publishTime: '',
+  stylesInput: '',
+  cover: '',
+  link: ''
+})
+
+// 其他平台导入表单校验规则
+const otherImportRules = {
+  animeName: [
+    { required: true, message: '番剧名称不能为空', trigger: 'blur' }
+  ],
+  platform: [
+    { required: true, message: '番剧平台不能为空', trigger: 'change' }
+  ],
+  animeStatus: [
+    { required: true, message: '番剧状态不能为空', trigger: 'change' }
+  ],
+  watchStatus: [
+    { required: true, message: '追番状态不能为空', trigger: 'change' }
+  ],
+  rating: [
+    { pattern: /^([0-9]|10)(\.[0-9])?$/, message: '评分必须是0-10之间的数字，最多一位小数', trigger: 'blur' }
+  ],
+  totalEpisodes: [
+    { pattern: /^[1-9]\d{0,3}$/, message: '总集数必须是1-9999之间的正整数', trigger: 'blur' }
+  ]
+}
+
+// 其他平台导入表单ref
+const otherImportFormRef = ref(null)
+
+// 其他平台导入加载状态
+const otherImportLoading = ref(false)
+
+// 处理其他平台封面上传成功
+const handleOtherCoverSuccess = (response) => {
+  if (response.code === 200) {
+    otherImportForm.cover = response.data;
+    ElMessage.success('封面上传成功');
+  } else {
+    ElMessage.error(response.message || '封面上传失败');
+  }
+};
+
+// 处理其他平台导入
+const handleOtherImport = () => {
+  otherImportFormRef.value.validate((valid) => {
+    if (valid) {
+      otherImportLoading.value = true;
+      
+      const importData = {
+        animeName: otherImportForm.animeName,
+        platform: otherImportForm.platform,
+        animeStatus: otherImportForm.animeStatus,
+        watchStatus: otherImportForm.watchStatus,
+        rating: otherImportForm.rating ? parseFloat(otherImportForm.rating) : undefined,
+        totalEpisodes: otherImportForm.totalEpisodes ? parseInt(otherImportForm.totalEpisodes) : undefined,
+        description: otherImportForm.description,
+        actors: otherImportForm.actors,
+        areas: otherImportForm.areas,
+        publishTime: otherImportForm.publishTime,
+        styles: otherImportForm.stylesInput ? otherImportForm.stylesInput.split(',').map(item => item.trim()) : [],
+        cover: otherImportForm.cover,
+        link: otherImportForm.link
+      };
+      
+      // 处理styles字段
+      if (importData.styles.length === 0) {
+        delete importData.styles;
+      }
+      
+      addAnime(importData).then(({ data }) => {
+        if (data.flag) {
+          ElMessage.success(data.msg || '导入成功');
+          showOtherImport.value = false;
+          // 重置导入表单
+          otherImportForm.animeName = '';
+          otherImportForm.platform = 3;
+          otherImportForm.animeStatus = 1;
+          otherImportForm.watchStatus = 1;
+          otherImportForm.rating = undefined;
+          otherImportForm.totalEpisodes = undefined;
+          otherImportForm.description = '';
+          otherImportForm.actors = '';
+          otherImportForm.areas = '';
+          otherImportForm.publishTime = '';
+          otherImportForm.stylesInput = '';
+          otherImportForm.cover = '';
+          otherImportForm.link = '';
+          getList(); // 刷新列表
+        } else {
+          ElMessage.error(data.message || '导入失败');
+        }
+      }).catch(() => {
+        ElMessage.error('导入失败，请稍后重试');
+      }).finally(() => {
+        otherImportLoading.value = false;
+      });
+    } else {
+      ElMessage.error('表单验证失败');
+    }
+  });
 }
 </script>
 

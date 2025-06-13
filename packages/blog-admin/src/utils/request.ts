@@ -43,10 +43,6 @@ requests.interceptors.request.use(
     if (getToken()) {
       // 详细打印token信息以便调试
       const token = getToken();
-      console.log("Token类型:", typeof token);
-      console.log("Token值:", token);
-      console.log("Token长度:", token?.length);
-      console.log("Token是否为对象:", token === "[object Object]");
 
       // 如果token是"[object Object]"字符串或者是对象，则跳过添加认证头
       if (token === "[object Object]" || typeof token === "object") {
@@ -56,7 +52,6 @@ requests.interceptors.request.use(
 
       // 确保token是字符串并且添加空格
       config.headers["Authorization"] = `${token_prefix}${token}`;
-      console.log("请求添加认证头:", config.url, `${token_prefix}${token}`);
     } else {
       console.log("请求无认证头:", config.url);
     }

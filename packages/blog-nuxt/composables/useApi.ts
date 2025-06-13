@@ -154,6 +154,14 @@ export const useApi = () => {
     addMessage: (data: any) => directFetch('/message/add', { method: 'POST', body: data }),
   };
 
+  // 番剧API
+  const anime = {
+    // 获取番剧列表
+    getList: (params) => fetchData(`/anime/list`, { params }),
+    // 获取番剧详情
+    getDetail: (id) => fetchData(`/anime/${id}`)
+  };
+
   return {
     blogInfo,
     article,
@@ -167,5 +175,6 @@ export const useApi = () => {
     album,
     friend,
     message,
+    anime
   };
 }; 

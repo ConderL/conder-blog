@@ -50,6 +50,37 @@ class ImportBilibiliAnimeDto extends BilibiliAnimeDto {
   watchStatus?: number = 1;
 }
 
+/**
+ * 腾讯视频番剧导入DTO
+ */
+class ImportTencentAnimeDto {
+  @ApiProperty({ description: '腾讯视频番剧ID' })
+  @IsNotEmpty({ message: '腾讯视频番剧ID不能为空' })
+  @IsString()
+  animeId: string;
+
+  @ApiProperty({ description: '自定义封面URL', required: false })
+  @IsOptional()
+  @IsString()
+  customCover?: string;
+
+  @ApiProperty({ description: '追番状态', required: false, default: 1, enum: [1, 2, 3] })
+  @IsOptional()
+  watchStatus?: number = 1;
+
+  @ApiProperty({ description: '番剧状态', required: false, default: 1, enum: [1, 2] })
+  @IsOptional()
+  animeStatus?: number = 1;
+
+  @ApiProperty({ description: '评分', required: false })
+  @IsOptional()
+  rating?: number;
+
+  @ApiProperty({ description: '总集数', required: false })
+  @IsOptional()
+  totalEpisodes?: number;
+}
+
 @ApiTags('番剧管理')
 @Controller('anime')
 export class AnimeController {
@@ -66,6 +97,14 @@ export class AnimeController {
   async create(@Body() createAnimeDto: CreateAnimeDto) {
     try {
       this.logger.log(`创建番剧: ${JSON.stringify(createAnimeDto)}`);
+      
+      // 对爱奇艺和优酷平台特殊处理
+      if ((createAnimeDto.platform === 3 || createAnimeDto.platform === 4) && (!createAnimeDto.animeId || createAnimeDto.animeId.trim() === '')) {
+        // 为爱奇艺和优酷平台生成一个唯一ID
+        createAnimeDto.animeId = `${createAnimeDto.platform}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+        this.logger.log(`为平台${createAnimeDto.platform}生成唯一ID: ${createAnimeDto.animeId}`);
+      }
+      
       const anime = await this.animeService.create(createAnimeDto);
       return {
         code: 200,
@@ -117,7 +156,20 @@ export class AnimeController {
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateAnimeDto: UpdateAnimeDto) {
     try {
       this.logger.log(`更新番剧: id=${id}, data=${JSON.stringify(updateAnimeDto)}`);
-      const anime = await this.animeService.update(id, updateAnimeDto);
+      
+      // 处理额外字段
+      const updateData: any = { ...updateAnimeDto };
+      
+      // 确保评分和总集数是数字类型
+      if (updateData.rating !== undefined && updateData.rating !== null) {
+        updateData.rating = parseFloat(updateData.rating);
+      }
+      
+      if (updateData.totalEpisodes !== undefined && updateData.totalEpisodes !== null) {
+        updateData.totalEpisodes = parseInt(updateData.totalEpisodes);
+      }
+      
+      const anime = await this.animeService.update(id, updateData);
       return {
         code: 200,
         message: '更新成功',
@@ -288,6 +340,64 @@ export class AnimeController {
       return {
         code: 500,
         message: '上传番剧封面失败: ' + error.message,
+        data: null,
+      };
+    }
+  }
+
+  @ApiOperation({ summary: '导入腾讯视频番剧' })
+  @ApiResponse({ status: 200, description: '导入成功' })
+  @Post('import-from-tencent')
+  async importFromTencent(@Body() importDto: ImportTencentAnimeDto) {
+    try {
+      this.logger.log(`导入腾讯视频番剧: ${JSON.stringify(importDto)}`);
+      
+      // 创建番剧对象
+      const createDto: CreateAnimeDto = {
+        animeName: importDto.animeId, // 临时使用ID作为名称，将在获取信息时更新
+        platform: 2, // 腾讯视频
+        animeId: importDto.animeId,
+        animeStatus: importDto.animeStatus || 1,
+        watchStatus: importDto.watchStatus || 1,
+        cover: importDto.customCover
+      };
+      
+      // 创建番剧
+      const anime = await this.animeService.create(createDto);
+      
+      // 如果提供了评分和总集数，更新这些信息
+      if (importDto.rating || importDto.totalEpisodes) {
+        const updateDto: UpdateAnimeDto = {
+          id: anime.id,
+          animeName: anime.animeName,
+          platform: anime.platform,
+          animeId: anime.animeId,
+          animeStatus: importDto.animeStatus || anime.animeStatus,
+          watchStatus: anime.watchStatus,
+          cover: anime.cover
+        };
+        
+        if (importDto.rating) {
+          updateDto['rating'] = importDto.rating;
+        }
+        
+        if (importDto.totalEpisodes) {
+          updateDto['totalEpisodes'] = importDto.totalEpisodes;
+        }
+        
+        await this.animeService.update(anime.id, updateDto);
+      }
+      
+      return {
+        code: 200,
+        message: '导入腾讯视频番剧成功',
+        data: anime,
+      };
+    } catch (error) {
+      this.logger.error(`导入腾讯视频番剧失败: ${error.message}`);
+      return {
+        code: 500,
+        message: error.message || '导入腾讯视频番剧失败',
         data: null,
       };
     }

@@ -75,41 +75,26 @@ router.beforeEach(async (to, from, next) => {
 
         // 情况2: 需要加载路由
         if (!hasAddRoutes) {
-          console.log("加载路由信息...");
 
           try {
             let accessRoutes: RouteRecordRaw[] = [];
 
             // 如果已经有路由配置，直接使用
             if (hasRoutes) {
-              console.log("使用已有路由配置");
               accessRoutes = permissionStore.addRoutes as RouteRecordRaw[];
             } else {
               // 没有路由配置，从服务器获取
-              console.log("从服务器获取路由配置");
               accessRoutes = (await (
                 permissionStore as any
               ).generateRoutes()) as RouteRecordRaw[];
             }
 
-            console.log("添加路由, 数量:", accessRoutes.length);
-
             // 添加路由
             accessRoutes.forEach((route) => {
               // 调试信息 - 检查路由配置
-              console.log(
-                "处理路由:",
-                route.path,
-                "名称:",
-                route.name,
-                "组件:",
-                route.component ? "已定义" : "未定义"
-              );
-
               if (route.name) {
                 if (!router.hasRoute(route.name)) {
                   router.addRoute(route);
-                  console.log("添加路由成功:", route.path);
                 } else {
                   console.log("路由已存在:", route.path);
                 }

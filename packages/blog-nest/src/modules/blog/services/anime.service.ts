@@ -32,6 +32,13 @@ export class AnimeService {
     
     // 创建番剧对象
     const anime = this.animeRepository.create(createAnimeDto);
+    
+    // 为爱奇艺和优酷平台设置lastUpdateTime，因为它们不会通过API更新
+    if (anime.platform === 3 || anime.platform === 4) {
+      anime.lastUpdateTime = new Date();
+      this.logger.log(`为平台${anime.platform}设置lastUpdateTime: ${anime.lastUpdateTime}`);
+    }
+    
     const savedAnime = await this.animeRepository.save(anime);
     this.logger.log(`创建番剧: ID=${savedAnime.id}, 名称=${savedAnime.animeName}, 初始状态=${savedAnime.animeStatus}`);
     
@@ -52,7 +59,7 @@ export class AnimeService {
    * @returns 番剧列表和总数
    */
   async findAll(queryAnimeDto: QueryAnimeDto): Promise<{ list: Anime[]; total: number }> {
-    const { page = 1, limit = 10, animeName, platform, animeStatus, watchStatus } = queryAnimeDto;
+    const { page = 1, limit = 10, animeName, platform, animeStatus, watchStatus, sortBy = 'rating' } = queryAnimeDto;
     
     const queryBuilder = this.animeRepository.createQueryBuilder('anime');
     
@@ -74,8 +81,26 @@ export class AnimeService {
     
     const total = await queryBuilder.getCount();
     
+    // 根据sortBy字段进行排序
+    if (sortBy === 'rating') {
+      // 按评分排序，评分为空的排在后面
+      queryBuilder
+        .orderBy('anime.rating IS NULL', 'ASC')
+        .addOrderBy('anime.rating', 'DESC');
+    } else if (sortBy === 'publishTime') {
+      // 按发布时间排序，发布时间为空的排在后面
+      queryBuilder
+        .orderBy('anime.publishTime IS NULL', 'ASC')
+        .addOrderBy('anime.publishTime', 'DESC');
+    }
+    
+    // 最后都按更新时间和创建时间排序
+    queryBuilder
+      .addOrderBy('anime.lastUpdateTime IS NULL', 'ASC')
+      .addOrderBy('anime.lastUpdateTime', 'DESC')
+      .addOrderBy('anime.createTime', 'DESC');
+    
     const list = await queryBuilder
-      .orderBy('anime.createTime', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
       .getMany();
@@ -114,7 +139,6 @@ export class AnimeService {
     anime.animeName = updateAnimeDto.animeName;
     anime.platform = updateAnimeDto.platform;
     anime.animeId = updateAnimeDto.animeId;
-    // 不手动更新番剧状态，将由API决定
     anime.watchStatus = updateAnimeDto.watchStatus;
     
     // 如果提供了新封面，则使用新封面
@@ -123,11 +147,58 @@ export class AnimeService {
       anime.cover = updateAnimeDto.cover;
     }
     
+    // 处理额外的自定义字段
+    if ('rating' in updateAnimeDto) {
+      anime.rating = updateAnimeDto.rating;
+      this.logger.log(`更新番剧评分: ${anime.rating}`);
+    }
+    
+    if ('totalEpisodes' in updateAnimeDto) {
+      anime.totalEpisodes = updateAnimeDto.totalEpisodes;
+      this.logger.log(`更新番剧总集数: ${anime.totalEpisodes}`);
+    }
+    
+    if ('animeStatus' in updateAnimeDto) {
+      anime.animeStatus = updateAnimeDto.animeStatus;
+    }
+    
+    if ('description' in updateAnimeDto) {
+      anime.description = updateAnimeDto.description;
+    }
+    
+    if ('actors' in updateAnimeDto) {
+      anime.actors = updateAnimeDto.actors;
+    }
+    
+    if ('areas' in updateAnimeDto) {
+      anime.areas = updateAnimeDto.areas;
+    }
+    
+    if ('publishTime' in updateAnimeDto) {
+      anime.publishTime = updateAnimeDto.publishTime;
+    }
+    
+    if ('styles' in updateAnimeDto) {
+      anime.styles = updateAnimeDto.styles;
+    }
+    
+    if ('link' in updateAnimeDto) {
+      anime.link = updateAnimeDto.link;
+    }
+    
+    // 为爱奇艺和优酷平台更新lastUpdateTime
+    if (anime.platform === 3 || anime.platform === 4) {
+      anime.lastUpdateTime = new Date();
+      this.logger.log(`为平台${anime.platform}更新lastUpdateTime: ${anime.lastUpdateTime}`);
+    }
+    
     // 保存更新后的番剧信息
     const updatedAnime = await this.animeRepository.save(anime);
     
+    // 只有bilibili和腾讯视频平台才需要获取API信息
     // 如果番剧ID或平台发生变化，需要重新获取信息
-    const needFetch = originalAnimeId !== updateAnimeDto.animeId || originalPlatform !== updateAnimeDto.platform;
+    const needFetch = (anime.platform === 1 || anime.platform === 2) && 
+                     (originalAnimeId !== updateAnimeDto.animeId || originalPlatform !== updateAnimeDto.platform);
     
     // 如果需要重新获取信息，立即执行
     if (needFetch) {
@@ -172,7 +243,7 @@ export class AnimeService {
       // 保存原始封面，以便在更新后恢复
       const originalCover = anime.cover;
       
-      // 目前只支持bilibili平台
+      // 根据平台调用不同的API
       if (anime.platform === 1) {
         const response = await axios.get('https://api.bilibili.com/pgc/view/web/season', {
           params: {
@@ -294,6 +365,72 @@ export class AnimeService {
           this.logger.log(`验证更新后的番剧状态: ID=${id}, 名称=${updatedAnime.animeName}, 状态=${updatedAnime.animeStatus}`);
         } else {
           this.logger.warn(`获取番剧信息失败: ${response.data.message}`);
+        }
+      } else if (anime.platform === 2) {
+        // 腾讯视频平台
+        try {
+          const response = await axios.get(`http://node.video.qq.com/x/api/float_vinfo2?cid=${anime.animeId}`);
+          
+          if (response.data) {
+            const result = response.data;
+            
+            // 保存原始数据到details字段
+            anime.details = result;
+            
+            // 更新番剧信息
+            if (result.nam && result.nam[0]) {
+              anime.actors = Array.isArray(result.nam[0]) ? result.nam[0].join(', ') : result.nam[0];
+            }
+
+            this.logger.log(result.typ);
+            
+            if (result.typ) {
+              // 处理类型和地区
+              if (result.typ[0] && Array.isArray(result.typ[0])) {
+                anime.styles = result.typ[0];
+              }
+              
+              if (result.typ[1]) {
+                anime.areas = result.typ[1];
+              }
+            }
+            
+            // 更新简介
+            if (result.c && result.c.description) {
+              anime.description = result.c.description;
+            }
+            
+            // 更新封面
+            if (result.c && result.c.pic && !originalCover) {
+              anime.cover = result.c.pic;
+            } else if (originalCover) {
+              // 保留自定义封面
+              this.logger.log(`保留腾讯视频自定义封面: ${originalCover}`);
+            }
+            
+            // 更新发布时间
+            if (result.c && result.c.year) {
+              anime.publishTime = result.c.year;
+            }
+            
+            // 更新标题
+            if (result.c && result.c.title) {
+              anime.animeName = result.c.title || anime.animeName;
+            }
+            
+            // 更新链接
+            anime.link = `https://v.qq.com/detail/m/${anime.animeId}.html`;
+            
+            // 更新时间
+            anime.lastUpdateTime = new Date();
+            
+            await this.animeRepository.save(anime);
+            this.logger.log(`成功更新腾讯视频番剧信息: ${anime.animeName}`);
+          } else {
+            this.logger.warn(`获取腾讯视频番剧信息失败: 无数据返回`);
+          }
+        } catch (error) {
+          this.logger.error(`获取腾讯视频番剧信息出错: ${error.message}`, error.stack);
         }
       } else {
         this.logger.warn(`暂不支持平台${anime.platform}的番剧信息获取`);

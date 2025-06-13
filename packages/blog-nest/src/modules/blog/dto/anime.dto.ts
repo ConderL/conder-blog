@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateIf } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -45,6 +45,7 @@ export class CreateAnimeDto {
   platform: number;
 
   @ApiProperty({ description: '番剧ID' })
+  @ValidateIf((o) => o.platform === 1 || o.platform === 2)
   @IsNotEmpty({ message: '番剧ID不能为空' })
   @IsString()
   animeId: string;
@@ -65,6 +66,45 @@ export class CreateAnimeDto {
   @IsOptional()
   @IsString()
   cover?: string;
+
+  @ApiProperty({ description: '评分', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  rating?: number;
+
+  @ApiProperty({ description: '总集数', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  totalEpisodes?: number;
+
+  @ApiProperty({ description: '简介', required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ description: '配音演员', required: false })
+  @IsOptional()
+  @IsString()
+  actors?: string;
+
+  @ApiProperty({ description: '地区', required: false })
+  @IsOptional()
+  @IsString()
+  areas?: string;
+
+  @ApiProperty({ description: '发布时间', required: false })
+  @IsOptional()
+  @IsString()
+  publishTime?: string;
+
+  @ApiProperty({ description: '视频链接', required: false })
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @ApiProperty({ description: '类型标签', required: false })
+  @IsOptional()
+  styles?: any;
 }
 
 /**
@@ -76,6 +116,45 @@ export class UpdateAnimeDto extends CreateAnimeDto {
   @IsNumber()
   @Type(() => Number)
   id: number;
+
+  @ApiProperty({ description: '评分', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  rating?: number;
+
+  @ApiProperty({ description: '总集数', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  totalEpisodes?: number;
+
+  @ApiProperty({ description: '简介', required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ description: '配音演员', required: false })
+  @IsOptional()
+  @IsString()
+  actors?: string;
+
+  @ApiProperty({ description: '地区', required: false })
+  @IsOptional()
+  @IsString()
+  areas?: string;
+
+  @ApiProperty({ description: '发布时间', required: false })
+  @IsOptional()
+  @IsString()
+  publishTime?: string;
+
+  @ApiProperty({ description: '视频链接', required: false })
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @ApiProperty({ description: '类型标签', required: false })
+  @IsOptional()
+  styles?: any;
 }
 
 /**
@@ -104,6 +183,11 @@ export class QueryAnimeDto {
   @IsEnum(WatchStatus, { message: '追番状态值无效' })
   @Type(() => Number)
   watchStatus?: number;
+
+  @ApiProperty({ description: '排序字段', required: false, enum: ['rating', 'publishTime'] })
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
 
   @ApiProperty({ description: '页码', default: 1 })
   @IsOptional()

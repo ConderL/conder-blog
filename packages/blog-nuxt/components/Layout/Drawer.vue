@@ -158,7 +158,12 @@ const menuList = [
         name: "相册",
         icon: "album",
         path: "/album"
-      }
+      },
+      {
+        name: "追番",
+        icon: "anime",
+        path: "/anime"
+      },
     ]
   },
   {

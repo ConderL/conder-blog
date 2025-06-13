@@ -14,13 +14,8 @@ export function getToken(): string | undefined {
 
   // 检查token是否有效
   if (token) {
-    console.log(
-      `读取到token: ${token.substring(0, 20)}...，长度: ${token.length}`
-    );
-
     // 检查是否是无效字符串
     if (token === "[object Object]" || token.includes("[object Object]")) {
-      console.error("读取到无效token格式，删除并返回undefined");
       removeToken();
       return undefined;
     }
