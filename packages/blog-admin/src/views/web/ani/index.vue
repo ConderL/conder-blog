@@ -681,7 +681,7 @@ const handleCoverSuccess = (response) => {
 // 查询参数
 const queryParams = reactive({
   page: 1,
-  limit: 5,
+  limit: 10,
   animeName: undefined,
   platform: undefined,
   animeStatus: undefined,
