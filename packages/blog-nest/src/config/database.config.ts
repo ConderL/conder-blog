@@ -83,6 +83,6 @@ export const createTypeOrmOptions = async (
   return {
     ...baseConfig,
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: process.env.NODE_ENV === 'development',
+    synchronize: false,
   };
 };

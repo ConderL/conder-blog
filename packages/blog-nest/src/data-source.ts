@@ -14,5 +14,5 @@ export default new DataSource({
   entities: ['dist/**/*.entity.js', 'src/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}', 'src/migrations/*{.ts,.js}'],
   // 迁移时禁用自动同步
-  synchronize: true,
+  synchronize: false,
 });
