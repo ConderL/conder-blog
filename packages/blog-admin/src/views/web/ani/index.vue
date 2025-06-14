@@ -181,8 +181,8 @@
       <pagination
         v-show="total > 0"
         :total="total"
-        :page.sync="queryParams.page"
-        :limit.sync="queryParams.limit"
+        v-model:page="queryParams.page"
+        v-model:limit="queryParams.limit"
         @pagination="getList"
       />
     </el-card>
@@ -681,7 +681,7 @@ const handleCoverSuccess = (response) => {
 // 查询参数
 const queryParams = reactive({
   page: 1,
-  limit: 10,
+  limit: 5,
   animeName: undefined,
   platform: undefined,
   animeStatus: undefined,

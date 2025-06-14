@@ -1,6 +1,6 @@
 <template>
   <div class="login" :class="{ 'password-visible': showPassword }">
-    <el-form ref="ruleFormRef" :model="loginForm" class="login-form">
+    <el-form ref="ruleFormRef" :rules="rules" :model="loginForm" class="login-form">
       <h3 class="title">博客后台管理系统</h3>
       <el-form-item prop="username">
         <el-input
@@ -17,7 +17,7 @@
       </el-form-item>
       <el-form-item prop="password">
         <el-input
-          v-model="passwordRaw"
+          v-model="loginForm.password"
           :type="showPassword ? 'text' : 'password'"
           size="large"
           placeholder="密码"
@@ -115,7 +115,6 @@ const permissionStore = usePermissionStore();
 const ruleFormRef = ref<FormInstance>();
 const loading = ref(false);
 const captcha = ref("");
-const passwordRaw = ref("");
 const captchaLoading = ref(false);
 const showPassword = ref(false);
 
@@ -146,12 +145,9 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
     if (valid) {
       loading.value = true;
       // 恢复密码加密
-      const password = encodeRSA(passwordRaw.value);
-      if (typeof password === "string") {
-        loginForm.password = password;
-      }
+      const password = encodeRSA(loginForm.password);
       try {
-        await userStore.LogIn(loginForm);
+        await userStore.LogIn({ ...loginForm, password });
         console.log("登录成功");
         // 获取用户信息
         await userStore.GetInfo();

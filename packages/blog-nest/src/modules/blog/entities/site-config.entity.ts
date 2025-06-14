@@ -233,6 +233,12 @@ export class SiteConfig {
   albumWallpaper: string;
 
   /**
+   * 追番背景
+   */
+  @Column({ name: 'anime_wallpaper', nullable: true, comment: '追番背景' })
+  animeWallpaper: string;
+
+  /**
    * 友链背景
    */
   @Column({ name: 'friend_wallpaper', nullable: true, comment: '友链背景' })

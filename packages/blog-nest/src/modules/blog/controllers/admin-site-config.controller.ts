@@ -172,6 +172,10 @@ class UpdateSiteConfigDto implements Partial<SiteConfig> {
 
   @IsOptional()
   @IsString()
+  animeWallpaper?: string;
+
+  @IsOptional()
+  @IsString()
   friendWallpaper?: string;
 
   @IsOptional()

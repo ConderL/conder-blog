@@ -109,7 +109,12 @@
           </div>
           
           <!-- 分页 -->
-          <Pagination v-if="total > queryParams.size" v-model:current="queryParams.current" :per-page="queryParams.size" :total="total" />
+          <Pagination 
+            v-if="total > queryParams.limit" 
+            v-model:current="queryParams.page" 
+            :per-page="queryParams.limit" 
+            :total="total"
+          />
           
           <!-- 无数据提示 -->
           <div v-if="filteredAnimeList.length === 0" class="no-data">
@@ -148,8 +153,8 @@ const blog = useBlogStore();
 
 // 查询参数
 const queryParams = reactive({
-  current: 1,
-  size: 12,
+  page: 1,
+  limit: 6,
   animeName: '',
   platform: undefined,
   animeStatus: undefined,
@@ -208,22 +213,20 @@ const getSortIcon = (value) => {
 const changeSortOption = (value) => {
   sortBy.value = value;
   queryParams.sortBy = value;
-  queryParams.current = 1;
+  queryParams.page = 1;
   refresh();
 };
 
 // 处理排序变化
 const handleSortChange = () => {
   queryParams.sortBy = sortBy.value;
-  queryParams.current = 1;
+  queryParams.page = 1;
   refresh();
 };
 
 // 获取番剧数据
 const { anime } = useApi();
 const { data, refresh } = await anime.getList(queryParams);
-
-console.log(data, 'data')
 
 // 计算属性：番剧列表和总数
 const animeList = computed(() => unref(data)?.list || []);
@@ -268,7 +271,7 @@ watch(activeTab, (newValue) => {
   }
   
   // 重置页码并刷新数据
-  queryParams.current = 1;
+  queryParams.page = 1;
   refresh();
 });
 
@@ -278,14 +281,9 @@ watch(activePlatformTab, (newValue) => {
   queryParams.platform = newValue === 'all' ? undefined : parseInt(newValue);
   
   // 重置页码并刷新数据
-  queryParams.current = 1;
+  queryParams.page = 1;
   refresh();
 });
-
-// 当分页参数变化时刷新数据
-watch(() => [queryParams.current, queryParams.size], () => {
-  refresh();
-}, { deep: true });
 
 // 根据当前标签过滤番剧列表
 const filteredAnimeList = computed(() => {

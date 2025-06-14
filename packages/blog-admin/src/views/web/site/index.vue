@@ -460,6 +460,30 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
+              <el-form-item label="追番">
+                <el-upload
+                  class="avatar-uploader"
+                  :headers="authorization"
+                  :action="baseURL + '/admin/site/upload'"
+                  :show-file-list="false"
+                  accept="image/*"
+                  :before-upload="beforeUpload"
+                  :on-success="handleAnimeSuccess"
+                >
+                  <img
+                    v-if="siteConfig.animeWallpaper"
+                    :src="siteConfig.animeWallpaper"
+                    class="article-cover"
+                  />
+                  <el-icon v-else class="avatar-uploader-icon">
+                    <Plus />
+                  </el-icon>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="8">
               <el-form-item label="友链">
                 <el-upload
                   class="avatar-uploader"
@@ -481,8 +505,6 @@
                 </el-upload>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="8">
               <el-form-item label="留言板">
                 <el-upload
@@ -731,6 +753,9 @@ const handleTalkSuccess = (response: AxiosResponse) => {
 };
 const handleAlbumSuccess = (response: AxiosResponse) => {
   siteConfig.value.albumWallpaper = response.data;
+};
+const handleAnimeSuccess = (response: AxiosResponse) => {
+  siteConfig.value.animeWallpaper = response.data;
 };
 const handleFriendSuccess = (response: AxiosResponse) => {
   siteConfig.value.friendWallpaper = response.data;
