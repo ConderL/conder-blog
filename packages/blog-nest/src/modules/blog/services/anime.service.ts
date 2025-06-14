@@ -350,9 +350,21 @@ export class AnimeService {
           
           // 更新统计信息
           if (seasonIndex !== -1 && result.seasons[seasonIndex].stat) {
-            anime.favorites = result.seasons[seasonIndex].stat.favorites || anime.favorites;
-            anime.views = result.seasons[seasonIndex].stat.views || anime.views;
-            anime.seriesFollow = result.seasons[seasonIndex].stat.series_follow || anime.seriesFollow;
+            // 安全处理大数值，确保不会超出数据库字段范围
+            const safeBigint = (value) => {
+              if (!value) return null;
+              // 确保值是数字类型
+              const numValue = Number(value);
+              // 检查是否为有效数字
+              if (isNaN(numValue)) return null;
+              return numValue;
+            };
+            
+            anime.favorites = safeBigint(result.seasons[seasonIndex].stat.favorites);
+            anime.views = safeBigint(result.seasons[seasonIndex].stat.views);
+            anime.seriesFollow = safeBigint(result.seasons[seasonIndex].stat.series_follow);
+            
+            this.logger.log(`统计信息更新: 播放量=${anime.views}, 收藏数=${anime.favorites}, 追番人数=${anime.seriesFollow}`);
           }
           
           anime.lastUpdateTime = new Date();

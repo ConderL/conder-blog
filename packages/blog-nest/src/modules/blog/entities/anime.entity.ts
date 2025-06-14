@@ -106,15 +106,15 @@ export class Anime {
   weekday: number;
 
   @ApiProperty({ description: '收藏数' })
-  @Column({ name: 'favorites', comment: '收藏数', type: 'int', nullable: true })
+  @Column({ name: 'favorites', comment: '收藏数', type: 'bigint', nullable: true })
   favorites: number;
 
   @ApiProperty({ description: '播放量' })
-  @Column({ name: 'views', comment: '播放量', type: 'int', nullable: true })
+  @Column({ name: 'views', comment: '播放量', type: 'bigint', nullable: true })
   views: number;
 
   @ApiProperty({ description: '追番人数' })
-  @Column({ name: 'series_follow', comment: '追番人数', type: 'int', nullable: true })
+  @Column({ name: 'series_follow', comment: '追番人数', type: 'bigint', nullable: true })
   seriesFollow: number;
 
   @ApiProperty({ description: '番剧详情JSON数据' })
