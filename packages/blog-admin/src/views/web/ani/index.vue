@@ -246,6 +246,16 @@
               >{{ dict.label }}</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="地区" prop="area">
+            <el-select v-model="form.area" placeholder="请选择地区">
+              <el-option
+                v-for="dict in areaOptions"
+                :key="dict.id"
+                :label="dict.name"
+                :value="dict.id"
+              />
+            </el-select>
+          </el-form-item>
           <el-form-item label="总集数" prop="totalEpisodes">
             <el-input v-model="form.totalEpisodes" placeholder="请输入总集数" maxlength="4">
               <template #append>集</template>
@@ -289,7 +299,7 @@
                 v-for="dict in areaOptions"
                 :key="dict.id"
                 :label="dict.name"
-                :value="dict"
+                :value="dict.id"
               />
             </el-select>
           </el-form-item>
@@ -1198,7 +1208,7 @@ const otherImportForm = reactive({
   totalEpisodes: undefined,
   description: '',
   actors: '',
-  area: undefined,
+  area: 1,
   publishTime: '',
   stylesInput: '',
   cover: '',
