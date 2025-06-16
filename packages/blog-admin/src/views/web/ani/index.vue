@@ -117,6 +117,13 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="地区" prop="area" width="100" align="center">
+          <template #default="scope">
+            <el-tag :type="getAreaTagType(scope.row.area)" style="margin: 0 2px;">
+              {{ scope.row.area.name }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="番剧ID" prop="animeId" width="100" align="center" />
         <el-table-column label="番剧状态" align="center" width="100">
           <template #default="scope">
@@ -806,6 +813,16 @@ const getPlatformLabel = (platform) => {
     4: '优酷'
   }
   return platformMap[platform] || '未知平台'
+}
+
+const getAreaTagType = (area) => {
+  const areaMap = {
+    1: 'primary',
+    2: 'success',
+    3: 'warning'
+  }
+
+  return areaMap[area.id] || 'info'
 }
 
 // 获取追番状态标签类型
