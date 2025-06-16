@@ -59,7 +59,7 @@ export class AnimeService {
    * @returns 番剧列表和总数
    */
   async findAll(queryAnimeDto: QueryAnimeDto): Promise<{ list: Anime[]; total: number }> {
-    const { page = 1, limit = 10, animeName, platform, animeStatus, watchStatus, sortBy = 'rating' } = queryAnimeDto;
+    const { page = 1, limit = 10, animeName, platform, animeStatus, watchStatus, sortBy = 'rating', area } = queryAnimeDto;
     
     const queryBuilder = this.animeRepository.createQueryBuilder('anime');
     
@@ -77,6 +77,10 @@ export class AnimeService {
     
     if (watchStatus) {
       queryBuilder.andWhere('anime.watchStatus = :watchStatus', { watchStatus });
+    }
+    
+    if (area) {
+      queryBuilder.andWhere('JSON_UNQUOTE(JSON_EXTRACT(anime.area, "$.id")) = :areaId', { areaId: area });
     }
     
     const total = await queryBuilder.getCount();
@@ -172,6 +176,10 @@ export class AnimeService {
     
     if ('areas' in updateAnimeDto) {
       anime.areas = updateAnimeDto.areas;
+    }
+    
+    if ('area' in updateAnimeDto) {
+      anime.area = updateAnimeDto.area;
     }
     
     if ('publishTime' in updateAnimeDto) {
@@ -340,7 +348,28 @@ export class AnimeService {
           
           anime.description = result.evaluate || anime.description;
           anime.actors = result.actors ? (Array.isArray(result.actors) ? result.actors.join(', ') : result.actors) : anime.actors;
-          anime.areas = result.areas?.map(area => area.name).join(', ') || anime.areas;
+          
+          // 处理地区信息
+          if (result.areas && result.areas.length > 0) {
+            // 保存原始areas字符串
+            anime.areas = result.areas?.map(area => area.name).join(', ') || anime.areas;
+            
+            // 处理area对象
+            const areaMapping = [
+              {id: 1, name: '国漫'},
+              {id: 2, name: '日漫'},
+              {id: 3, name: '美漫'}
+            ];
+            
+            // 根据areas[0].id查找对应的area
+            if (result.areas[0] && result.areas[0].id) {
+              const matchedArea = areaMapping.find(item => item.id === result.areas[0].id);
+              if (matchedArea) {
+                anime.area = matchedArea;
+              }
+            }
+          }
+          
           anime.subtitle = result.subtitle || anime.subtitle;
           anime.uname = result.up_info?.uname || anime.uname;
           anime.publishTime = result.publish?.pub_time_show || anime.publishTime;
@@ -404,6 +433,22 @@ export class AnimeService {
               
               if (result.typ[1]) {
                 anime.areas = result.typ[1];
+                
+                // 处理area对象
+                const areaMapping = [
+                  {id: 1, name: '国漫'},
+                  {id: 2, name: '日漫'},
+                  {id: 3, name: '美漫'}
+                ];
+                
+                // 根据地区名称判断属于哪个分类
+                if (result.typ[1] === '内地' || result.typ[1] === '中国大陆' || result.typ[1] === '中国香港' || result.typ[1] === '中国台湾') {
+                  anime.area = areaMapping[0]; // 国漫
+                } else if (result.typ[1] === '日本') {
+                  anime.area = areaMapping[1]; // 日漫
+                } else if (result.typ[1] === '美国') {
+                  anime.area = areaMapping[2]; // 美漫
+                }
               }
             }
             
@@ -619,6 +664,22 @@ export class AnimeService {
         views: seasonIndex !== -1 ? result.seasons[seasonIndex].stat?.views : null,
         seriesFollow: seasonIndex !== -1 ? result.seasons[seasonIndex].stat?.series_follow : null
       });
+      
+      // 处理area字段
+      if (result.areas && result.areas.length > 0) {
+        const areaMapping = [
+          {id: 1, name: '国漫'},
+          {id: 2, name: '日漫'},
+          {id: 3, name: '美漫'}
+        ];
+        
+        if (result.areas[0] && result.areas[0].id) {
+          const matchedArea = areaMapping.find(item => item.id === result.areas[0].id);
+          if (matchedArea) {
+            newAnime.area = matchedArea;
+          }
+        }
+      }
       
       // 保存番剧基本信息
       const savedAnime = await this.animeRepository.save(newAnime);

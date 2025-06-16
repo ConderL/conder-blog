@@ -12,6 +12,9 @@
           <!-- Tabs组件 - 状态筛选 -->
           <UTabs v-model="activeTab" :items="tabItems" class="w-full mb-4" />
           
+          <!-- Tabs组件 - 地区筛选 -->
+          <UTabs v-model="activeAreaTab" :items="areaTabItems" class="w-full mb-4" />
+          
           <!-- 平台筛选和排序控制 -->
           <div class="flex justify-between items-center w-full mb-4">
             <!-- Tabs组件 - 平台筛选 -->
@@ -41,7 +44,7 @@
           <UAlert
             type="warning"
             title="接口说明"
-            description="bilibili接口已开放权限可以做到实时更新，其他视频平台接口做了反爬处理，可获取的有用数据较少，目前暂时做不到数据的实时更新，采用静态数据展示。"
+            description="bilibili接口已开放权限可以实时更新番剧信息，而其他视频平台接口采取了反爬虫措施，可获取的有效数据有限，目前暂时无法实现数据的实时同步更新，因此采用静态数据展示。"
             class="mb-4"
           />
           
@@ -50,8 +53,9 @@
             <div v-for="anime in filteredAnimeList" :key="anime.id" class="anime-item" @click="openAnimeLink(anime)">
               <div class="anime-cover">
                 <img :src="anime.cover" alt="番剧封面" class="cover-img">
-                <div class="anime-status">
+                <div class="anime-status w-full justify-between px-2">
                   <span :class="getWatchStatusClass(anime.watchStatus)">{{ getWatchStatusLabel(anime.watchStatus) }}</span>
+                  <span v-if="anime.area" :class="getAreaTagClass(anime.area.id)">{{ anime.area.name }}</span>
                 </div>
               </div>
               <div class="anime-info">
@@ -159,7 +163,8 @@ const queryParams = reactive({
   platform: undefined,
   animeStatus: undefined,
   watchStatus: undefined,
-  sortBy: 'rating' // 默认按评分排序
+  sortBy: 'rating', // 默认按评分排序
+  area: undefined
 });
 
 // 当前激活的标签
@@ -178,6 +183,9 @@ const tabItems: TabsItem[] = [
 // 当前激活的平台标签
 const activePlatformTab = ref('all');
 
+// 当前激活的地区标签
+const activeAreaTab = ref('all');
+
 // 平台标签选项
 const platformTabItems: TabsItem[] = [
   { label: '全部', value: 'all' },
@@ -185,6 +193,14 @@ const platformTabItems: TabsItem[] = [
   { label: '腾讯视频', value: '2' },
   { label: '爱奇艺', value: '3' },
   { label: '优酷', value: '4' }
+];
+
+// 地区标签选项
+const areaTabItems: TabsItem[] = [
+  { label: '全部', value: 'all' },
+  { label: '国漫', value: '1' },
+  { label: '日漫', value: '2' },
+  { label: '美漫', value: '3' }
 ];
 
 // 排序相关
@@ -279,6 +295,16 @@ watch(activeTab, (newValue) => {
 watch(activePlatformTab, (newValue) => {
   // 设置平台参数
   queryParams.platform = newValue === 'all' ? undefined : parseInt(newValue);
+  
+  // 重置页码并刷新数据
+  queryParams.page = 1;
+  refresh();
+});
+
+// 当地区标签改变时更新查询参数
+watch(activeAreaTab, (newValue) => {
+  // 设置地区参数
+  queryParams.area = newValue === 'all' ? undefined : parseInt(newValue);
   
   // 重置页码并刷新数据
   queryParams.page = 1;
@@ -380,6 +406,16 @@ const getAnimeStatusClass = (status) => {
   return `status-tag status-small ${statusMap[status] || ''}`;
 };
 
+// 获取地区标签CSS类
+const getAreaTagClass = (areaId) => {
+  const areaMap = {
+    1: 'area-tag-guo',
+    2: 'area-tag-ri',
+    3: 'area-tag-mei'
+  };
+  return areaMap[areaId] || 'area-tag';
+};
+
 // SEO优化
 useHead({
   title: '我的追番 - 博客网站',
@@ -444,10 +480,44 @@ useHead({
   .anime-status {
     position: absolute;
     top: 10px;
-    left: 10px;
     display: flex;
     gap: 5px;
   }
+}
+
+.anime-status span {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+.area-tag {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-left: 3px solid #ff9800;
+}
+
+/* 国漫标签 */
+.area-tag-guo {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-left: 3px solid var(--color-red);
+  color: var(--color-red);
+}
+
+/* 日漫标签 */
+.area-tag-ri {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-left: 3px solid var(--color-blue);
+  color: var(--color-blue);
+}
+
+/* 美漫标签 */
+.area-tag-mei {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-left: 3px solid var(--color-purple);
+  color: var(--color-purple);
 }
 
 .status-tag {

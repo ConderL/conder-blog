@@ -42,6 +42,16 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="地区" prop="area">
+          <el-select v-model="queryParams.area" placeholder="请选择地区" clearable style="width: 200px">
+            <el-option
+              v-for="dict in areaOptions"
+              :key="dict.id"
+              :label="dict.name"
+              :value="dict.id"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -266,8 +276,15 @@
           <el-form-item label="配音演员" prop="actors">
             <el-input v-model="form.actors" placeholder="请输入配音演员，多个用逗号分隔" />
           </el-form-item>
-          <el-form-item label="地区" prop="areas">
-            <el-input v-model="form.areas" placeholder="请输入地区" />
+          <el-form-item label="地区" prop="area">
+            <el-select v-model="form.area" placeholder="请选择地区">
+              <el-option
+                v-for="dict in areaOptions"
+                :key="dict.id"
+                :label="dict.name"
+                :value="dict"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item label="发布时间" prop="publishTime">
             <el-input v-model="form.publishTime" placeholder="请输入发布时间，如：2023" />
@@ -406,7 +423,7 @@
         :closable="false"
         show-icon
       >
-        B站接口已开放权限可以做到实时更新，腾讯视频等其他平台接口做了反爬处理，目前暂时做不到数据的实时更新，采用静态数据展示。
+        bilibili接口已开放权限可以实时更新番剧信息，而其他视频平台接口采取了反爬虫措施，可获取的有效数据有限，目前暂时无法实现数据的实时同步更新，因此采用静态数据展示。
       </el-alert>
       <el-form ref="tencentImportFormRef" :model="tencentImportForm" :rules="tencentImportRules" label-width="100px" style="margin-top: 20px;">
         <el-form-item label="腾讯视频ID" prop="animeId">
@@ -477,7 +494,7 @@
         :closable="false"
         show-icon
       >
-        爱奇艺和优酷等平台接口做了严格的反爬处理，目前采用纯静态数据录入的方式。
+        爱奇艺和优酷等平台接口采取了严格的反爬虫措施，目前只能采用纯静态数据录入方式，无法实现自动更新。
       </el-alert>
       <el-form ref="otherImportFormRef" :model="otherImportForm" :rules="otherImportRules" label-width="100px" style="margin-top: 20px;">
         <el-form-item label="番剧名称" prop="animeName">
@@ -527,8 +544,15 @@
         <el-form-item label="配音演员" prop="actors">
           <el-input v-model="otherImportForm.actors" placeholder="请输入配音演员，多个用逗号分隔" />
         </el-form-item>
-        <el-form-item label="地区" prop="areas">
-          <el-input v-model="otherImportForm.areas" placeholder="请输入地区" />
+        <el-form-item label="地区" prop="area">
+          <el-select v-model="otherImportForm.area" placeholder="请选择地区">
+            <el-option
+              v-for="dict in areaOptions"
+              :key="dict.id"
+              :label="dict.name"
+              :value="dict"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="发布时间" prop="publishTime">
           <el-input v-model="otherImportForm.publishTime" placeholder="请输入发布时间，如：2023" />
@@ -685,7 +709,8 @@ const queryParams = reactive({
   animeName: undefined,
   platform: undefined,
   animeStatus: undefined,
-  watchStatus: undefined
+  watchStatus: undefined,
+  area: undefined
 })
 
 // 表单校验
@@ -729,6 +754,13 @@ const watchStatusOptions = [
   { value: 1, label: '想看' },
   { value: 2, label: '在看' },
   { value: 3, label: '已看' }
+]
+
+// 地区选项
+const areaOptions = [
+  { id: 1, name: '国漫' },
+  { id: 2, name: '日漫' },
+  { id: 3, name: '美漫' }
 ]
 
 // 表单ref
@@ -811,7 +843,7 @@ const reset = () => {
   // 添加爱奇艺和优酷平台相关字段的初始化
   form.description = ''
   form.actors = ''
-  form.areas = ''
+  form.area = undefined
   form.publishTime = ''
   form.stylesInput = ''
   form.link = ''
@@ -1149,7 +1181,7 @@ const otherImportForm = reactive({
   totalEpisodes: undefined,
   description: '',
   actors: '',
-  areas: '',
+  area: undefined,
   publishTime: '',
   stylesInput: '',
   cover: '',
@@ -1209,7 +1241,7 @@ const handleOtherImport = () => {
         totalEpisodes: otherImportForm.totalEpisodes ? parseInt(otherImportForm.totalEpisodes) : undefined,
         description: otherImportForm.description,
         actors: otherImportForm.actors,
-        areas: otherImportForm.areas,
+        area: otherImportForm.area,
         publishTime: otherImportForm.publishTime,
         styles: otherImportForm.stylesInput ? otherImportForm.stylesInput.split(',').map(item => item.trim()) : [],
         cover: otherImportForm.cover,
@@ -1234,7 +1266,7 @@ const handleOtherImport = () => {
           otherImportForm.totalEpisodes = undefined;
           otherImportForm.description = '';
           otherImportForm.actors = '';
-          otherImportForm.areas = '';
+          otherImportForm.area = undefined;
           otherImportForm.publishTime = '';
           otherImportForm.stylesInput = '';
           otherImportForm.cover = '';

@@ -92,6 +92,10 @@ export class CreateAnimeDto {
   @IsString()
   areas?: string;
 
+  @ApiProperty({ description: '地区类型', required: false })
+  @IsOptional()
+  area?: { id: number; name: string };
+
   @ApiProperty({ description: '发布时间', required: false })
   @IsOptional()
   @IsString()
@@ -183,6 +187,11 @@ export class QueryAnimeDto {
   @IsEnum(WatchStatus, { message: '追番状态值无效' })
   @Type(() => Number)
   watchStatus?: number;
+
+  @ApiProperty({ description: '地区类型ID', required: false, enum: [1, 2, 3] })
+  @IsOptional()
+  @Type(() => Number)
+  area?: number;
 
   @ApiProperty({ description: '排序字段', required: false, enum: ['rating', 'publishTime'] })
   @IsOptional()

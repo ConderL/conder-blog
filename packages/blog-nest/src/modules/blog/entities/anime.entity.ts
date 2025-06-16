@@ -77,6 +77,10 @@ export class Anime {
   @Column({ name: 'areas', comment: '地区', length: 100, nullable: true })
   areas: string;
 
+  @ApiProperty({ description: '地区类型' })
+  @Column({ name: 'area', comment: '地区类型', type: 'json', nullable: true })
+  area: { id: number; name: string };
+
   @ApiProperty({ description: '播放量信息' })
   @Column({ name: 'subtitle', comment: '播放量信息', length: 100, nullable: true })
   subtitle: string;
