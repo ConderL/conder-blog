@@ -155,7 +155,6 @@
             :headers="authorization"
             :action="baseURL + '/admin/carousel/upload'"
             accept="image/*"
-            :before-upload="beforeUpload"
             :on-success="handleSuccess"
           >
             <el-icon class="el-icon--upload" v-if="carouselForm.imgUrl === ''"
@@ -251,17 +250,6 @@ const rules = reactive<FormRules>({
   imgUrl: [{ required: true, message: "轮播图不能为空", trigger: "blur" }],
 });
 
-const beforeUpload = (rawFile: UploadRawFile) => {
-  return new Promise((resolve) => {
-    if (rawFile.size / 1024 < 200) {
-      resolve(rawFile);
-    }
-    // 压缩到200KB,这里的200就是要压缩的大小,可自定义
-    imageConversion.compressAccurately(rawFile, 200).then((res) => {
-      resolve(res);
-    });
-  });
-};
 
 const authorization = computed(() => {
   return {

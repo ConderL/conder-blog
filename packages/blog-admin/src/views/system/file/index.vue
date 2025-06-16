@@ -303,17 +303,6 @@ const submitForm = () => {
 const handleSelectionChange = (selection: BlogFile[]) => {
   fileIdList.value = selection.map((item) => item.id);
 };
-const beforeUpload = (rawFile: UploadRawFile) => {
-  return new Promise((resolve) => {
-    if (rawFile.size / 1024 < 200) {
-      resolve(rawFile);
-    }
-    // 压缩到200KB,这里的200就是要压缩的大小,可自定义
-    imageConversion.compressAccurately(rawFile, 200).then((res) => {
-      resolve(res);
-    });
-  });
-};
 const handleUpload = (options: UploadRequestOptions) => {
   let formData = new FormData();
   formData.append("file", options.file);

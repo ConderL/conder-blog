@@ -533,9 +533,9 @@ export class AdminArticleController {
     }
 
     // 检查文件格式
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
     if (!allowedMimeTypes.includes(file.mimetype)) {
-      return ResultDto.error('只允许上传jpg, png, gif, webp格式的图片');
+      return ResultDto.error('只允许上传jpg, png, gif, webp, avif格式的图片');
     }
 
     try {

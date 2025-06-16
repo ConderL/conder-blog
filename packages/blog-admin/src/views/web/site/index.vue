@@ -26,7 +26,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleUserAvatarSuccess"
                 >
                   <img
@@ -48,7 +47,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleTouristAvatarSuccess"
                 >
                   <img
@@ -132,7 +130,6 @@
               :action="baseURL + '/admin/site/upload'"
               :show-file-list="false"
               accept="image/*"
-              :before-upload="beforeUpload"
               :on-success="handleAuthorAvatarSuccess"
             >
               <img
@@ -288,7 +285,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleWeiXinSuccess"
                 >
                   <img
@@ -310,7 +306,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleAliSuccess"
                 >
                   <img
@@ -355,7 +350,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleArchiveSuccess"
                 >
                   <img
@@ -377,7 +371,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleCategorySuccess"
                 >
                   <img
@@ -399,7 +392,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleTagSuccess"
                 >
                   <img
@@ -423,7 +415,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleTalkSuccess"
                 >
                   <img
@@ -445,7 +436,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleAlbumSuccess"
                 >
                   <img
@@ -467,7 +457,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleAnimeSuccess"
                 >
                   <img
@@ -491,7 +480,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleFriendSuccess"
                 >
                   <img
@@ -513,7 +501,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleMessageSuccess"
                 >
                   <img
@@ -535,7 +522,6 @@
                   :action="baseURL + '/admin/site/upload'"
                   :show-file-list="false"
                   accept="image/*"
-                  :before-upload="beforeUpload"
                   :on-success="handleAboutSuccess"
                 >
                   <img
@@ -585,7 +571,6 @@
               :action="baseURL + '/admin/site/upload'"
               :show-file-list="false"
               accept="image/*"
-              :before-upload="beforeUpload"
               :on-success="handleArticleSuccess"
             >
               <img
@@ -765,17 +750,6 @@ const handleMessageSuccess = (response: AxiosResponse) => {
 };
 const handleAboutSuccess = (response: AxiosResponse) => {
   siteConfig.value.aboutWallpaper = response.data;
-};
-const beforeUpload = (rawFile: UploadRawFile) => {
-  return new Promise((resolve) => {
-    if (rawFile.size / 1024 < 200) {
-      resolve(rawFile);
-    }
-    // 压缩到200KB,这里的200就是要压缩的大小,可自定义
-    imageConversion.compressAccurately(rawFile, 200).then((res) => {
-      resolve(res);
-    });
-  });
 };
 const handleUpdate = () => {
   if (loginList.value.length > 0) {

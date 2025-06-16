@@ -195,7 +195,6 @@
             multiple
             :action="baseURL + '/admin/talk/upload'"
             :headers="authorization"
-            :before-upload="beforeUpload"
             :on-success="handleSuccess"
             :show-file-list="false"
           >
@@ -255,7 +254,6 @@
         list-type="picture-card"
         :file-list="uploadList"
         multiple
-        :before-upload="beforeUpload"
         :on-success="handleSuccess"
         :on-remove="handleRemove"
         :on-preview="handlePictureCardPreview"
@@ -365,17 +363,6 @@ const handleRemove = (file: UploadFile) => {
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!;
   dialogVisible.value = true;
-};
-const beforeUpload = (rawFile: UploadRawFile) => {
-  return new Promise((resolve) => {
-    if (rawFile.size / 1024 < 200) {
-      resolve(rawFile);
-    }
-    // 压缩到200KB,这里的200就是要压缩的大小,可自定义
-    imageConversion.compressAccurately(rawFile, 200).then((res) => {
-      resolve(res);
-    });
-  });
 };
 const handleOperation = (command: string) => {
   const type = command.substring(0, 6);

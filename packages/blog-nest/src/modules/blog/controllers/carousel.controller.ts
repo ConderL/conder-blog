@@ -150,11 +150,11 @@ export class AdminCarouselController {
     }
 
     // 检查文件格式
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
     if (!allowedMimeTypes.includes(file.mimetype)) {
       return {
         code: 400,
-        message: '只允许上传jpg, png, gif, webp格式的图片',
+        message: '只允许上传jpg, png, gif, webp, avif格式的图片',
         data: null,
       };
     }
