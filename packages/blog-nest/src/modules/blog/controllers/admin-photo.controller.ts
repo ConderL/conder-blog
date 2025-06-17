@@ -194,9 +194,9 @@ export class AdminPhotoController {
       this.logger.log(`上传照片: 文件名=${file.originalname}, 大小=${file.size}字节`);
 
       // 检查文件类型
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        return Result.fail('仅支持上传 JPG、PNG、GIF、WebP 和 AVIF 格式的图片', 400);
+        return Result.fail('仅支持上传 JPG、PNG、GIF 和 WebP 格式的图片', 400);
       }
 
       // 使用上传服务上传文件

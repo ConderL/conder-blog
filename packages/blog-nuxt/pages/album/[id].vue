@@ -14,7 +14,6 @@
         <ClientOnly>
           <div 
             v-if="photoInfo.photoVOList && photoInfo.photoVOList.length > 0" 
-            v-viewer
             v-masonry
             fit-width="true"
             transition-duration="0.3s"
@@ -26,7 +25,7 @@
               v-masonry-tile
               class="photo-card"
             >
-              <img class="photo-img" data-not-lazy :src="photo.photoUrl" alt="相册照片" />
+              <img class="photo-img" v-viewer data-not-lazy :src="photo.photoUrl" alt="相册照片" />
             </div>
           </div>
         </ClientOnly>
@@ -49,6 +48,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useBlogStore } from '~/stores';
+import VueViewer from 'v-viewer';
 
 // 定义页面元数据
 definePageMeta({

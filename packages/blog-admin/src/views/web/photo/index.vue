@@ -179,7 +179,6 @@
                 drag
                 multiple
                 :action="baseURL + '/admin/photo/upload'"
-                :before-upload="beforeUpload"
                 :show-file-list="false"
                 accept="image/*"
                 :on-success="handleSuccess"
@@ -391,17 +390,6 @@ const handleCommand = (photo: Photo) => {
   photoFormRef.value?.resetFields();
   photoForm.value = photo;
   update.value = true;
-};
-const beforeUpload = (rawFile: UploadRawFile) => {
-  return new Promise((resolve) => {
-    if (rawFile.size / 1024 < 200) {
-      resolve(rawFile);
-    }
-    // 压缩到200KB,这里的200就是要压缩的大小,可自定义
-    imageConversion.compressAccurately(rawFile, 200).then((res) => {
-      resolve(res);
-    });
-  });
 };
 const handleSuccess = (response: AxiosResponse) => {
   uploadList.value.push({ url: response.data });

@@ -249,7 +249,8 @@ export default defineNuxtConfig({
     // 非关键页面使用客户端渲染(CSR)
     '/user/**': { ssr: false },
     '/admin/**': { ssr: false },
-    '/anime/**': { ssr: false }
+    '/anime/**': { ssr: false },
+    '/album/**': { ssr: false }
   },
   colorMode: {
     preference: 'system',
@@ -269,7 +270,9 @@ export default defineNuxtConfig({
     '~/plugins/md-editor.client.ts',
     '~/plugins/socket-io.client.ts',
     '~/plugins/aplayer.client.ts',
-    '~/plugins/tianli-gpt-fix.client.ts'
+    '~/plugins/tianli-gpt-fix.client.ts',
+    '~/plugins/viewer.client.ts',
+    '~/plugins/masonry.client.ts'
   ],
   // 禁用页面过渡动画的警告
   experimental: {

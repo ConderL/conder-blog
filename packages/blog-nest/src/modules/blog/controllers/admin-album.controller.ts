@@ -295,9 +295,9 @@ export class AdminAlbumController {
       this.logger.log(`上传相册图片: ${file.originalname}, 大小: ${file.size} 字节`);
 
       // 检查文件类型
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        return Result.fail('仅支持上传 JPG、PNG、GIF、WebP 和 AVIF 格式的图片', null);
+        return Result.fail('仅支持上传 JPG、PNG、GIF 和 WebP 格式的图片', null);
       }
 
       // 使用上传服务上传文件
