@@ -3,7 +3,7 @@
 		<ul>	
 			<li
 				v-for="(img, index) of carouselList" :key="index"
-				class="item" :style="{'background-image': 'url(' + img.imgUrl + ')'}">
+				class="item" :style="{'background-image': 'url(' + img.imgUrl + ')', 'animation-duration': animationDuration + 's'}">
 			</li>
 		</ul>
 	</div>
@@ -19,6 +19,13 @@ defineExpose({
 const { carousel } = useApi();
 const { data } = await carousel.getList();
 const carouselList = computed(() => unref(data) || []);
+
+// 根据图片数量动态计算动画时长
+const animationDuration = computed(() => {
+  const count = carouselList.value.length;
+  // 每张图片显示6秒，确保总时长能被图片数量整除
+  return count > 0 ? count * 6 : 18;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -40,28 +47,15 @@ const carouselList = computed(() => unref(data) || []);
 		height: 100%;
 		background: no-repeat 50% 50% / cover;
 		opacity: 0;
-		animation: imageAnimation 36s linear infinite 0s;
+		animation: imageAnimation linear infinite 0s;
 		backface-visibility: hidden;
 		transform-style: preserve-3d;
+		will-change: opacity, transform; /* 优化动画性能 */
 
-		&:nth-child(2) {
-			animation-delay: 6s;
-		}
-
-		&:nth-child(3) {
-			animation-delay: 12s;
-		}
-
-		&:nth-child(4) {
-			animation-delay: 18s;
-		}
-
-		&:nth-child(5) {
-			animation-delay: 24s;
-		}
-
-		&:nth-child(6) {
-			animation-delay: 30s;
+		@for $i from 1 through 10 {
+			&:nth-child(#{$i}) {
+				animation-delay: #{($i - 1) * 6}s;
+			}
 		}
 	}
 
@@ -84,23 +78,23 @@ const carouselList = computed(() => unref(data) || []);
 		animation-timing-function: ease-in;
 	}
 
-	2% {
+	3% {
 		opacity: 1;
 	}
 
-	8% {
+	15% {
 		opacity: 1;
 		transform: scale(1.05);
 		animation-timing-function: ease-out;
 	}
 
-	17% {
+	25% {
 		opacity: 1;
 		transform: scale(1.1);
 	}
 
-	25% {
-		opacity: 1;
+	45% {
+		opacity: 0;
 		transform: scale(1.1);
 	}
 

@@ -1002,6 +1002,10 @@ const submitForm = () => {
       if (submitData.totalEpisodes) {
         submitData.totalEpisodes = parseInt(submitData.totalEpisodes);
       }
+
+      if(submitData.area) {
+        submitData.area = areaOptions.find(item => item.id === submitData.area);
+      }
       
       if (form.id) {
         updateAnime(form.id, submitData).then(({ data }) => {

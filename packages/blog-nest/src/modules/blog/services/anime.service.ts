@@ -44,7 +44,7 @@ export class AnimeService {
     
     // 创建后立即获取番剧信息
     this.logger.log(`创建番剧后获取信息: ID=${savedAnime.id}`);
-    await this.fetchAnimeInfo(savedAnime.id);
+    await this.fetchAnimeInfo(savedAnime.id, createAnimeDto);
     
     // 重新获取更新后的番剧信息
     const finalAnime = await this.findOne(savedAnime.id);
@@ -242,7 +242,7 @@ export class AnimeService {
    * 获取番剧信息
    * @param id 番剧ID
    */
-  async fetchAnimeInfo(id: number): Promise<void> {
+  async fetchAnimeInfo(id: number, createAnimeDto?: CreateAnimeDto): Promise<void> {
     try {
       const anime = await this.findOne(id);
       
@@ -414,6 +414,9 @@ export class AnimeService {
           
           if (response.data) {
             const result = response.data;
+            let area = null;
+            let styles = [];
+            let areaSource = '';
             
             // 保存原始数据到details字段
             anime.details = result;
@@ -426,31 +429,33 @@ export class AnimeService {
             this.logger.log(result.typ);
             
             if (result.typ) {
-              // 处理类型和地区
-              if (result.typ[0] && Array.isArray(result.typ[0])) {
-                anime.styles = result.typ[0];
+
+              // 处理area对象
+              const areaMapping = [
+                {id: 1, name: '国漫'},
+                {id: 2, name: '日漫'},
+                {id: 3, name: '美漫'},
+                {id: 4, name: '其他'}
+              ];
+
+              if (result.typ.length === 1) {
+                areaSource = result.typ[0];
+              } else if (result.typ.length === 2) {
+                areaSource = result.typ[1];
+                styles = Array.isArray(result.typ[0]) ? result.typ[0] : [];
               }
-              
-              if (result.typ[1]) {
-                anime.areas = result.typ[1];
-                
-                // 处理area对象
-                const areaMapping = [
-                  {id: 1, name: '国漫'},
-                  {id: 2, name: '日漫'},
-                  {id: 3, name: '美漫'}
-                ];
-                
-                // 根据地区名称判断属于哪个分类
-                if (result.typ[1] === '内地' || result.typ[1] === '中国大陆' || result.typ[1] === '中国香港' || result.typ[1] === '中国台湾') {
-                  anime.area = areaMapping[0]; // 国漫
-                } else if (result.typ[1] === '日本') {
-                  anime.area = areaMapping[1]; // 日漫
-                } else if (result.typ[1] === '美国') {
-                  anime.area = areaMapping[2]; // 美漫
+
+              ['内地', '中国大陆', '中国香港', '中国台湾'].forEach(item => {
+                if (areaSource.includes(item)) {
+                  area = '国漫';
                 }
-              }
+              });
+
+              area = areaSource.includes('日本') ? areaMapping[1] : areaSource.includes('美国') ? areaMapping[2] : areaMapping[3];
             }
+
+            anime.area = area;
+            anime.styles = styles;
             
             // 更新简介
             if (result.c && result.c.description) {

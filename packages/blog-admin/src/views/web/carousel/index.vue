@@ -80,10 +80,9 @@
           <el-switch
             v-model="scope.row.status"
             style="--el-switch-on-color: #13ce66"
-            :disabled="scope.row.status == 0"
+            disabled
             :active-value="1"
             :inactive-value="0"
-            @change="handleStatus(scope.row)"
           ></el-switch>
         </template>
       </el-table-column>
@@ -263,25 +262,6 @@ const handleSuccess = (response: AxiosResponse) => {
 
 const handleSelectionChange = (selection: Carousel[]) => {
   carouselIdList.value = selection.map((item) => item.id);
-};
-
-const handleStatus = (carousel: Carousel) => {
-  let text = carousel.status === 0 ? "隐藏" : "显示";
-  messageConfirm("确定要" + text + "该图片吗?")
-    .then(() => {
-      updateCarouselStatus({ id: carousel.id, status: carousel.status }).then(
-        ({ data }) => {
-          if (data.flag) {
-            notifySuccess(data.msg);
-          } else {
-            carousel.status = carousel.status === 0 ? 1 : 0;
-          }
-        }
-      );
-    })
-    .catch(() => {
-      carousel.status = carousel.status === 0 ? 1 : 0;
-    });
 };
 
 const handleDelete = (id?: number) => {

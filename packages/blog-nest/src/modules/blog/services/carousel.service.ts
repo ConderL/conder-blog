@@ -172,20 +172,4 @@ export class CarouselService {
 
     return result;
   }
-
-  /**
-   * 更新轮播图显示状态
-   * @param id 轮播图ID
-   * @param status 是否显示状态
-   * @returns 更新后的轮播图信息
-   */
-  async updateStatus(id: number, status: number): Promise<Carousel> {
-    this.logger.log(`更新轮播图显示状态 ID: ${id}, 状态: ${status}`);
-
-    const carousel = await this.findOne(id);
-
-    carousel.status = status;
-
-    return await this.carouselRepository.save(carousel);
-  }
 }

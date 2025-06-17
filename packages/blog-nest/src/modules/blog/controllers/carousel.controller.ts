@@ -250,18 +250,4 @@ export class AdminCarouselController {
       message: '删除成功',
     };
   }
-
-  @Patch(':id/status')
-  @ApiOperation({ summary: '更新轮播图显示状态' })
-  @ApiParam({ name: 'id', description: '轮播图ID' })
-  @ApiBody({ schema: { properties: { status: { type: 'number' } } } })
-  @ApiResponse({ status: 200, description: '更新成功', type: Carousel })
-  @OperationLog(OperationType.UPDATE)
-  async updateStatus(@Param('id') id: string, @Body('status') status: number) {
-    return {
-      code: 200,
-      message: '更新成功',
-      data: await this.carouselService.updateStatus(+id, status),
-    };
-  }
 }
