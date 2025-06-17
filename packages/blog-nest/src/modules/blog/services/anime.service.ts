@@ -445,13 +445,13 @@ export class AnimeService {
                 styles = Array.isArray(result.typ[0]) ? result.typ[0] : [];
               }
 
+              area = areaSource.includes('日本') ? areaMapping[1] : areaSource.includes('美国') ? areaMapping[2] : areaMapping[3];
+              
               ['内地', '中国大陆', '中国香港', '中国台湾'].forEach(item => {
                 if (areaSource.includes(item)) {
-                  area = '国漫';
+                  area = areaMapping[0];
                 }
               });
-
-              area = areaSource.includes('日本') ? areaMapping[1] : areaSource.includes('美国') ? areaMapping[2] : areaMapping[3];
             }
 
             anime.area = area;
