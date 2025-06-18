@@ -133,11 +133,11 @@ const handleForget = () => {
 // 社交登录
 const config = {
   QQ_APP_ID: '123456789',
-  QQ_REDIRECT_URL: 'http://localhost:3334/oauth/login/qq',
-  GITEE_CLIENT_ID: '123456789',
-  GITEE_REDIRECT_URL: 'http://localhost:3334/oauth/login/gitee',
-  GITHUB_APP_ID: '123456789',
-  GITHUB_REDIRECT_URL: 'http://localhost:3334/oauth/login/github'
+  QQ_REDIRECT_URL: 'https://api.conder.top/oauth/login/qq',
+  GITEE_CLIENT_ID: '6dd0c2c5e652658542bf5bb6bcaf431c7ef13db7192a5345dde9ab3d8a4d2937',
+  GITEE_REDIRECT_URL: 'https://api.conder.top/oauth/gitee/callback',
+  GITHUB_APP_ID: '102044337',
+  GITHUB_REDIRECT_URL: 'https://api.conder.top/oauth/github/callback'
 };
 
 // QQ登录
