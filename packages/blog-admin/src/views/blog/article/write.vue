@@ -178,7 +178,6 @@
             :headers="authorization"
             :action="baseURL + '/admin/article/upload'"
             accept="image/*"
-            :before-upload="beforeUpload"
             :on-success="handleSuccess"
           >
             <el-icon
@@ -496,17 +495,6 @@ const createCategoryFilter = (queryString: string) => {
 };
 const handleSuccess = (response: AxiosResponse) => {
   articleForm.value.articleCover = response.data;
-};
-const beforeUpload = (rawFile: UploadRawFile) => {
-  return new Promise((resolve) => {
-    if (rawFile.size / 1024 < 200) {
-      resolve(rawFile);
-    }
-    // 压缩到200KB,这里的200就是要压缩的大小,可自定义
-    imageConversion.compressAccurately(rawFile, 200).then((res) => {
-      resolve(res);
-    });
-  });
 };
 const submitForm = () => {
   articleFormRef.value?.validate((valid) => {
