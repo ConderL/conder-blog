@@ -50,7 +50,8 @@
       "@nuxt/kit": "3.17.4",
       "@codemirror/state": "6.4.1",
       "@codemirror/view": "6.34.1",
-      "@codemirror/language": "6.10.3"
+      "@codemirror/language": "6.10.3",
+      "nuxt-site-config": "^3.2.0"
     }
   }
 }
