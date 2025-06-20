@@ -52,12 +52,26 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
+      host: true, // 监听所有地址
+      port: 4173,
+      strictPort: false, // 如果端口被占用，自动尝试下一个可用端口
+      open: false, // 是否自动打开浏览器
+      cors: true, // 允许跨域
+      hmr: {
+        overlay: true, // 显示错误覆盖层
+        clientPort: 4173, // 确保客户端端口与服务器端口匹配
+      },
       proxy: {
         "/api": {
           target: "http://localhost:3000",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
         },
+      },
+      watch: {
+        // 监听文件变化的配置
+        usePolling: true, // 在某些系统上可能需要轮询来检测文件变化
+        interval: 100, // 轮询间隔（毫秒）
       },
     },
     build: {
