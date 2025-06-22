@@ -145,6 +145,9 @@ const qqLogin = () => {
   emit('close');
   
   if (process.client) {
+    // 保存当前路径，登录成功后跳转回来
+    localStorage.setItem('redirect_path', window.location.pathname);
+    
     window.open(
       `https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=${
         config.QQ_APP_ID
@@ -159,6 +162,9 @@ const giteeLogin = () => {
   emit('close');
   
   if (process.client) {
+    // 保存当前路径，登录成功后跳转回来
+    localStorage.setItem('redirect_path', window.location.pathname);
+    
     window.open(
       `https://gitee.com/oauth/authorize?client_id=${
         config.GITEE_CLIENT_ID
@@ -173,6 +179,9 @@ const githubLogin = () => {
   emit('close');
   
   if (process.client) {
+    // 保存当前路径，登录成功后跳转回来
+    localStorage.setItem('redirect_path', window.location.pathname);
+    
     window.open(
       `https://github.com/login/oauth/authorize?client_id=${
         config.GITHUB_APP_ID

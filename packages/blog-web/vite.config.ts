@@ -23,7 +23,7 @@ export default defineConfig((configEnv) => {
 		plugins: setupVitePlugins(viteEnv),
 		server: {
 			host: "0.0.0.0",
-			port: 3333,
+			port: 9527,
 			open: true,
 			proxy: {
 				...createViteProxy(viteEnv),

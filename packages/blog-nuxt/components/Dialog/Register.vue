@@ -74,6 +74,7 @@
 import { useIntervalFn } from "@vueuse/core";
 import { encryptPassword } from "~/utils/secret";
 import { useUserStore } from "~/stores/user";
+import { useToken } from "~/composables/useToken";
 
 interface RegisterForm {
   email: string;
@@ -94,8 +95,8 @@ const registerForm = reactive<RegisterForm>({
   confirmPassword: "",
   code: "",
 });
-
 const { login: loginApi } = useApi();
+const { setToken } = useToken();
 
 // 暴露给父组件的事件
 const emit = defineEmits(['close', 'login']);
@@ -140,7 +141,7 @@ const sendCode = () => {
   start(60);
   loginApi.sendEmailCode(registerForm.email)
     .then((res: any) => {
-      if (res.data.flag) {
+      if (res.flag) {
         window.$message?.success("验证码发送成功");
       }
     })
@@ -198,18 +199,17 @@ const handleRegister = async () => {
       nickname: registerForm.nickname
     });
     
-    if (res.data.flag) {
+    if (res.flag) {
       // 注册成功后自动登录，这里需要加密密码
       try {
         const loginRes = await loginApi.login({
           email: registerForm.email,
-          password: encryptPassword(registerForm.password)
+          password: await encryptPassword(registerForm.password)
         });
         
-        if (loginRes.data.flag) {
+        if (loginRes.flag) {
           // 存储token
-          const token = loginRes.data.data.token;
-          localStorage.setItem('token', token);
+          setToken(loginRes.data.token);
           
           // 获取用户信息
           const user = useUserStore();

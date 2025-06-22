@@ -5,14 +5,14 @@
 export const useRequest = () => {
   const config = useRuntimeConfig();
   const baseURL = config.public.serviceBaseUrl;
-  
+
   // 获取用户store和应用store
   const userStore = useUserStore();
   const appStore = useAppStore();
-  
+
   // 使用新的token组合式函数
   const { getToken, token_prefix } = useToken();
-  
+
   const token = getToken();
 
   /**
@@ -21,7 +21,7 @@ export const useRequest = () => {
    */
 
   const handleResponse = (response: any) => {
-    if(process.client) {
+    if (process.client) {
       switch (response.code) {
         case -1:
           window.$message?.error(response.msg);
@@ -41,17 +41,6 @@ export const useRequest = () => {
     }
   };
 
-  const customFetch = $fetch.create({
-    onRequest: ({ options }) => {
-      if (token) {
-        options.headers.Authorization = token_prefix + token;
-      }
-    },
-    onResponse: ({ response }) => {
-      handleResponse(response._data);
-    }
-  })
-
   /**
    * 客户端直接请求函数 - 适用于用户交互场景
    * @param url API路径
@@ -59,34 +48,34 @@ export const useRequest = () => {
    * @returns 响应数据
    */
   const directFetch = async (url: string, options: any = {}) => {
-      // 准备请求选项
-      const fetchOptions = {
-        isNotify: false,
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers
-        }
-      };
-      
-      // 添加token
-      const token = getToken();
 
-      if (token) {
-        fetchOptions.headers.Authorization = token_prefix + token;
-      }
-      
-      // 发送请求
-      const response = await $fetch(url, {
-        ...fetchOptions,
-        baseURL,
-        onResponse: ({ response }) => {
-          handleResponse(response._data);
+    // 准备请求选项
+    const fetchOptions = {
+      isNotify: false,
+      ...options
+    };
+
+    // 添加token
+    const token = getToken();
+
+    if (token) {
+      fetchOptions.headers.Authorization = token_prefix + token;
+    }
+
+    // 发送请求
+    const response = await $fetch(url, {
+      ...fetchOptions,
+      baseURL,
+      onResponse: ({ response }) => {
+        handleResponse(response._data);
+        if (fetchOptions.isNotify) {
+          window.$message?.success(response._data.msg);
         }
-      });
-      
-      // 返回完整响应，而不仅仅是data部分
-      return response;
+      }
+    });
+
+    // 返回完整响应，而不仅仅是data部分
+    return response;
   };
 
   /**

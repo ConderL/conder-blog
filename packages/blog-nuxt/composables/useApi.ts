@@ -3,12 +3,12 @@ import { useRequest } from './useRequest';
 
 export const useApi = () => {
   const { fetchData, directFetch } = useRequest();
-   
+
   // 博客信息API
   const blogInfo = {
     // 获取博客信息 - 用于SSR
     getBlogInfo: async () => directFetch('/'),
-    
+
     // 上传访客信息 - 用于客户端
     report: () => directFetch('/report', { method: 'POST' }),
   };
@@ -17,19 +17,19 @@ export const useApi = () => {
   const article = {
     // 获取文章列表 - 用于SSR
     getList: (params: any) => fetchData('/articles/list', { params }),
-    
+
     // 获取文章详情 - 用于SSR
     getArticle: (id: number) => fetchData(`/articles/${id}`),
-    
+
     // 获取推荐文章 - 用于SSR
     getArticleRecommend: () => fetchData('/articles/recommend'),
-    
+
     // 点赞文章 - 用于客户端交互
     like: (id: string) => directFetch(`/articles/${id}/like`, { method: 'POST' }),
-    
+
     // 取消点赞文章 - 用于客户端交互
     unlike: (id: string) => directFetch(`/articles/${id}/like`, { method: 'POST', params: { type: 'unlike' } }),
-    
+
     // 搜索文章 - 用于客户端交互
     searchArticle: (keyword: string) => directFetch('/articles/search', { params: { keyword } }),
   };
@@ -68,7 +68,7 @@ export const useApi = () => {
     validateCaptcha: (captchaUUID: string, code: string) => directFetch('/captcha/validate', { method: 'POST', body: { captchaUUID, code, type: 'ConderView' } }),
 
     // 发送邮箱验证码 - 用于客户端交互
-    sendEmailCode: (email: string) => directFetch('/auth/email/code', { method: 'POST', body: { email, type: 'ConderView' } }),
+    sendEmailCode: (email: string) => directFetch('/auth/email/code', { params: { email, type: 'ConderView' } }),
 
     // 注册 - 用于客户端交互
     register: (data: any) => directFetch('/auth/register', { method: 'POST', body: { ...data, type: 'ConderView' } }),
@@ -82,14 +82,14 @@ export const useApi = () => {
     // 退出登录 - 用于客户端交互
     logout: () => directFetch('/auth/logout', { method: 'POST' }),
 
-    // 第三方登录 - 用于客户端交互
-    thirdLogin: (data: any) => directFetch('/oauth/login', { method: 'POST', body: { ...data, type: 'ConderView' } }),
+    // 第三方登录 - Gitee
+    giteeLogin: (data: any) => directFetch('/oauth/login/gitee', { method: 'POST', body: data }),
 
-    // 获取第三方登录信息 - 用于SSR
-    getThirdLoginInfo: () => fetchData('/oauth/info'),
+    // 第三方登录 - GitHub
+    githubLogin: (data: any) => directFetch('/oauth/login/github', { method: 'POST', body: data }),
 
-    // 获取第三方登录授权 - 用于客户端交互
-    getThirdLoginAuth: (data: any) => directFetch('/oauth/auth', { method: 'POST', body: { ...data, type: 'ConderView' } }),
+    // 第三方登录 - QQ
+    qqLogin: (data: any) => directFetch('/oauth/login/qq', { method: 'POST', body: data }),
   };
 
   const comment = {
@@ -116,7 +116,7 @@ export const useApi = () => {
   const category = {
     // 获取分类列表 - 用于SSR
     getCategoryList: () => fetchData('/categories'),
-    
+
     // 获取分类文章列表 - 用于SSR
     getCategoryArticleList: (params: any) => fetchData('/category/article', { params }),
   };
@@ -125,7 +125,7 @@ export const useApi = () => {
   const tag = {
     // 获取标签列表 - 用于SSR
     getTagList: () => fetchData('/tag/list'),
-    
+
     // 获取标签文章列表 - 用于SSR
     getTagArticleList: (params: any) => fetchData('/tag/article', { params }),
   };
@@ -134,7 +134,7 @@ export const useApi = () => {
   const album = {
     // 获取相册列表
     getAlbumList: () => directFetch('/album/list'),
-    
+
     // 获取照片列表
     getPhotoList: (albumId: number) => directFetch('/photo/list', { params: { albumId } }),
   };
@@ -149,7 +149,7 @@ export const useApi = () => {
   const message = {
     // 获取留言列表 - 用于SSR
     getMessageList: () => directFetch('/message/list'),
-    
+
     // 添加留言 - 用于客户端交互
     addMessage: (data: any) => directFetch('/message/add', { method: 'POST', body: data }),
   };
@@ -160,6 +160,20 @@ export const useApi = () => {
     getList: (params) => fetchData(`/anime/list`, { params }),
     // 获取番剧详情
     getDetail: (id) => fetchData(`/anime/${id}`)
+  };
+
+  // 用户相关API
+  const user = {
+    // 更新用户信息
+    updateUserInfo: (data: any) => directFetch('/user/info', { method: 'PUT', body: data }),
+    // 更新用户头像
+    updateUserAvatar: (data: FormData) => directFetch('/user/avatar', {
+      method: 'POST',
+      body: data,
+      headers: { "Content-Type": "multipart/form-data" }
+    }),
+    // 更新用户邮箱
+    updateUserEmail: (data: any) => directFetch('/user/email', { method: 'PUT', body: data }),
   };
 
   return {
@@ -175,6 +189,7 @@ export const useApi = () => {
     album,
     friend,
     message,
-    anime
+    anime,
+    user
   };
 }; 

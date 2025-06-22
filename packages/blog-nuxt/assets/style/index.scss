@@ -50,6 +50,9 @@ h6 {
 input,
 textarea {
 	cursor: url(/icons/text.svg), text !important;
+  &:disabled {
+    cursor: url(/icons/ban.svg), not-allowed !important;
+  }
 }
 
 li {

@@ -16,7 +16,7 @@ export interface UserInfo {
 
 export const useUserStore = defineStore('user', () => {
   const { token, getToken, removeToken, setToken } = useToken();
-  
+
   const userInfo = ref<UserInfo>({} as UserInfo);
   const isLogin = ref(false);
   const articleLikeSet = ref<number[]>([]);
@@ -27,6 +27,7 @@ export const useUserStore = defineStore('user', () => {
   const avatar = ref('');
   const intro = ref('');
   const webSite = ref('');
+  const email = ref('');
 
   function setUserInfo(info: UserInfo) {
     userInfo.value = info;
@@ -36,6 +37,7 @@ export const useUserStore = defineStore('user', () => {
     avatar.value = info.avatar || '';
     intro.value = info.intro || '';
     webSite.value = info.webSite || '';
+    email.value = info.email || '';
     articleLikeSet.value = info.articleLikeSet || [];
     commentLikeSet.value = info.commentLikeSet || [];
     talkLikeSet.value = info.talkLikeSet || [];
@@ -49,10 +51,31 @@ export const useUserStore = defineStore('user', () => {
     avatar.value = '';
     intro.value = '';
     webSite.value = '';
+    email.value = '';
     articleLikeSet.value = [];
     commentLikeSet.value = [];
     talkLikeSet.value = [];
     removeToken();
+  }
+
+  // 强制登出，用于token失效等情况
+  function forceLogOut() {
+    logout();
+  }
+
+  // 更新用户信息
+  function updateUserInfo(info: any) {
+    nickname.value = info.nickname || nickname.value;
+    intro.value = info.intro || intro.value;
+    webSite.value = info.webSite || webSite.value;
+
+    // 更新userInfo
+    userInfo.value = {
+      ...userInfo.value,
+      nickname: nickname.value,
+      intro: intro.value,
+      webSite: webSite.value
+    };
   }
 
   // 获取用户信息
@@ -62,7 +85,7 @@ export const useUserStore = defineStore('user', () => {
       console.log('没有token，无法获取用户信息');
       return;
     }
-    
+
     try {
       const { login: loginApi } = useApi();
       const { data } = await loginApi.getUserInfo();
@@ -95,7 +118,7 @@ export const useUserStore = defineStore('user', () => {
       articleLikeSet.value.push(articleId);
     }
   }
-  
+
   // 更新评论点赞状态
   function commentLike(commentId: number) {
     const index = commentLikeSet.value.indexOf(commentId);
@@ -105,7 +128,7 @@ export const useUserStore = defineStore('user', () => {
       commentLikeSet.value.push(commentId);
     }
   }
-  
+
   // 更新说说点赞状态
   function talkLike(talkId: number) {
     const index = talkLikeSet.value.indexOf(talkId);
@@ -125,13 +148,16 @@ export const useUserStore = defineStore('user', () => {
     avatar,
     intro,
     webSite,
+    email,
     articleLikeSet,
     commentLikeSet,
     talkLikeSet,
     setToken,
     setUserInfo,
     logout,
+    forceLogOut,
     fetchUserInfo,
+    updateUserInfo,
     articleLike,
     commentLike,
     talkLike
