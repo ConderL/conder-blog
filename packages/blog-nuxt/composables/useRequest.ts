@@ -52,6 +52,10 @@ export const useRequest = () => {
     // 准备请求选项
     const fetchOptions = {
       isNotify: false,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
       ...options
     };
 
