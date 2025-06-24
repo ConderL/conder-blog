@@ -157,9 +157,17 @@ export const useApi = () => {
   // 番剧API
   const anime = {
     // 获取番剧列表
-    getList: (params) => fetchData(`/anime/list`, { params }),
+    getList: (params) => directFetch(`/anime/list`, { params }),
     // 获取番剧详情
-    getDetail: (id) => fetchData(`/anime/${id}`)
+    getDetail: (id) => directFetch(`/anime/${id}`),
+    // 追番
+    collect: (id) => directFetch(`/anime/${id}/collect`, { method: 'POST' }),
+    // 取消追番
+    uncollect: (id) => directFetch(`/anime/${id}/uncollect`, { method: 'POST' }),
+    // 检查是否已追番
+    isCollected: (id) => directFetch(`/anime/${id}/collected`),
+    // 获取用户收藏的番剧列表（带分页）
+    getUserCollection: (params) => directFetch(`/user/anime/collection/page`, { params }),
   };
 
   // 用户相关API
@@ -174,6 +182,10 @@ export const useApi = () => {
     }),
     // 更新用户邮箱
     updateUserEmail: (data: any) => directFetch('/user/email', { method: 'PUT', body: data }),
+    // 获取用户追番列表ID
+    getAnimeCollection: () => directFetch('/user/anime/collection'),
+    // 获取用户追番列表详情（一次性返回所有详情，避免多次请求）
+    getAnimeCollectionDetail: () => directFetch('/user/anime/collection/detail'),
   };
 
   return {

@@ -36,7 +36,7 @@ export class UserService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
-  ) {}
+  ) { }
 
   /**
    * 根据用户名查找用户
@@ -910,6 +910,77 @@ export class UserService {
   }
 
   /**
+   * 获取用户追番列表
+   * @param userId 用户ID
+   * @returns 追番ID数组
+   */
+  async getUserAnimeList(userId: number): Promise<number[]> {
+    try {
+      const key = `${RedisConstant.USER_ANIME_COLLECTION}${userId}`;
+      const animes = await this.redisService.smembers(key);
+      return animes.map((id) => parseInt(id));
+    } catch (error) {
+      this.logger.error(`获取用户追番列表失败: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * 添加用户追番
+   * @param userId 用户ID
+   * @param animeId 番剧ID
+   * @returns 是否成功
+   */
+  async addAnimeCollection(userId: number, animeId: number): Promise<boolean> {
+    try {
+      const key = `${RedisConstant.USER_ANIME_COLLECTION}${userId}`;
+
+      // 添加用户追番记录
+      await this.redisService.sadd(key, animeId.toString());
+      return true;
+    } catch (error) {
+      this.logger.error(`添加用户追番失败: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * 取消用户追番
+   * @param userId 用户ID
+   * @param animeId 番剧ID
+   * @returns 是否成功
+   */
+  async cancelAnimeCollection(userId: number, animeId: number): Promise<boolean> {
+    try {
+      const key = `${RedisConstant.USER_ANIME_COLLECTION}${userId}`;
+
+      // 移除用户追番记录
+      await this.redisService.srem(key, animeId.toString());
+      return true;
+    } catch (error) {
+      this.logger.error(`取消用户追番失败: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * 检查用户是否已追番
+   * @param userId 用户ID
+   * @param animeId 番剧ID
+   * @returns 是否已追番
+   */
+  async isAnimeCollected(userId: number, animeId: number): Promise<boolean> {
+    try {
+      const key = `${RedisConstant.USER_ANIME_COLLECTION}${userId}`;
+      const isCollected = await this.redisService.sismember(key, animeId.toString());
+      return !!isCollected;
+    } catch (error) {
+      this.logger.error(`检查用户是否已追番失败: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
    * 添加用户文章点赞
    * @param userId 用户ID
    * @param articleId 文章ID
@@ -1399,6 +1470,215 @@ export class UserService {
     } catch (error) {
       this.logger.error(`绑定邮箱到用户账号失败: ${error.message}`, error.stack);
       return false;
+    }
+  }
+
+  /**
+   * 获取用户追番列表详情
+   * @param userId 用户ID
+   * @returns 追番详情数组
+   */
+  async getUserAnimeCollectionDetail(userId: number): Promise<any[]> {
+    try {
+      // 1. 获取用户的追番ID列表
+      const animeIds = await this.getUserAnimeList(userId);
+
+      if (!animeIds || animeIds.length === 0) {
+        return [];
+      }
+
+      // 2. 获取番剧详情
+      const entityManager = this.userRepository.manager;
+
+      // 使用IN查询一次性获取所有番剧详情
+      const animeDetails = await entityManager.query(
+        `SELECT * FROM t_anime WHERE id IN (?)`,
+        [animeIds]
+      );
+
+      this.logger.log(`获取到${animeDetails.length}条番剧详情`);
+
+      // 处理area关联数据
+      for (const anime of animeDetails) {
+        if (anime.area_id) {
+          try {
+            const areaResult = await entityManager.query(
+              `SELECT id, name FROM t_anime_area WHERE id = ?`,
+              [anime.area_id]
+            );
+
+            if (areaResult && areaResult.length > 0) {
+              anime.area = {
+                id: areaResult[0].id,
+                name: areaResult[0].name
+              };
+            }
+          } catch (error) {
+            this.logger.error(`获取番剧${anime.id}的地区信息失败: ${error.message}`);
+          }
+        }
+      }
+
+      // 转换数据库字段为驼峰命名
+      const formattedAnimes = animeDetails.map(anime => {
+        return {
+          id: anime.id,
+          animeName: anime.anime_name,
+          platform: anime.platform,
+          animeId: anime.anime_id,
+          animeStatus: anime.anime_status,
+          watchStatus: anime.watch_status,
+          cover: anime.cover,
+          rating: anime.rating,
+          ratingCount: anime.rating_count,
+          totalEpisodes: anime.total_episodes,
+          currentEpisodes: anime.current_episodes,
+          description: anime.description,
+          actors: anime.actors,
+          areas: anime.areas,
+          area: anime.area,
+          subtitle: anime.subtitle,
+          uname: anime.uname,
+          publishTime: anime.publish_time,
+          link: anime.link,
+          styles: anime.styles ? JSON.parse(anime.styles) : [],
+          indexShow: anime.index_show,
+          weekday: anime.weekday,
+          favorites: anime.favorites,
+          views: anime.views,
+          seriesFollow: anime.series_follow,
+          details: anime.details,
+          lastUpdateTime: anime.last_update_time,
+          createTime: anime.create_time,
+          updateTime: anime.update_time,
+        };
+      });
+
+      return formattedAnimes;
+    } catch (error) {
+      this.logger.error(`获取用户追番列表详情失败: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * 分页获取用户追番列表详情
+   * @param userId 用户ID
+   * @param page 页码
+   * @param limit 每页条数
+   * @param sortBy 排序字段
+   * @returns 分页结果和总数
+   */
+  async getUserAnimeCollectionPage(userId: number, page: number = 1, limit: number = 10, sortBy: string = 'rating'): Promise<any> {
+    try {
+      // 1. 获取用户的追番ID列表
+      const animeIds = await this.getUserAnimeList(userId);
+
+      if (!animeIds || animeIds.length === 0) {
+        return { list: [], total: 0 };
+      }
+
+      // 计算分页参数
+      const offset = (page - 1) * limit;
+
+      // 2. 获取番剧详情
+      const entityManager = this.userRepository.manager;
+
+      // 确定排序字段
+      let orderField = 'rating';
+      if (sortBy === 'publishTime') {
+        orderField = 'publish_time';
+      }
+
+      // 计算总数
+      const countResult = await entityManager.query(
+        `SELECT COUNT(*) as total FROM t_anime WHERE id IN (?)`,
+        [animeIds]
+      );
+      const total = parseInt(countResult[0].total);
+
+      // 使用IN查询一次性获取所有番剧详情（带分页和排序）
+      const animeDetails = await entityManager.query(
+        `SELECT * FROM t_anime WHERE id IN (?) ORDER BY ${orderField} DESC LIMIT ? OFFSET ?`,
+        [animeIds, limit, offset]
+      );
+
+      this.logger.log(`获取到第${page}页的${animeDetails.length}条番剧详情，总共${total}条`);
+
+      // 处理area关联数据
+      for (const anime of animeDetails) {
+        if (anime.area_id) {
+          try {
+            const areaResult = await entityManager.query(
+              `SELECT id, name FROM t_anime_area WHERE id = ?`,
+              [anime.area_id]
+            );
+
+            if (areaResult && areaResult.length > 0) {
+              anime.area = {
+                id: areaResult[0].id,
+                name: areaResult[0].name
+              };
+            }
+          } catch (error) {
+            this.logger.error(`获取番剧${anime.id}的地区信息失败: ${error.message}`);
+          }
+        }
+      }
+
+      // 转换数据库字段为驼峰命名
+      const formattedAnimes = animeDetails.map(anime => {
+        let styles = [];
+        try {
+          if (anime.styles) {
+            if (typeof anime.styles === 'string') {
+              styles = JSON.parse(anime.styles);
+            } else if (Array.isArray(anime.styles)) {
+              styles = anime.styles;
+            }
+          }
+        } catch (error) {
+          this.logger.warn(`解析番剧${anime.id}的styles字段失败: ${error.message}`);
+          styles = typeof anime.styles === 'string' ? [anime.styles] : [];
+        }
+
+        return {
+          id: anime.id,
+          animeName: anime.anime_name,
+          platform: anime.platform,
+          animeId: anime.anime_id,
+          animeStatus: anime.anime_status,
+          watchStatus: anime.watch_status,
+          cover: anime.cover,
+          rating: anime.rating,
+          ratingCount: anime.rating_count,
+          totalEpisodes: anime.total_episodes,
+          currentEpisodes: anime.current_episodes,
+          description: anime.description,
+          actors: anime.actors,
+          areas: anime.areas,
+          area: anime.area,
+          subtitle: anime.subtitle,
+          uname: anime.uname,
+          publishTime: anime.publish_time,
+          link: anime.link,
+          styles: styles,
+          indexShow: anime.index_show,
+          weekday: anime.weekday,
+          favorites: anime.favorites,
+          views: anime.views,
+          seriesFollow: anime.series_follow,
+          details: anime.details,
+          lastUpdateTime: anime.last_update_time,
+          createTime: anime.create_time,
+          updateTime: anime.update_time,
+        };
+      });
+
+      return { list: formattedAnimes, total };
+    } catch (error) {
+      this.logger.error(`分页获取用户追番列表详情失败: ${error.message}`);
+      return { list: [], total: 0 };
     }
   }
 }

@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Param,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -40,7 +41,7 @@ export class UserController {
     private readonly menuService: MenuService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly redisService: RedisService,
-  ) {}
+  ) { }
 
   /**
    * 将数据库菜单格式转换为前端路由格式
@@ -175,6 +176,10 @@ export class UserController {
         talkLikeSet.length,
       );
 
+      // 获取用户追番信息
+      const animeCollectionSet = await this.userService.getUserAnimeList(userId);
+      console.log('获取到追番信息，追番数:', animeCollectionSet.length);
+
       // 如果用户没有角色或权限，直接返回空数组，不再添加默认值
       const userInfo = {
         id: user.id,
@@ -189,6 +194,7 @@ export class UserController {
         articleLikeSet,
         commentLikeSet,
         talkLikeSet,
+        animeCollectionSet,
       };
 
       console.log('返回用户信息:', JSON.stringify(userInfo).substring(0, 100) + '...');
@@ -387,6 +393,74 @@ export class UserController {
       return false;
     }
   }
+
+  /**
+   * 获取用户追番列表
+   */
+  @Get('anime/collection')
+  @ApiOperation({ summary: '获取当前登录用户追番列表' })
+  @ApiBearerAuth()
+  async getUserAnimeCollection(@Request() req): Promise<ResultDto<any>> {
+    try {
+      const userId = req.user.id;
+      this.logger.log(`获取用户追番列表，用户ID: ${userId}`);
+
+      // 获取用户追番ID列表
+      const animeIds = await this.userService.getUserAnimeList(userId);
+
+      return ResultDto.success(animeIds);
+    } catch (error) {
+      this.logger.error('获取用户追番列表失败:', error);
+      return ResultDto.fail(`获取用户追番列表失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 获取用户追番列表详情
+   */
+  @Get('anime/collection/detail')
+  @ApiOperation({ summary: '获取当前登录用户追番列表详情' })
+  @ApiBearerAuth()
+  async getUserAnimeCollectionDetail(@Request() req): Promise<ResultDto<any>> {
+    try {
+      const userId = req.user.id;
+      this.logger.log(`获取用户追番列表详情，用户ID: ${userId}`);
+
+      // 获取用户追番列表详情
+      const animeDetails = await this.userService.getUserAnimeCollectionDetail(userId);
+
+      return ResultDto.success(animeDetails);
+    } catch (error) {
+      this.logger.error('获取用户追番列表详情失败:', error);
+      return ResultDto.fail(`获取用户追番列表详情失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 分页获取用户追番列表
+   */
+  @Get('anime/collection/page')
+  @ApiOperation({ summary: '分页获取当前登录用户追番列表' })
+  @ApiBearerAuth()
+  async getUserAnimeCollectionPage(@Request() req, @Query() query): Promise<ResultDto<any>> {
+    try {
+      const userId = req.user.id;
+      this.logger.log(`分页获取用户追番列表，用户ID: ${userId}, 参数:`, query);
+
+      // 解析查询参数
+      const page = parseInt(query.page) || 1;
+      const limit = parseInt(query.limit) || 10;
+      const sortBy = query.sortBy || 'rating';
+
+      // 获取用户追番列表详情（分页）
+      const result = await this.userService.getUserAnimeCollectionPage(userId, page, limit, sortBy);
+
+      return ResultDto.success(result);
+    } catch (error) {
+      this.logger.error('分页获取用户追番列表失败:', error);
+      return ResultDto.fail(`分页获取用户追番列表失败: ${error.message}`);
+    }
+  }
 }
 
 @ApiTags('后台用户管理')
@@ -396,7 +470,7 @@ export class AdminUserController {
   constructor(
     private readonly userService: UserService,
     private readonly menuService: MenuService,
-  ) {}
+  ) { }
 
   /**
    * 查询用户列表
@@ -545,6 +619,10 @@ export class AdminUserController {
         talkLikeSet.length,
       );
 
+      // 获取用户追番信息
+      const animeCollectionSet = await this.userService.getUserAnimeList(userId);
+      console.log('获取到追番信息，追番数:', animeCollectionSet.length);
+
       // 如果用户没有角色或权限，直接返回空数组，不再添加默认值
       const userInfo = {
         id: user.id,
@@ -556,6 +634,7 @@ export class AdminUserController {
         articleLikeSet,
         commentLikeSet,
         talkLikeSet,
+        animeCollectionSet,
       };
 
       console.log('返回管理员用户信息:', JSON.stringify(userInfo).substring(0, 100) + '...');

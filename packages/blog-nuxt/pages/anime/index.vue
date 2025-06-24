@@ -2,7 +2,7 @@
   <div class="anime-page">
     <div class="page-header">
       <h1 class="page-title">追番列表</h1>
-      <img class="page-cover" :src="blog.blogInfo?.siteConfig?.animeWallpaper || ''" alt="">
+      <img class="page-cover" :src="blog.blogInfo?.siteConfig?.albumWallpaper || ''" alt="">
       <!-- 波浪 -->
       <Waves></Waves>
     </div>
@@ -16,7 +16,7 @@
           <UTabs v-model="activeAreaTab" :items="areaTabItems" class="w-full mb-4" />
           
           <!-- 平台筛选和排序控制 -->
-          <div class="flex justify-between items-center w-full mb-4">
+          <div class="sm:flex justify-between items-center w-full mb-4">
             <!-- Tabs组件 - 平台筛选 -->
             <UTabs v-model="activePlatformTab" :items="platformTabItems" class="flex-grow" />
             
@@ -48,83 +48,13 @@
             class="mb-4"
           />
           
-          <!-- 番剧列表 -->
-          <div class="anime-list">
-            <div v-for="anime in filteredAnimeList" :key="anime.id" class="anime-item" @click="openAnimeLink(anime)">
-              <div class="anime-cover">
-                <img :src="anime.cover" alt="番剧封面" class="cover-img">
-                <div class="anime-status w-full justify-between px-2">
-                  <span :class="getWatchStatusClass(anime.watchStatus)">{{ getWatchStatusLabel(anime.watchStatus) }}</span>
-                  <span v-if="anime.area" :class="getAreaTagClass(anime.area.id)">{{ anime.area.name }}</span>
-                </div>
-              </div>
-              <div class="anime-info">
-                <h3 class="anime-title">{{ anime.animeName }}</h3>
-                <div class="anime-meta">
-                  <span v-if="anime.views" class="meta-item">{{ formatNumber(anime.views) }}播放</span>
-                  <span v-if="anime.favorites" class="meta-item">{{ formatNumber(anime.favorites) }}收藏</span>
-                  <span v-if="anime.seriesFollow" class="meta-item">{{ formatNumber(anime.seriesFollow) }}追番</span>
-                </div>
-                <div class="anime-tags">
-                  <span v-if="anime.styles && anime.styles.length">{{ anime.styles.join(' / ') }}</span>
-                  <span v-if="anime.publishTime">{{ getYearFromPublishTime(anime.publishTime) }}</span>
-                  <span :class="getAnimeStatusClass(anime.animeStatus)">{{ getAnimeStatusLabel(anime.animeStatus) }}</span>
-                  <span v-if="anime.indexShow">{{ anime.indexShow }}</span>
-                </div>
-                <div class="anime-cast" v-if="anime.actors">
-                  <span class="cast-label">配音：</span>
-                  <span class="cast-content">{{ truncateText(anime.actors, 50) }}</span>
-                </div>
-                <div class="anime-desc">
-                  <div class="desc-content" :class="{'expanded': isDescriptionExpanded(anime.id)}">
-                    <span>简介：</span>{{ isDescriptionExpanded(anime.id) ? anime.description : truncateText(anime.description, 120) }}
-                  </div>
-                  <div 
-                    v-if="needsExpansion(anime.description)"
-                    class="desc-expand" 
-                    @click.stop="toggleDescription(anime.id)"
-                  >
-                    {{ isDescriptionExpanded(anime.id) ? '收起' : '展开' }}
-                  </div>
-                </div>
-                <div class="anime-footer">
-                  <div class="anime-rating" v-if="anime.rating">
-                    <div class="rating-score">{{ anime.rating }}<span class="rating-suffix">分</span></div>
-                    <div class="rating-count" v-if="anime.ratingCount">{{ formatNumber(anime.ratingCount) }}人评分</div>
-                  </div>
-                  <div class="anime-episodes" v-if="anime.totalEpisodes">
-                    <template v-if="anime.platform === 1">
-                      {{ anime.currentEpisodes || 0 }}/{{ anime.totalEpisodes }}集
-                    </template>
-                    <template v-else>
-                      {{ anime.totalEpisodes }}集
-                    </template>
-                  </div>
-                  <div class="anime-source">
-                    <img v-if="anime.platform === 1" class="platform-icon" src="https://www.bilibili.com/favicon.ico" alt="bilibili">
-                    <img v-else-if="anime.platform === 2" class="platform-icon" src="https://v.qq.com/favicon.ico" alt="腾讯视频">
-                    <img v-else-if="anime.platform === 3" class="platform-icon" src="https://www.iqiyi.com/favicon.ico" alt="爱奇艺">
-                    <img v-else-if="anime.platform === 4" class="platform-icon" src="https://www.youku.com/favicon.ico" alt="优酷">
-                    <span class="platform-name">{{ getPlatformLabel(anime.platform) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 分页 -->
-          <Pagination 
-            v-if="total > queryParams.limit" 
-            v-model:current="queryParams.page" 
-            :per-page="queryParams.limit" 
-            :total="total"
+          <!-- 番剧列表组件 -->
+          <AnimeList 
+            v-model:queryParams="queryParams"
+            :emptyText="'暂无符合条件的番剧'"
+            @collected="handleCollected"
+            @uncollected="handleUncollected"
           />
-          
-          <!-- 无数据提示 -->
-          <div v-if="filteredAnimeList.length === 0" class="no-data">
-            <UIcon name="i-lucide-tv-2" class="no-data-icon" />
-            <p>暂无番剧数据</p>
-          </div>
         </div>
       </div>
     </div>
@@ -133,12 +63,19 @@
 
 <script setup lang="ts">
 import { useBlogStore } from "~/stores/blog";
+import { useUserStore } from "~/stores/user";
 import type { TabsItem } from '@nuxt/ui';
+import AnimeList from '~/components/Anime/AnimeList.vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 // 定义页面元数据
 definePageMeta({
   title: '追番'
 });
+
+// 注入
+const { $message } = useNuxtApp();
+const user = useUserStore();
 
 // 状态枚举
 const WATCH_STATUS = {
@@ -158,14 +95,18 @@ const blog = useBlogStore();
 // 查询参数
 const queryParams = reactive({
   page: 1,
-  limit: 6,
+  limit: 10,
   animeName: '',
-  platform: undefined,
-  animeStatus: undefined,
-  watchStatus: undefined,
+  platform: undefined as number | undefined,
+  animeStatus: undefined as number | undefined,
+  watchStatus: undefined as number | undefined,
   sortBy: 'rating', // 默认按评分排序
-  area: undefined
+  area: undefined as number | undefined
 });
+
+// 吸顶相关状态
+const isScrolled = ref(false);
+const filterContainerTop = ref(0);
 
 // 当前激活的标签
 const activeTab = ref('all');
@@ -230,35 +171,6 @@ const changeSortOption = (value) => {
   sortBy.value = value;
   queryParams.sortBy = value;
   queryParams.page = 1;
-  refresh();
-};
-
-// 处理排序变化
-const handleSortChange = () => {
-  queryParams.sortBy = sortBy.value;
-  queryParams.page = 1;
-  refresh();
-};
-
-// 获取番剧数据
-const { anime } = useApi();
-const { data, refresh } = await anime.getList(queryParams);
-
-// 计算属性：番剧列表和总数
-const animeList = computed(() => unref(data)?.list || []);
-const total = computed(() => unref(data)?.total || 0);
-
-// 简介展开状态管理
-const expandedDescriptions = ref<{[key: number]: boolean}>({});
-
-// 切换简介展开状态
-const toggleDescription = (animeId: number) => {
-  expandedDescriptions.value[animeId] = !expandedDescriptions.value[animeId];
-};
-
-// 检查简介是否已展开
-const isDescriptionExpanded = (animeId: number) => {
-  return !!expandedDescriptions.value[animeId];
 };
 
 // 当标签改变时更新查询参数
@@ -286,135 +198,65 @@ watch(activeTab, (newValue) => {
       break;
   }
   
-  // 重置页码并刷新数据
+  // 重置页码
   queryParams.page = 1;
-  refresh();
 });
 
 // 当平台标签改变时更新查询参数
 watch(activePlatformTab, (newValue) => {
   // 设置平台参数
-  queryParams.platform = newValue === 'all' ? undefined : parseInt(newValue);
+  queryParams.platform = newValue === 'all' ? undefined : Number(newValue);
   
-  // 重置页码并刷新数据
+  // 重置页码
   queryParams.page = 1;
-  refresh();
 });
 
 // 当地区标签改变时更新查询参数
 watch(activeAreaTab, (newValue) => {
   // 设置地区参数
-  queryParams.area = newValue === 'all' ? undefined : parseInt(newValue);
+  queryParams.area = newValue === 'all' ? undefined : Number(newValue);
   
-  // 重置页码并刷新数据
+  // 重置页码
   queryParams.page = 1;
-  refresh();
 });
 
-// 根据当前标签过滤番剧列表
-const filteredAnimeList = computed(() => {
-  return animeList.value;
+// 处理收藏/取消收藏事件
+const handleCollected = (animeId) => {
+  console.log('追番成功:', animeId);
+};
+
+const handleUncollected = (animeId) => {
+  console.log('取消追番成功:', animeId);
+};
+
+// 吸顶效果处理
+const handleScroll = () => {
+  if (filterContainerTop.value === 0) {
+    const filterContainer = document.querySelector('.filter-container');
+    if (filterContainer) {
+      // 获取元素相对于视窗的位置
+      const rect = filterContainer.getBoundingClientRect();
+      // 记录元素的初始顶部位置（相对于文档）
+      filterContainerTop.value = rect.top + window.scrollY;
+    }
+  }
+  
+  // 判断是否应该激活吸顶
+  isScrolled.value = window.scrollY > filterContainerTop.value;
+};
+
+// 组件挂载和卸载
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+  // 初始计算一次位置
+  setTimeout(() => {
+    handleScroll();
+  }, 100);
 });
 
-// 辅助函数
-const truncateText = (text, length) => {
-  if (!text) return '';
-  return text.length > length ? text.substring(0, length) + '...' : text;
-};
-
-// 判断文本是否需要展开/收起按钮
-const needsExpansion = (text) => {
-  if (!text) return false;
-  return text.length > 120;
-};
-
-// 打开番剧链接
-const openAnimeLink = (anime) => {
-  if (anime.link) {
-    window.open(anime.link, '_blank');
-  } else if (anime.platform === 1 && anime.animeId) {
-    window.open(`https://www.bilibili.com/bangumi/play/ss${anime.animeId}`, '_blank');
-  } else if (anime.platform === 2 && anime.animeId) {
-    window.open(`https://v.qq.com/detail/m/${anime.animeId}.html`, '_blank');
-  }
-};
-
-// 格式化数字（万、亿）
-const formatNumber = (num) => {
-  if (!num) return '0';
-  if (num >= 100000000) {
-    return (num / 100000000).toFixed(1) + '亿';
-  } else if (num >= 10000) {
-    return (num / 10000).toFixed(1) + '万';
-  }
-  return num.toString();
-};
-
-// 从发布时间中提取年份
-const getYearFromPublishTime = (publishTime) => {
-  if (!publishTime) return '';
-  const match = publishTime.match(/(\d{4})/);
-  return match ? match[1] : '';
-};
-
-// 获取平台标签
-const getPlatformLabel = (platform) => {
-  const platformMap = {
-    1: 'bilibili',
-    2: '腾讯视频',
-    3: '爱奇艺',
-    4: '优酷'
-  };
-  return platformMap[platform] || '未知平台';
-};
-
-// 获取追番状态标签
-const getWatchStatusLabel = (status) => {
-  const statusMap = {
-    1: '想看',
-    2: '在看',
-    3: '已看'
-  };
-  return statusMap[status] || '未知状态';
-};
-
-// 获取番剧状态标签
-const getAnimeStatusLabel = (status) => {
-  const statusMap = {
-    1: '连载中',
-    2: '已完结'
-  };
-  return statusMap[status] || '未知状态';
-};
-
-// 获取追番状态CSS类
-const getWatchStatusClass = (status) => {
-  const statusMap = {
-    1: 'status-want',   // 想看
-    2: 'status-watching',  // 在看
-    3: 'status-watched'    // 已看
-  };
-  return `status-tag ${statusMap[status] || ''}`;
-};
-
-// 获取番剧状态CSS类
-const getAnimeStatusClass = (status) => {
-  const statusMap = {
-    1: 'status-ongoing',   // 连载中
-    2: 'status-finished'   // 已完结
-  };
-  return `status-tag status-small ${statusMap[status] || ''}`;
-};
-
-// 获取地区标签CSS类
-const getAreaTagClass = (areaId) => {
-  const areaMap = {
-    1: 'area-tag-guo',
-    2: 'area-tag-ri',
-    3: 'area-tag-mei'
-  };
-  return areaMap[areaId] || 'area-tag';
-};
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 
 // SEO优化
 useHead({
@@ -431,320 +273,55 @@ useHead({
   width: 100%;
 }
 
+.page-header {
+  position: relative;
+  padding: 3rem 0;
+  color: #fff;
+  text-align: center;
+  
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--header-text-color);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .page-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+}
+
+.bg {
+  background-color: var(--background-color);
+  padding: 2rem 0;
+  min-height: 70vh;
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
 .anime-content {
   margin-top: 20px;
 }
 
-.anime-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 30px;
-  margin-bottom: 30px;
-}
-
-.anime-item {
-  display: flex;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: var(--card-bg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  transition: transform 0.3s, box-shadow 0.3s;
-  cursor: pointer;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
   }
-}
-
-.anime-cover {
-  position: relative;
-  width: 165px;
-  height: 221px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  overflow: hidden;
-  
-  .cover-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s;
-    
-    &:hover {
-      transform: scale(1.1);
-    }
-  }
-  
-  .anime-status {
-    position: absolute;
-    top: 10px;
-    display: flex;
-    gap: 5px;
-  }
-}
-
-.anime-status span {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-  text-align: center;
-}
-
-.area-tag {
-  background-color: rgba(0, 0, 0, 0.6);
-  border-left: 3px solid #ff9800;
-}
-
-/* 国漫标签 */
-.area-tag-guo {
-  background-color: rgba(0, 0, 0, 0.6);
-  border-left: 3px solid var(--color-red);
-  color: var(--color-red);
-}
-
-/* 日漫标签 */
-.area-tag-ri {
-  background-color: rgba(0, 0, 0, 0.6);
-  border-left: 3px solid var(--color-blue);
-  color: var(--color-blue);
-}
-
-/* 美漫标签 */
-.area-tag-mei {
-  background-color: rgba(0, 0, 0, 0.6);
-  border-left: 3px solid var(--color-purple);
-  color: var(--color-purple);
-}
-
-.status-tag {
-  font-size: 12px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  color: white;
-  font-weight: 500;
-  
-  &.status-small {
-    padding: 1px 5px;
-    font-size: 11px;
-  }
-}
-
-.status-want {
-  background-color: #00AEEC; // B站蓝
-}
-
-.status-watching {
-  background-color: #FF7F24; // 橙色
-}
-
-.status-watched {
-  background-color: #2AC864; // 绿色
-}
-
-.status-ongoing {
-  background-color: #F85A54; // 红色
-}
-
-.status-finished {
-  background-color: #9499A0; // 灰色
-}
-
-.anime-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding-left: 20px;
-  overflow: hidden;
-}
-
-.anime-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text-color);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  
-  &:hover {
-    color: #00AEEC;
-  }
-}
-
-.anime-meta {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-  
-  .meta-item {
-    margin-right: 15px;
-    
-    &:not(:last-child)::after {
-      content: "·";
-      margin-left: 15px;
-    }
-  }
-}
-
-.anime-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 13px;
-  margin-bottom: 10px;
-  color: var(--text-muted);
-  
-  span:not(.status-tag) {
-    position: relative;
-    
-    &:not(:last-child)::after {
-      content: "·";
-      margin-left: 10px;
-    }
-  }
-}
-
-.anime-cast {
-  font-size: 13px;
-  margin-bottom: 10px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  
-  .cast-label {
-    color: #9499A0;
-    margin-right: 4px;
-  }
-}
-
-.anime-desc {
-  position: relative;
-  font-size: 13px;
-  color: var(--text-light);
-  margin-bottom: 15px;
-  flex: 1;
-  
-  .desc-content {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.5;
-    
-    &.expanded {
-      display: block;
-      -webkit-line-clamp: unset;
-    }
-    
-    span {
-      color: #9499A0;
-    }
-  }
-  
-  .desc-expand {
-    position: absolute;
-    right: 0;
-    bottom: -15px;
-    background-color: var(--card-bg);
-    padding: 0 5px;
-    color: #00AEEC;
-    cursor: pointer;
-  }
-}
-
-.anime-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: auto;
-}
-
-.anime-rating {
-  display: flex;
-  flex-direction: column;
-  
-  .rating-score {
-    font-size: 24px;
-    font-weight: 600;
-    color: #FF7F24;
-    line-height: 1;
-    
-    .rating-suffix {
-      font-size: 13px;
-    }
-  }
-  
-  .rating-count {
-    font-size: 12px;
-    color: #9499A0;
-    margin-top: 2px;
-  }
-}
-
-.anime-episodes {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-right: 15px;
-}
-
-.anime-source {
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  color: #9499A0;
-  
-  .platform-icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 5px;
-  }
-}
-
-.no-data {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 50px 0;
-  color: var(--text-muted);
-  
-  .no-data-icon {
-    font-size: 48px;
-    margin-bottom: 10px;
-  }
-  
-  p {
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .anime-list {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .anime-item {
-    flex-direction: column;
-    padding: 15px;
-  }
-  
-  .anime-cover {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 3/4;
-    margin-bottom: 15px;
-  }
-  
-  .anime-info {
-    padding-left: 0;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
@@ -857,6 +434,29 @@ useHead({
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 0.75rem;
+  }
+  
+  .filter-container {
+    padding: 10px;
+    
+    &.sticky-active {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+  }
+}
+
+
+@media (width <= 768px) {
+  .sort-dropdown {
+    display: flex;
+    justify-content: flex-end;
   }
 }
 </style>

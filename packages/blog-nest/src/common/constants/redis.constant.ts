@@ -18,6 +18,11 @@ export class RedisConstant {
   static readonly USER_TALK_LIKE = 'blog:user:talk:like:';
 
   /**
+   * 用户追番收藏集合前缀
+   */
+  static readonly USER_ANIME_COLLECTION = 'blog:user:anime:collection:';
+
+  /**
    * 文章点赞数
    */
   static readonly ARTICLE_LIKE_COUNT = 'blog:article:like:count';

@@ -59,6 +59,27 @@
             </UForm>
           </div>
         </div>
+        
+        <!-- 个人追番列表 -->
+        <div class="title mt-8">我的追番</div>
+        <div class="anime-collection-container">
+          <AnimeList 
+            :isCollection="true" 
+            :queryParams="animeQueryParams"
+            emptyText="暂无追番记录，快去追一部番剧吧"
+            @update:queryParams="updateAnimeQueryParams"
+          >
+            <template #empty-action>
+              <UButton
+                to="/anime"
+                icon="i-lucide-tv-2"
+                class="mt-4"
+              >
+                去追番
+              </UButton>
+            </template>
+          </AnimeList>
+        </div>
       </div>
     </div>
     
@@ -111,6 +132,7 @@ import { useBlogStore } from '~/stores/blog';
 import { useApi } from '~/composables/useApi';
 import { useToast } from '#imports';
 import UserAvatar from '~/components/User/UserAvatar.vue';
+import AnimeList from '~/components/Anime/AnimeList.vue';
 
 // 定义页面元数据
 definePageMeta({
@@ -123,7 +145,7 @@ const user = useUserStore();
 const blog = useBlogStore();
 const router = useRouter();
 const toast = useToast();
-const { user: userApi, login: loginApi } = useApi();
+const { user: userApi, login: loginApi, anime: animeApi } = useApi();
 
 // 用户信息表单
 const formRef = ref();
@@ -132,6 +154,18 @@ const userForm = reactive({
   intro: user.intro || '',
   webSite: user.webSite || '',
 });
+
+// 追番列表查询参数
+const animeQueryParams = ref({
+  page: 1,
+  limit: 12,
+  sortBy: 'rating'
+});
+
+// 更新查询参数
+const updateAnimeQueryParams = (newParams) => {
+  animeQueryParams.value = newParams;
+};
 
 // 修改用户信息
 const handleUpdate = async () => {
@@ -255,7 +289,10 @@ const handleUpdateEmail = async () => {
         color: 'success'
       });
       
+      // 关闭弹窗
       emailModalOpen.value = false;
+      
+      // 重置表单
       emailForm.email = '';
       emailForm.code = '';
     }
@@ -268,22 +305,31 @@ const handleUpdateEmail = async () => {
   }
 };
 
-// 检查用户是否登录
-onMounted(() => {
-  if (!user.id) {
-    router.push('/');
+// 自定义UI配置
+const ui = {
+  ring: '',
+  background: '',
+  divide: '',
+  base: 'relative overflow-hidden flex flex-col',
+  width: 'sm:max-w-lg',
+  height: '',
+  rounded: 'rounded-lg',
+  shadow: 'shadow-xl',
+  body: {
+    padding: 'p-4',
+    background: 'bg-white',
+  },
+  header: {
+    padding: 'p-4',
+    background: 'bg-white border-b',
+    align: 'text-left',
+  },
+  footer: {
+    padding: 'p-4',
+    align: 'flex justify-end',
+    background: 'bg-white border-t'
   }
-});
-
-// 自定义UI
-const ui = computed(() => ({
-  wrapper: 'items-center',
-  container: 'max-w-2xl',
-  overlay: 'bg-gray-900/60 backdrop-blur-sm',
-  dialog: {
-    container: 'bg-white dark:bg-gray-900 rounded-lg shadow-xl'
-  }
-}));
+};
 </script>
 
 <style lang="scss" scoped>
@@ -358,6 +404,14 @@ const ui = computed(() => ({
   }
 }
 
+.anime-collection-container {
+  background: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin-top: 20px;
+}
+
 @media (max-width: 850px) {
   .avatar {
     justify-content: center;
@@ -375,6 +429,10 @@ const ui = computed(() => ({
   
   .page-container {
     padding: 1.5rem;
+  }
+  
+  .anime-collection-container {
+    padding: 15px;
   }
 }
 </style> 

@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', () => {
   const userInfo = ref<UserInfo>({} as UserInfo);
   const isLogin = ref(false);
   const articleLikeSet = ref<number[]>([]);
+  const animeCollectionSet = ref<number[]>([]);
   const commentLikeSet = ref<number[]>([]);
   const talkLikeSet = ref<number[]>([]);
   const id = ref(0);
@@ -41,6 +42,7 @@ export const useUserStore = defineStore('user', () => {
     articleLikeSet.value = info.articleLikeSet || [];
     commentLikeSet.value = info.commentLikeSet || [];
     talkLikeSet.value = info.talkLikeSet || [];
+    animeCollectionSet.value = info.animeCollectionSet || [];
   }
 
   function logout() {
@@ -55,6 +57,7 @@ export const useUserStore = defineStore('user', () => {
     articleLikeSet.value = [];
     commentLikeSet.value = [];
     talkLikeSet.value = [];
+    animeCollectionSet.value = [];
     removeToken();
   }
 
@@ -89,7 +92,6 @@ export const useUserStore = defineStore('user', () => {
     try {
       const { login: loginApi } = useApi();
       const { data } = await loginApi.getUserInfo();
-
       console.log('获取用户信息结果:', data);
 
       if (data) {
