@@ -64,6 +64,7 @@
         <div class="title mt-8">我的追番</div>
         <div class="anime-collection-container">
           <AnimeList 
+            ref="animeListRef"
             :isCollection="true" 
             :queryParams="animeQueryParams"
             emptyText="暂无追番记录，快去追一部番剧吧"
@@ -73,7 +74,7 @@
               <UButton
                 to="/anime"
                 icon="i-lucide-tv-2"
-                class="mt-4"
+                class="mt-4 !text-white"
               >
                 去追番
               </UButton>
@@ -126,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onActivated, nextTick } from 'vue';
 import { useUserStore } from '~/stores/user';
 import { useBlogStore } from '~/stores/blog';
 import { useApi } from '~/composables/useApi';
@@ -137,15 +138,15 @@ import AnimeList from '~/components/Anime/AnimeList.vue';
 // 定义页面元数据
 definePageMeta({
   title: '个人中心',
-  middleware: ['auth']
+  middleware: ['auth'],
+  keepAlive: true // 启用页面缓存
 });
 
 // 获取用户信息和博客信息
 const user = useUserStore();
 const blog = useBlogStore();
-const router = useRouter();
 const toast = useToast();
-const { user: userApi, login: loginApi, anime: animeApi } = useApi();
+const { user: userApi, login: loginApi } = useApi();
 
 // 用户信息表单
 const formRef = ref();
@@ -154,6 +155,11 @@ const userForm = reactive({
   intro: user.intro || '',
   webSite: user.webSite || '',
 });
+
+// 追番列表组件引用
+const animeListRef = ref<{
+  refresh: () => Promise<void>
+} | null>(null);
 
 // 追番列表查询参数
 const animeQueryParams = ref({
@@ -166,6 +172,19 @@ const animeQueryParams = ref({
 const updateAnimeQueryParams = (newParams) => {
   animeQueryParams.value = newParams;
 };
+
+// 刷新追番列表数据
+const refreshAnimeList = () => {
+  // 直接调用AnimeList组件的refresh方法
+  if (animeListRef.value) {
+    animeListRef.value.refresh();
+  }
+};
+
+// 当页面被激活时刷新数据
+onActivated(() => {
+  refreshAnimeList();
+});
 
 // 修改用户信息
 const handleUpdate = async () => {

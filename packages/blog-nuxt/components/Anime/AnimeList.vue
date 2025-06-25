@@ -234,6 +234,18 @@ async function fetchAnimeList() {
   }
 }
 
+// 提供刷新数据的方法
+async function refresh() {
+  // 重置到第一页并重新获取数据
+  currentParams.value.page = 1;
+  resetList();
+  await fetchAnimeList();
+  // 重新获取收藏状态
+  if (userStore.isLogin) {
+    await fetchCollectedAnimes();
+  }
+}
+
 // 加载更多
 function loadMore() {
   if (loadingMore.value || !hasMore.value) return;
@@ -279,10 +291,23 @@ async function toggleCollection(animeItem) {
       const response = await animeApi.uncollect(animeId);
       if (response && response.flag) {
         collectedAnimeIds.value.delete(animeId);
+        // 更新userStore中的收藏状态
+        userStore.animeCollect(animeId);
+        
         toast.add({
           title: '成功',
           description: '取消追番成功',
-          color: 'success'
+          color: 'success',
+          timeout: 5000,
+          actions: [
+            {
+              label: '查看',
+              onClick: () => router.push('/user'),
+              color: 'primary',
+              variant: 'link',
+              class: 'absolute right-3 bottom-3'
+            }
+          ]
         });
         
         // 如果是收藏模式，从列表中移除
@@ -298,11 +323,25 @@ async function toggleCollection(animeItem) {
       const response = await animeApi.collect(animeId);
       if (response && response.flag) {
         collectedAnimeIds.value.add(animeId);
+        // 更新userStore中的收藏状态
+        userStore.animeCollect(animeId);
+        
         toast.add({
           title: '成功',
           description: '追番成功',
-          color: 'success'
+          color: 'success',
+          timeout: 5000,
+          actions: [
+            {
+              label: '查看',
+              onClick: () => router.push('/user'),
+              color: 'primary',
+              variant: 'link',
+              class: 'absolute right-3 bottom-3'
+            }
+          ]
         });
+        
         emit('collected', animeId);
       }
     }
@@ -450,6 +489,11 @@ const getAreaTagClass = (areaId) => {
   };
   return areaMap[areaId] || 'area-tag';
 };
+
+// 暴露方法给父组件
+defineExpose({
+  refresh
+});
 </script>
 
 <style lang="scss" scoped>

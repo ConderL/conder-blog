@@ -92,7 +92,6 @@ export const useUserStore = defineStore('user', () => {
     try {
       const { login: loginApi } = useApi();
       const { data } = await loginApi.getUserInfo();
-      console.log('获取用户信息结果:', data);
 
       if (data) {
         setUserInfo(data);
@@ -141,6 +140,16 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // 添加动漫收藏方法
+  function animeCollect(animeId: number) {
+    const index = animeCollectionSet.value.indexOf(animeId);
+    if (index !== -1) {
+      animeCollectionSet.value.splice(index, 1);
+    } else {
+      animeCollectionSet.value.push(animeId);
+    }
+  }
+
   return {
     token,
     userInfo,
@@ -154,6 +163,7 @@ export const useUserStore = defineStore('user', () => {
     articleLikeSet,
     commentLikeSet,
     talkLikeSet,
+    animeCollectionSet,
     setToken,
     setUserInfo,
     logout,
@@ -162,7 +172,8 @@ export const useUserStore = defineStore('user', () => {
     updateUserInfo,
     articleLike,
     commentLike,
-    talkLike
+    talkLike,
+    animeCollect
   };
 }, {
   persist: {
