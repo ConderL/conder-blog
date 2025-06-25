@@ -29,6 +29,8 @@
               <AuthorInfo />
               <!-- 博客信息 -->
               <BlogInfo />
+              <!-- 社交媒体 -->
+              <SocialList />
             </ClientOnly>
           </div>
           

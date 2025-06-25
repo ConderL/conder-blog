@@ -5,6 +5,7 @@
         class="social-item"
         target="_blank"
         :href="item.href"
+        v-if="isShowSocial(item.type)"
       >
         <UIcon :name="item.type" class="social-icon" :style="{ color: item.color }" />
       </a>
@@ -18,8 +19,14 @@ import { useDark } from "@vueuse/core";
 
 const isDark = useDark();
 const blog = useBlogStore();
+const socialList = blog.blogInfo.siteConfig.socialList;
 
-// 由于当前store中没有社交媒体链接，我们使用静态链接作为示例
+const isShowSocial = computed(() => (social: string) => {
+	if (socialList) {
+		return socialList.split(",").some((item) => social.includes(item));
+	}
+});
+
 const showSocialList = computed(() => [
   {
     type: isDark.value ? "icon:github-dark" : "icon:github",
@@ -38,7 +45,9 @@ const showSocialList = computed(() => [
   },
   {
     type: "icon:qq",
-    href: blog.blogInfo.siteConfig.qq,
+    href: "http://wpa.qq.com/msgrd?v=3&uin=" +
+			blog.blogInfo.siteConfig.qq +
+			"&site=qq&menu=yes",
     color: "#00aeec"
   },
 ]);
