@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
-import { TaskService } from '../task.service';
 import { Task } from '../entities/task.entity';
 
 /**
@@ -17,7 +16,6 @@ export class DynamicTaskManager {
 
   constructor(
     private schedulerRegistry: SchedulerRegistry,
-    private taskService: TaskService,
   ) {
     // 注册一些内置的任务函数
     this.registerTaskFunction('system.logMemoryUsage', this.logMemoryUsage.bind(this));
@@ -204,17 +202,33 @@ export class DynamicTaskManager {
       });
     });
 
-    const tasks = await this.taskService.findAll();
+    return cronJobs;
+  }
+
+  /**
+   * 更新任务详细信息
+   * @param tasks 任务列表
+   */
+  updateTasksInfo(tasks: Task[]) {
+    const cronJobs = this.schedulerRegistry.getCronJobs();
+
+    // 获取返回的基本任务列表
+    const jobList = Array.from(cronJobs.entries()).map(([key, _]) => ({
+      id: key as any, // 允许id为string或number
+      name: key,
+    }));
+
+    // 使用任务数据补充信息
     for (const task of tasks) {
-      const name = this.generateTaskName(task);
-      const index = cronJobs.findIndex((job) => job.name === name);
+      const name = `${task.taskGroup}_${task.taskName}_${task.id}`;
+      const index = jobList.findIndex((job) => job.name === name);
       if (index > -1) {
-        cronJobs[index].id = task.id;
-        cronJobs[index].name = task.taskName;
+        jobList[index].id = task.id;
+        jobList[index].name = task.taskName;
       }
     }
 
-    return cronJobs;
+    return jobList;
   }
 
   /**
@@ -239,10 +253,5 @@ export class DynamicTaskManager {
     const mockActiveUsers = Math.floor(Math.random() * 100);
     this.logger.log(`当前活跃用户数: ${mockActiveUsers}`);
     return { activeUsers: mockActiveUsers };
-  }
-
-  private generateTaskName(task: Task): string {
-    // 生成任务名称，格式：任务组_任务名_任务ID
-    return `${task.taskGroup}_${task.taskName}_${task.id}`;
   }
 }

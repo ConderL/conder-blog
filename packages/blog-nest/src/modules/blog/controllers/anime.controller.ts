@@ -14,6 +14,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { AnimeService } from '../services/anime.service';
@@ -27,6 +28,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { UploadService } from '../../../modules/upload/services/upload/upload.service';
 import { UserService } from '../../user/user.service';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
 
 /**
  * B站番剧ID DTO
@@ -201,16 +204,21 @@ export class AnimeController {
     }
   }
 
+  /**
+   * 手动更新番剧信息
+   */
+  @Post('update')
   @ApiOperation({ summary: '手动更新番剧信息' })
-  @ApiResponse({ status: 200, description: '更新成功' })
-  @Post('update-info')
+  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async updateAnimeInfo(@Body() updateAnimeInfoDto: UpdateAnimeInfoDto) {
     try {
-      await this.animeService.updateAnimeInfo(updateAnimeInfoDto.id);
-      return Result.ok(null, '更新番剧信息成功');
+      // 调用更新番剧信息的方法
+      await this.animeService.fetchAnimeInfo(updateAnimeInfoDto.id);
+      return Result.ok(null, '番剧信息更新成功');
     } catch (error) {
       this.logger.error(`更新番剧信息失败: ${error.message}`);
-      return Result.fail('更新番剧信息失败');
+      return Result.fail('番剧信息更新失败');
     }
   }
 

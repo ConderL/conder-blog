@@ -2,8 +2,8 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron, SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, LessThan } from 'typeorm';
+import { VisitLog } from '../../blog/entities/visit-log.entity';
 import { Article } from '../../blog/entities/article.entity';
-import { VisitLog } from '../../log/entities/visit-log.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as moment from 'moment';
@@ -15,45 +15,57 @@ import { OnlineService } from '../../online/online.service';
 import { Task } from './entities/task.entity';
 import { DynamicTaskManager } from './utils/dynamic-task.util';
 import { CronJob } from 'cron';
+import { ChatService } from '../../chat/services/chat.service';
+import { AnimeService } from '../../blog/services/anime.service';
 
 const execAsync = promisify(exec);
 
 @Injectable()
 export class TaskService implements OnModuleInit {
   private readonly logger = new Logger(TaskService.name);
-  private readonly backupDir = path.join(process.cwd(), 'backups');
+  private backupDir: string;
   private dynamicTaskManager: DynamicTaskManager;
 
   constructor(
-    private schedulerRegistry: SchedulerRegistry,
-    @InjectRepository(Article)
-    private readonly articleRepository: Repository<Article>,
-    @InjectRepository(VisitLog)
-    private readonly visitLogRepository: Repository<VisitLog>,
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
+    @InjectRepository(VisitLog)
+    private readonly visitLogRepository: Repository<VisitLog>,
+    @InjectRepository(Article)
+    private readonly articleRepository: Repository<Article>,
     private readonly logService: LogService,
     private readonly onlineService: OnlineService,
+    private readonly chatService: ChatService,
+    private readonly animeService: AnimeService,
+    private readonly schedulerRegistry: SchedulerRegistry,
   ) {
     this.logger.log('TaskService initialized');
+    this.backupDir = path.join(process.cwd(), 'backup');
     // 确保备份目录存在
-    if (!fs.existsSync(this.backupDir)) {
-      fs.mkdirSync(this.backupDir, { recursive: true });
-    }
+    this.ensureBackupDirExists();
   }
 
   /**
-   * 初始化服务
+   * 初始化模块
    */
   async onModuleInit() {
     // 初始化动态任务管理器
-    this.dynamicTaskManager = new DynamicTaskManager(this.schedulerRegistry, this);
+    this.dynamicTaskManager = new DynamicTaskManager(this.schedulerRegistry);
 
     // 注册任务函数
     this.registerTaskFunctions();
 
-    // 从数据库加载自定义任务
+    // 从数据库加载任务
     await this.loadTasksFromDatabase();
+  }
+
+  /**
+   * 确保备份目录存在
+   */
+  private ensureBackupDirExists() {
+    if (!fs.existsSync(this.backupDir)) {
+      fs.mkdirSync(this.backupDir, { recursive: true });
+    }
   }
 
   /**
@@ -100,9 +112,21 @@ export class TaskService implements OnModuleInit {
     );
 
     this.dynamicTaskManager.registerTaskFunction(
+      // 清空聊天记录
+      'taskService.clearChatHistory',
+      this.clearChatHistory.bind(this),
+    );
+
+    this.dynamicTaskManager.registerTaskFunction(
       // 测试任务
       'taskService.testTask',
       this.testTask.bind(this),
+    );
+
+    this.dynamicTaskManager.registerTaskFunction(
+      // 注册番剧信息更新的定时任务
+      'taskService.handleAnimeUpdate',
+      this.handleAnimeUpdate.bind(this),
     );
   }
 
@@ -132,45 +156,36 @@ export class TaskService implements OnModuleInit {
   }
 
   /**
-   * 记录任务执行日志封装方法
-   * @param taskName 任务名称
-   * @param taskGroup 任务分组
+   * 执行任务并记录日志
+   * @param taskName 任务名
+   * @param taskGroup 任务组
    * @param invokeTarget 调用目标
-   * @param fn 实际执行的函数
+   * @param fn 执行的函数
    */
   private async executeWithLog(
     taskName: string,
     taskGroup: string,
     invokeTarget: string,
-    fn: () => Promise<any>,
-  ): Promise<any> {
-    const startTime = new Date();
+    fn: () => Promise<any>
+  ) {
+    let result;
     try {
-      // 执行任务
-      const result = await fn();
+      // 记录任务开始日志
+      this.logger.log(`执行任务开始: ${taskName}, ${invokeTarget}`);
 
-      // 记录成功日志
-      await this.logService.recordTaskLog({
-        taskName,
-        taskGroup,
-        invokeTarget,
-        taskMessage: `${taskName} 执行成功，耗时: ${new Date().getTime() - startTime.getTime()}毫秒`,
-        status: 1, // 成功
-      });
+      // 执行任务
+      const startTime = new Date().getTime();
+      result = await fn();
+      const endTime = new Date().getTime();
+
+      // 记录执行时间
+      const executionTime = endTime - startTime;
+      this.logger.log(`任务执行成功: ${taskName}, 耗时: ${executionTime}ms`);
 
       return result;
     } catch (error) {
-      // 记录失败日志
-      await this.logService.recordTaskLog({
-        taskName,
-        taskGroup,
-        invokeTarget,
-        taskMessage: `${taskName} 执行失败`,
-        status: 0, // 失败
-        errorInfo: error.message || JSON.stringify(error),
-      });
-
-      // 重新抛出异常，让上层捕获
+      // 记录错误日志
+      this.logger.error(`任务执行失败: ${taskName}, 错误: ${error.message}`, error.stack);
       throw error;
     }
   }
@@ -638,7 +653,7 @@ export class TaskService implements OnModuleInit {
       this.logger.log(`验证cron表达式: ${taskData.cronExpression} -> ${testExpression}`);
 
       // 尝试创建一个临时的CronJob来验证表达式
-      const testJob = new CronJob(testExpression, () => {});
+      const testJob = new CronJob(testExpression, () => { });
 
       // 确保任务不会立即执行
       if (testJob.nextDate) {
@@ -886,6 +901,23 @@ export class TaskService implements OnModuleInit {
   }
 
   /**
+   * 清空聊天记录
+   */
+  async clearChatHistory(): Promise<any> {
+    return this.executeWithLog(
+      '清空聊天记录',
+      'SYSTEM',
+      'taskService.clearChatHistory',
+      async () => {
+        this.logger.log('清空聊天记录');
+        // 这里可以接入实际的聊天记录清理逻辑
+        await this.chatService.clearHistory();
+        return { message: '聊天记录已清除' };
+      },
+    );
+  }
+
+  /**
    * 测试任务
    */
   async testTask(): Promise<any> {
@@ -893,5 +925,40 @@ export class TaskService implements OnModuleInit {
       this.logger.log('执行测试任务');
       return { message: '测试任务已执行' };
     });
+  }
+
+  /**
+   * 注册番剧信息更新的定时任务
+   */
+  async handleAnimeUpdate(): Promise<void> {
+    await this.executeWithLog(
+      '番剧信息更新',
+      'SYSTEM',
+      'taskService.handleAnimeUpdate',
+      async () => {
+        this.logger.log('执行番剧信息更新...');
+        await this.animeService.updateAnimeInfo();
+        this.logger.log('番剧信息更新完成');
+      },
+    );
+  }
+
+  /**
+   * 获取所有定时任务及下次执行时间
+   */
+  async getCronJobs() {
+    const tasks = await this.findAll();
+    const basicJobs = await this.dynamicTaskManager.getCronJobs();
+
+    // 使用任务信息更新任务详情
+    const updatedJobs = this.dynamicTaskManager.updateTasksInfo(tasks);
+
+    // 合并基本任务信息和更新的任务信息
+    const mergedJobs = basicJobs.map(job => {
+      const updatedJob = updatedJobs.find(uj => uj.id === job.id);
+      return updatedJob ? { ...job, ...updatedJob } : job;
+    });
+
+    return mergedJobs;
   }
 }

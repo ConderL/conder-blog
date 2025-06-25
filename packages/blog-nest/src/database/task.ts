@@ -64,6 +64,26 @@ export const tasks: Partial<Task>[] = [
     status: 0,
     remark: '每天凌晨1点30分清理一周前的访问日志',
   },
+  {
+    taskName: '清理聊天记录',
+    taskGroup: 'SYSTEM',
+    invokeTarget: 'taskService.clearChatHistory',
+    cronExpression: '0 0 1 * * 0',
+    misfirePolicy: 3,
+    concurrent: 0,
+    status: 0,
+    remark: '每周日凌晨1点清理聊天记录',
+  },
+  {
+    taskName: '更新番剧信息',
+    taskGroup: 'SYSTEM',
+    invokeTarget: 'taskService.handleAnimeUpdate',
+    cronExpression: '0 0 2 * * *',
+    misfirePolicy: 3,
+    concurrent: 0,
+    status: 0,
+    remark: '每天凌晨2点更新番剧信息',
+  },
 ];
 
 /**

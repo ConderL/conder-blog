@@ -30,11 +30,11 @@ export default defineNuxtConfig({
       overlay: false
     }
   },
-  
+
   lazyLoad: {
-    defaultImage : '/images/loading.gif',
+    defaultImage: '/images/loading.gif',
   },
-  
+
   echarts: {
     // 注册渲染器
     renderer: 'svg',
@@ -43,12 +43,12 @@ export default defineNuxtConfig({
     // 注册组件
     components: ['TitleComponent', 'TooltipComponent', 'LegendComponent', 'GridComponent'],
   },
-  
+
   css: [
     '~/assets/style/main.css',
     '~/assets/style/index.scss'
   ],
-  
+
   icon: {
     provider: 'iconify',
     mode: 'svg',
@@ -91,7 +91,8 @@ export default defineNuxtConfig({
         'md-editor-v3',
         'reka-ui',
         '@iconify/utils',
-        'pinia-plugin-persistedstate'
+        'pinia-plugin-persistedstate',
+        'vue-cropper'
       ]
     },
     // 添加热更新配置
@@ -212,7 +213,7 @@ export default defineNuxtConfig({
   },
   routeRules: {
     // 首页和常用页面使用服务端渲染(SSR)
-    '/': { 
+    '/': {
       ssr: true,
       // 移除prerender配置，改为部署后执行
       // prerender: true,
@@ -221,24 +222,24 @@ export default defineNuxtConfig({
       },
       isr: 300 // 5分钟自动更新
     },
-    '/article/**': { 
+    '/article/**': {
       ssr: true,
       swr: 600, // 10分钟缓存刷新
       isr: 600 // 10分钟可手动更新
     },
-    '/category/**': { 
+    '/category/**': {
       ssr: true,
       isr: 900 // 15分钟缓存
     },
-    '/tag/**': { 
+    '/tag/**': {
       ssr: true,
       isr: 900 // 15分钟缓存
     },
-    '/about': { 
+    '/about': {
       ssr: true,
       isr: 900 // 15分钟缓存
     },
-    '/archives': { 
+    '/archives': {
       ssr: true,
       isr: 900 // 15分钟缓存
     },

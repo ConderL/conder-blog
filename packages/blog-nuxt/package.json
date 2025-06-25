@@ -40,6 +40,7 @@
     "swiper": "^8.4.7",
     "v-viewer": "^3.0.21",
     "vue": "^3.5.14",
+    "vue-cropper": "^1.1.1",
     "vue-masonry": "^0.16.0",
     "vue3-danmaku": "^1.6.0",
     "vue3-social-share": "^0.1.8",

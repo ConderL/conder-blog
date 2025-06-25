@@ -14,6 +14,10 @@ RUN npm install -g pnpm
 # 设置 pnpm 镜像源
 RUN pnpm config set registry https://registry.npmmirror.com/
 
+# 配置pnpm，允许所有构建脚本执行
+RUN pnpm config set auto-install-peers true
+RUN pnpm config set strict-peer-dependencies false
+
 # 复制 Monorepo 配置文件
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
@@ -26,6 +30,7 @@ COPY packages/blog-nuxt ./packages/blog-nuxt
 # 安装子项目依赖并构建
 RUN cd packages/blog-nuxt && \
     pnpm install --prod=false && \
+    pnpm install vue-cropper@1.1.1 && \
     pnpm run build
 
 # 生产阶段
