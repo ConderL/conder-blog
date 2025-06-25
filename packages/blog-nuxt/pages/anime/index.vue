@@ -2,7 +2,7 @@
   <div class="anime-page">
     <div class="page-header">
       <h1 class="page-title">追番列表</h1>
-      <img class="page-cover" :src="blog.blogInfo?.siteConfig?.albumWallpaper || ''" alt="">
+      <img class="page-cover" :src="blog.blogInfo?.siteConfig?.animeWallpaper || ''" alt="">
       <!-- 波浪 -->
       <Waves></Waves>
     </div>
