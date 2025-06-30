@@ -13,11 +13,13 @@
         <!-- 瀑布流照片布局 -->
         <ClientOnly>
           <div 
+            ref="galleryRef"
             v-if="photoInfo.photoVOList && photoInfo.photoVOList.length > 0" 
             v-masonry
             fit-width="true"
             transition-duration="0.3s"
             item-selector=".photo-card"
+            class="photo-gallery"
           >
             <div
               v-for="photo in photoInfo.photoVOList" 
@@ -25,7 +27,7 @@
               v-masonry-tile
               class="photo-card"
             >
-              <img class="photo-img" v-viewer data-not-lazy :src="photo.photoUrl" alt="相册照片" />
+              <img class="photo-img" data-not-lazy :src="photo.photoUrl" alt="相册照片" />
             </div>
           </div>
         </ClientOnly>
@@ -46,9 +48,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
 import { useBlogStore } from '~/stores';
-import VueViewer from 'v-viewer';
+import 'viewerjs/dist/viewer.css';
+import Viewer from 'viewerjs';
 
 // 定义页面元数据
 definePageMeta({
@@ -62,7 +65,7 @@ const albumId = computed(() => Number(route.params.id));
 
 // 获取封面图片
 const wallpaper = computed(() => {
-  return route.query.wallpaper || blog.blogInfo.siteConfig?.albumWallpaper;
+  return route.query.wallpaper as string || blog.blogInfo.siteConfig?.albumWallpaper;
 });
 
 // 照片信息和加载状态
@@ -76,26 +79,81 @@ interface PhotoInfo {
   photoVOList: Photo[];
 }
 
+interface ApiResponse {
+  flag: boolean;
+  data?: PhotoInfo;
+}
+
 const photoInfo = ref<PhotoInfo>({
   albumName: "",
   photoVOList: []
 });
 const loading = ref(true);
+const galleryRef = ref<HTMLElement | null>(null);
+let viewer: any = null;
 
 // 使用API获取照片列表
 const { album } = useApi();
 
+// v-viewer 配置选项
+const viewerOptions = {
+  inline: false,
+  button: true,
+  navbar: true,
+  title: false,
+  toolbar: {
+    zoomIn: true,
+    zoomOut: true,
+    oneToOne: true,
+    reset: true,
+    prev: true,
+    next: true,
+    rotateLeft: true,
+    rotateRight: true,
+    flipHorizontal: true,
+    flipVertical: true,
+  },
+  tooltip: true,
+  movable: true,
+  zoomable: true,
+  rotatable: true,
+  scalable: true,
+  transition: true,
+  fullscreen: true,
+  keyboard: true,
+};
+
 // 页面挂载时获取数据
 onMounted(async () => {
   try {
-    const response = await album.getPhotoList(albumId.value);
+    const response = await album.getPhotoList(albumId.value) as ApiResponse;
     if (response.flag) {
       photoInfo.value = response.data || { albumName: "", photoVOList: [] };
+      
+      // 等待DOM更新后初始化viewer
+      await nextTick();
+      if (galleryRef.value && photoInfo.value.photoVOList.length > 0) {
+        // 销毁之前的viewer实例（如果存在）
+        if (viewer) {
+          viewer.destroy();
+        }
+        
+        // 创建新的viewer实例
+        viewer = new Viewer(galleryRef.value, viewerOptions);
+      }
     }
   } catch (error) {
     console.error('获取照片列表失败', error);
   } finally {
     loading.value = false;
+  }
+});
+
+// 组件卸载时销毁viewer
+onUnmounted(() => {
+  if (viewer) {
+    viewer.destroy();
+    viewer = null;
   }
 });
 </script>
@@ -137,6 +195,11 @@ onMounted(async () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 3rem;
+}
+
+.photo-gallery {
+  width: 100%;
+  cursor: pointer;
 }
 
 .photo-card {
