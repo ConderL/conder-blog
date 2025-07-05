@@ -17,6 +17,7 @@ import { Repository } from 'typeorm';
 import { UploadFileEntity } from '../../entities/file.entity';
 // 导入ali-oss
 import * as AliOSS from 'ali-oss';
+import { ImageProcessorService } from '../image-processor/image-processor.service';
 
 /**
  * 文件上传服务
@@ -29,6 +30,10 @@ export class UploadService {
   private readonly localUrl: string;
   private readonly ossCdnUrl: string;
   private readonly DATE_FORMAT = 'YYYY/MM'; // 只保留年月
+  // 图片处理配置
+  private readonly imageProcessorConfig: {
+    enable: boolean;
+  };
   // OSS配置
   private readonly ossConfig: {
     accessKeyId: string;
@@ -42,12 +47,18 @@ export class UploadService {
     private readonly configService: ConfigService,
     @InjectRepository(UploadFileEntity)
     private readonly fileRepository: Repository<UploadFileEntity>,
+    private readonly imageProcessorService: ImageProcessorService,
   ) {
     // 获取上传配置
     this.strategy = this.configService.get<string>('upload.strategy');
     this.localPath = this.configService.get<string>('upload.local.path');
     this.localUrl = this.configService.get<string>('upload.local.url');
     this.ossCdnUrl = this.configService.get<string>('upload.oss.cdnUrl');
+
+    // 获取图片处理配置
+    this.imageProcessorConfig = {
+      enable: this.configService.get<boolean>('upload.imageProcessor.enable', true),
+    };
 
     // 获取OSS配置
     this.ossConfig = {
@@ -60,6 +71,7 @@ export class UploadService {
 
     this.logger.log(`当前上传策略: ${this.strategy}`);
     this.logger.log(`CDN URL: ${this.ossCdnUrl || '未配置'}`);
+    this.logger.log(`图片处理功能: ${this.imageProcessorConfig.enable ? '已启用' : '已禁用'}`);
   }
 
   // 计算文件MD5
@@ -73,6 +85,69 @@ export class UploadService {
    */
   getUploadPath(): string {
     return this.configService.get('upload.local.path', 'public/uploads/');
+  }
+
+  /**
+   * 处理图片文件
+   * @param file 文件对象
+   * @returns 处理后的文件buffer和扩展名
+   */
+  private async processImageIfNeeded(file: Express.Multer.File): Promise<{
+    buffer: Buffer;
+    extension: string;
+    originalSize: number;
+    processedSize: number;
+  }> {
+    // 检查是否为图片类型且图片处理功能已启用
+    const isImage = file.mimetype.startsWith('image/');
+    if (!isImage || !this.imageProcessorConfig.enable) {
+      return {
+        buffer: file.buffer,
+        extension: extname(file.originalname),
+        originalSize: file.buffer.length,
+        processedSize: file.buffer.length,
+      };
+    }
+
+    try {
+      // 使用图片处理服务处理图片
+      this.logger.log(`开始处理图片: ${file.originalname}`);
+      const result = await this.imageProcessorService.processImage(
+        file.buffer,
+        file.originalname,
+        file.mimetype,
+      );
+
+      if (result.success) {
+        this.logger.log(
+          `图片处理成功: ${file.originalname}, 原始大小: ${result.originalSize} 字节, ` +
+          `处理后大小: ${result.processedSize} 字节, 压缩率: ${((result.originalSize - result.processedSize) / result.originalSize * 100).toFixed(2)
+          }%, 格式: ${result.extension}`
+        );
+        return {
+          buffer: result.buffer,
+          extension: result.extension,
+          originalSize: result.originalSize,
+          processedSize: result.processedSize,
+        };
+      } else {
+        this.logger.warn(`图片处理失败: ${result.error}, 使用原始文件`);
+        return {
+          buffer: file.buffer,
+          extension: extname(file.originalname),
+          originalSize: file.buffer.length,
+          processedSize: file.buffer.length,
+        };
+      }
+    } catch (error) {
+      this.logger.error(`图片处理出错: ${error.message}`, error.stack);
+      return {
+        buffer: file.buffer,
+        extension: extname(file.originalname),
+        originalSize: file.buffer.length,
+        processedSize: file.buffer.length,
+      };
+    }
   }
 
   /**
@@ -102,6 +177,9 @@ export class UploadService {
         };
       }
 
+      // 处理图片文件（如果是图片且启用了处理功能）
+      const processedFile = await this.processImageIfNeeded(file);
+
       this.logger.log(`文件上传策略: ${this.strategy}`);
 
       // 根据不同策略上传文件
@@ -110,13 +188,13 @@ export class UploadService {
         // 校验OSS配置是否完整
         if (!this.validateOssConfig()) {
           this.logger.warn('OSS配置不完整，将使用本地存储');
-          result = await this.uploadToLocal(file, type, useDate);
+          result = await this.uploadToLocal(file, type, useDate, processedFile);
         } else {
-          result = await this.uploadToOSS(file, type, useDate);
+          result = await this.uploadToOSS(file, type, useDate, processedFile);
         }
       } else {
         // 默认使用本地存储
-        result = await this.uploadToLocal(file, type, useDate);
+        result = await this.uploadToLocal(file, type, useDate, processedFile);
       }
 
       // 保存文件信息到数据库
@@ -125,7 +203,7 @@ export class UploadService {
           fileMd5,
           url: result.url,
           path: result.path,
-          fileSize: file.size || 0, // 保存文件大小
+          fileSize: processedFile.processedSize, // 保存处理后的文件大小
         });
         this.logger.log(`文件记录保存成功: ${JSON.stringify(saveResult)}`);
       } catch (dbError) {
@@ -145,19 +223,25 @@ export class UploadService {
    * @param file 文件对象
    * @param type 文件类型
    * @param useDate 是否包含日期目录
+   * @param processedFile 处理后的文件信息
    * @returns 上传结果
    */
   private async uploadToLocal(
     file: Express.Multer.File,
     type: string,
     useDate = true,
+    processedFile?: { buffer: Buffer; extension: string },
   ): Promise<{ url: string; path: string }> {
     try {
       this.logger.log('开始上传文件到本地服务器');
 
+      // 使用处理后的文件数据（如果有）
+      const fileBuffer = processedFile?.buffer || file.buffer;
+      const fileExtension = processedFile?.extension || extname(file.originalname);
+
       // 生成文件名
       const nanoid = customAlphabet('1234567890abcdef', 10);
-      const fileName = `${nanoid()}${extname(file.originalname)}`;
+      const fileName = `${nanoid()}${fileExtension}`;
 
       // 构建本地存储路径，轮播图类型不包含日期
       let directory;
@@ -178,7 +262,7 @@ export class UploadService {
       const filePath = join(directory, fileName);
 
       // 保存文件
-      writeFileSync(resolve(process.cwd(), filePath), file.buffer);
+      writeFileSync(resolve(process.cwd(), filePath), fileBuffer);
 
       // 构建访问URL
       const fileUrl = `${this.localUrl}${filePath.replace(/\\/g, '/')}`;
@@ -200,15 +284,21 @@ export class UploadService {
    * @param file 文件对象
    * @param type 文件类型
    * @param useDate 是否包含日期目录
+   * @param processedFile 处理后的文件信息
    * @returns 上传结果
    */
   private async uploadToOSS(
     file: Express.Multer.File,
     type: string,
     useDate = true,
+    processedFile?: { buffer: Buffer; extension: string },
   ): Promise<{ url: string; path: string }> {
     try {
       this.logger.log('开始上传文件到阿里云OSS');
+
+      // 使用处理后的文件数据（如果有）
+      const fileBuffer = processedFile?.buffer || file.buffer;
+      const fileExtension = processedFile?.extension || extname(file.originalname);
 
       // 创建OSS客户端
       const client = new AliOSS({
@@ -221,7 +311,7 @@ export class UploadService {
 
       // 生成文件名
       const nanoid = customAlphabet('1234567890abcdef', 10);
-      const fileName = `${nanoid()}${extname(file.originalname)}`;
+      const fileName = `${nanoid()}${fileExtension}`;
 
       // 构建OSS路径，轮播图类型不包含日期
       let ossPath;
@@ -234,7 +324,7 @@ export class UploadService {
       }
 
       // 上传文件到OSS
-      const result = await client.put(ossPath, file.buffer);
+      const result = await client.put(ossPath, fileBuffer);
       this.logger.log(`文件上传到OSS成功: ${result.url}`);
 
       // 使用OSS CDN替换URL
@@ -263,7 +353,7 @@ export class UploadService {
       this.logger.error(`上传文件到OSS失败: ${error.message}`, error.stack);
       // 如果上传到OSS失败，则尝试上传到本地
       this.logger.warn('OSS上传失败，将使用本地存储');
-      return this.uploadToLocal(file, type, useDate);
+      return this.uploadToLocal(file, type, useDate, processedFile);
     }
   }
 
@@ -335,6 +425,7 @@ export class UploadService {
    * 上传至腾讯云COS
    * @param file 文件对象
    * @param type 文件类型
+   * @param processedFile 处理后的文件信息
    * @returns 上传结果
    */
   private async uploadToCOS(
@@ -342,6 +433,8 @@ export class UploadService {
     _file: Express.Multer.File,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _type: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _processedFile?: { buffer: Buffer; extension: string },
   ): Promise<{ url: string; path: string }> {
     // TODO: 集成腾讯云COS SDK
     // 实现上传逻辑
@@ -352,6 +445,7 @@ export class UploadService {
    * 上传至七牛云
    * @param file 文件对象
    * @param type 文件类型
+   * @param processedFile 处理后的文件信息
    * @returns 上传结果
    */
   private async uploadToQiniu(
@@ -359,6 +453,8 @@ export class UploadService {
     _file: Express.Multer.File,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _type: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _processedFile?: { buffer: Buffer; extension: string },
   ): Promise<{ url: string; path: string }> {
     // TODO: 集成七牛云SDK
     // 实现上传逻辑

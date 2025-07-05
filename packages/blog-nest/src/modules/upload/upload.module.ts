@@ -1,6 +1,7 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UploadService } from './services/upload/upload.service';
+import { ImageProcessorService } from './services/image-processor/image-processor.service';
 import { UploadController } from './controllers/upload/upload.controller';
 import { FilesController } from './controllers/files.controller';
 import { AdminFileController } from './controllers/admin-file.controller';
@@ -23,11 +24,11 @@ import { UploadFileEntity } from './entities/file.entity';
     TypeOrmModule.forFeature([UploadFileEntity]),
   ],
   controllers: [UploadController, FilesController, AdminFileController],
-  providers: [UploadService],
-  exports: [UploadService],
+  providers: [UploadService, ImageProcessorService],
+  exports: [UploadService, ImageProcessorService],
 })
 export class UploadModule implements OnModuleInit {
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) { }
 
   async onModuleInit() {
     try {

@@ -62,6 +62,21 @@ export default () => ({
       accessKey: process.env.UPLOAD_QINIU_ACCESS_KEY || '',
       secretKey: process.env.UPLOAD_QINIU_SECRET_KEY || '',
     },
+    // 图片处理配置
+    imageProcessor: {
+      // 是否启用图片处理
+      enable: process.env.IMAGE_PROCESSOR_ENABLE === 'true' || true,
+      // 是否启用AVIF转换
+      enableAvif: process.env.IMAGE_PROCESSOR_ENABLE_AVIF === 'true' || true,
+      // AVIF质量 (1-100)
+      avifQuality: parseInt(process.env.IMAGE_PROCESSOR_AVIF_QUALITY, 10) || 80,
+      // 最大宽度 (像素)
+      maxWidth: parseInt(process.env.IMAGE_PROCESSOR_MAX_WIDTH, 10) || 1920,
+      // 最大高度 (像素)
+      maxHeight: parseInt(process.env.IMAGE_PROCESSOR_MAX_HEIGHT, 10) || 1080,
+      // 是否保留原始格式作为备份
+      keepOriginal: process.env.IMAGE_PROCESSOR_KEEP_ORIGINAL === 'true' || false,
+    },
   },
   // 第三方登录配置
   oauth: {
