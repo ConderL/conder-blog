@@ -96,7 +96,8 @@ jobs:
       - name: 应用构建
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-          OXC_SKIP_NATIVE_BINDING: 1
+          OXC_DISABLE: true
+          USE_OXC: false
         run: pnpm build
 
       - name: 设置Docker Buildx
