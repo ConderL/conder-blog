@@ -282,6 +282,7 @@ export default defineNuxtConfig({
     payloadExtraction: true,
     inlineSSRStyles: true,
     renderJsonPayloads: true,
-    viewTransition: true
+    viewTransition: true,
+    useOxc: false
   }
 })
