@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 18.19.1
+  NODE_VERSION: 19.6.1
   PNPM_VERSION: 8.15.4
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_DATABASE: ${{ secrets.DB_DATABASE }}
@@ -61,6 +61,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: 安装构建工具
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3
+
       - name: 清理无用容器
         run: |
           docker container prune -f
@@ -91,13 +96,11 @@ jobs:
         run: pnpm store prune || echo "缓存已清理或无需清理"
 
       - name: 安装依赖
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-optional
 
       - name: 应用构建
         env:
-          NODE_OPTIONS: --max-old-space-size=4096
-          OXC_DISABLE: true
-          USE_OXC: false
+          OXC_DISABLE: 1
         run: pnpm build
 
       - name: 设置Docker Buildx
