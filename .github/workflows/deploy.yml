@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 19.6.1
-  PNPM_VERSION: 9.7.1
+  NODE_VERSION: 18.19.1
+  PNPM_VERSION: 8.15.4
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_DATABASE: ${{ secrets.DB_DATABASE }}
   DB_USERNAME: ${{ secrets.DB_USERNAME }}
