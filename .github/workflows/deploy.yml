@@ -95,12 +95,13 @@ jobs:
       - name: 清理 pnpm 缓存
         run: pnpm store prune || echo "缓存已清理或无需清理"
 
-      - name: 安装依赖
-        run: pnpm install --frozen-lockfile --ignore-optional
+      - name: 安装依赖  
+        run: pnpm install --frozen-lockfile --no-optional
 
       - name: 应用构建
         env:
           OXC_DISABLE: 1
+          NODE_OPTIONS: --max-old-space-size=4096
         run: pnpm build
 
       - name: 设置Docker Buildx
