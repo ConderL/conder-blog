@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 19.6.1
+  NODE_VERSION: 18.19.1
   PNPM_VERSION: 8.15.4
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_DATABASE: ${{ secrets.DB_DATABASE }}
@@ -61,10 +61,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 安装构建工具
+      - name: 安装系统依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential python3
+          sudo apt-get install -y build-essential python3 gcc g++
+          npm i -g @rollup/rollup-linux-x64-gnu
+          npm i -g @swc/core-linux-x64-gnu
 
       - name: 清理无用容器
         run: |
@@ -82,7 +84,7 @@ jobs:
       - name: 安装PNPM
         uses: pnpm/action-setup@v2
         with:
-          version: 9.7.1
+          version: ${{ env.PNPM_VERSION }}
 
       - name: 配置PNPM缓存
         uses: actions/cache@v3
@@ -96,12 +98,13 @@ jobs:
         run: pnpm store prune || echo "缓存已清理或无需清理"
 
       - name: 安装依赖  
-        run: pnpm install --frozen-lockfile --no-optional
+        run: pnpm install --no-frozen-lockfile --no-optional
 
       - name: 应用构建
         env:
           OXC_DISABLE: 1
           ROLLUP_SKIP_NODEJS_NATIVE: 1
+          VITE_NO_NATIVE_DEPS: 1
           NODE_OPTIONS: --max-old-space-size=4096
         run: pnpm build
 
