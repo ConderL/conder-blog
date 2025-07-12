@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite --mode dev",
     "dev:prod": "vite --mode prod",
-    "build": "vite build --mode prod",
-    "build:dev": "vite build --mode dev",
+    "build": "ROLLUP_SKIP_NODEJS_NATIVE=1 VITE_CJS_IGNORE_WARNING=1 vite build --mode prod",
+    "build:dev": "ROLLUP_SKIP_NODEJS_NATIVE=1 vite build --mode dev",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit --skipLibCheck"
   },

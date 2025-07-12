@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 4173 --force",
-    "build": "vite build --mode prod",
+    "build": "ROLLUP_SKIP_NODEJS_NATIVE=1 VITE_CJS_IGNORE_WARNING=1 vite build --mode prod",
     "preview": "vite preview"
   },
   "dependencies": {
