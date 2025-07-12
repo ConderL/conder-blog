@@ -101,6 +101,7 @@ jobs:
       - name: 应用构建
         env:
           OXC_DISABLE: 1
+          ROLLUP_SKIP_NODEJS_NATIVE: 1
           NODE_OPTIONS: --max-old-space-size=4096
         run: pnpm build
 
