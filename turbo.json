@@ -1,21 +1,23 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", ".output/**"]
     },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "start": {
-      "cache": false,
-      "persistent": true
+    "test": {
+      "outputs": []
     },
     "lint": {
       "outputs": []
+    },
+    "dev": {
+      "cache": false
+    },
+    "clean": {
+      "cache": false
     }
-  }
+  },
+  "globalEnv": ["NODE_ENV", "NITRO_PRESET"],
+  "globalDependencies": [".env"]
 } 

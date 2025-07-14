@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 19.6.1
-  PNPM_VERSION: 9.7.1
+  NODE_VERSION: 18.19.1
+  PNPM_VERSION: 8.15.4
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_DATABASE: ${{ secrets.DB_DATABASE }}
   DB_USERNAME: ${{ secrets.DB_USERNAME }}
@@ -61,6 +61,24 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: 安装系统依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3 gcc g++
+          npm i -g @rollup/rollup-linux-x64-gnu
+          npm i -g @swc/core-linux-x64-gnu
+          npm i -g turbo
+          
+      - name: 修复锁文件问题
+        run: |
+          rm -f pnpm-lock.yaml
+          echo "node-linker=hoisted" > .npmrc
+          echo "shamefully-hoist=true" >> .npmrc
+          echo "strict-peer-dependencies=false" >> .npmrc
+          echo "public-hoist-pattern[]=*turbo*" >> .npmrc
+          echo "legacy-peer-deps=true" >> .npmrc
+          echo "auto-install-peers=true" >> .npmrc
+
       - name: 清理无用容器
         run: |
           docker container prune -f
@@ -77,7 +95,7 @@ jobs:
       - name: 安装PNPM
         uses: pnpm/action-setup@v2
         with:
-          version: 9.7.1
+          version: ${{ env.PNPM_VERSION }}
 
       - name: 配置PNPM缓存
         uses: actions/cache@v3
@@ -90,10 +108,15 @@ jobs:
       - name: 清理 pnpm 缓存
         run: pnpm store prune || echo "缓存已清理或无需清理"
 
-      - name: 安装依赖
-        run: pnpm install --frozen-lockfile
+      - name: 安装依赖  
+        run: pnpm install --no-frozen-lockfile --no-optional --force
 
       - name: 应用构建
+        env:
+          OXC_DISABLE: 1
+          ROLLUP_SKIP_NODEJS_NATIVE: 1
+          VITE_NO_NATIVE_DEPS: 1
+          NODE_OPTIONS: --max-old-space-size=4096
         run: pnpm build
 
       - name: 设置Docker Buildx

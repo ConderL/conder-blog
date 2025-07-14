@@ -1,5 +1,5 @@
 # 基础阶段 - 仅安装依赖
-FROM node:19.6.1 AS deps
+FROM node:18.19.1 AS deps
 WORKDIR /app
 
 # 仅复制 package.json 相关文件
@@ -11,7 +11,7 @@ RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile --shamefully-hoist
 
 # 构建阶段
-FROM node:19.6.1 AS builder
+FROM node:18.19.1 AS builder
 WORKDIR /app
 
 # 复制依赖
@@ -27,7 +27,7 @@ RUN npm install -g pnpm && \
     pnpm run build
 
 # 生产阶段
-FROM node:19.6.1 AS runner
+FROM node:18.19.1 AS runner
 WORKDIR /app
 
 # 安装生产依赖
