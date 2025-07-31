@@ -17,16 +17,17 @@
     "lint-staged": "lint-staged"
   },
   "dependencies": {
-    "serve": "^14.2.1"
+    "serve": "^14.2.1",
+    "typescript": "5.4.2"
   },
   "devDependencies": {
-    "turbo": "^1.12.4",
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.0.1",
-    "lint-staged": "^15.2.0"
+    "lint-staged": "^15.2.0",
+    "turbo": "1.13.4"
   },
   "engines": {
     "node": ">=16.0.0",
@@ -47,6 +48,13 @@
   },
   "pnpm": {
     "overrides": {
+      "turbo": "1.13.4",
+      "turbo-darwin-64": "1.13.4",
+      "turbo-linux-64": "1.13.4",
+      "turbo-darwin-arm64": "1.13.4",
+      "turbo-linux-arm64": "1.13.4",
+      "turbo-windows-64": "1.13.4",
+      "turbo-windows-arm64": "1.13.4",
       "@nuxt/kit": "3.17.4",
       "@codemirror/state": "6.4.1",
       "@codemirror/view": "6.34.1",

@@ -65,19 +65,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential python3 gcc g++
-          npm i -g @rollup/rollup-linux-x64-gnu
-          npm i -g @swc/core-linux-x64-gnu
-          npm i -g turbo
-          
-      - name: 修复锁文件问题
-        run: |
-          rm -f pnpm-lock.yaml
-          echo "node-linker=hoisted" > .npmrc
-          echo "shamefully-hoist=true" >> .npmrc
-          echo "strict-peer-dependencies=false" >> .npmrc
-          echo "public-hoist-pattern[]=*turbo*" >> .npmrc
-          echo "legacy-peer-deps=true" >> .npmrc
-          echo "auto-install-peers=true" >> .npmrc
 
       - name: 清理无用容器
         run: |
@@ -109,7 +96,11 @@ jobs:
         run: pnpm store prune || echo "缓存已清理或无需清理"
 
       - name: 安装依赖  
-        run: pnpm install --no-frozen-lockfile --no-optional --force
+        run: |
+          echo "shamefully-hoist=true" > .npmrc
+          echo "strict-peer-dependencies=false" >> .npmrc
+          echo "auto-install-peers=true" >> .npmrc
+          pnpm install --no-frozen-lockfile --no-optional --force
 
       - name: 应用构建
         env:
