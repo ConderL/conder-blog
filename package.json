@@ -61,5 +61,9 @@
       "@codemirror/language": "6.10.3",
       "nuxt-site-config": "^3.2.0"
     }
+  },
+  "resolutions": {
+    "oxc-parser": "0.78.0",
+    "@oxc-parser/binding-linux-x64-gnu": "0.78.0"
   }
 }

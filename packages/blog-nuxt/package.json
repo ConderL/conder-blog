@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev",
-    "build": "OXC_DISABLE=true NODE_ENV=production NITRO_PRESET=node-server nuxt build",
+    "build": "OXC_DISABLE=1 NODE_ENV=production NITRO_PRESET=node-server nuxt build",
     "build:analyze": "nuxt build --analyze",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
