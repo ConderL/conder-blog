@@ -97,11 +97,10 @@ jobs:
 
       - name: 安装依赖  
         run: |
-          pnpm install --no-frozen-lockfile --force -w
+          pnpm install --no-frozen-lockfile --force
           pnpm add -w @oxc-parser/binding-linux-x64-gnu@0.78.0
-
           pnpm add -w typescript@5.4.2
-          pnpm -r exec pnpm add typescript@5.4.2
+          pnpm -r --filter=./packages/blog-* add typescript@5.4.2
 
       - name: 应用构建
         env:
