@@ -70,6 +70,11 @@ export default defineNuxtConfig({
       include: ['vue', 'pinia', '@vueuse/core'],
       exclude: ['lightningcss', 'jsencrypt']
     },
+    define: {
+      // 解决 crypto 问题
+      global: {},
+      'global.crypto': 'global.crypto || require("crypto")',
+    },
     // 减少构建警告
     build: {
       cssCodeSplit: true,
@@ -101,7 +106,11 @@ export default defineNuxtConfig({
         usePolling: true,
         interval: 1000
       }
-    }
+    },
+    plugins: [
+      // 确保使用兼容的 Vue 插件
+      require('@vitejs/plugin-vue')()
+    ]
   },
 
   // 更新Nuxt UI配置，确保正确加载组件

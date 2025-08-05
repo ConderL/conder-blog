@@ -459,6 +459,9 @@ importers:
       '@nuxtjs/robots':
         specifier: ^5.2.10
         version: 5.4.0(vue@3.5.18)
+      '@vitejs/plugin-vue':
+        specifier: 5.0.4
+        version: 5.0.4(vite@5.2.12)(vue@3.5.18)
       '@vueuse/core':
         specifier: ^10.7.0
         version: 10.11.1(vue@3.5.18)
@@ -5803,6 +5806,7 @@ packages:
     resolution: {integrity: sha512-VMZOW6mnmMMhA5m3fsCdXBwFwC+a+27/8gctNMuQC4f7UtWcF79KAFGoIfKZ4iqrElgWIa3j5vhMJDp0iikQ1g==}
     dependencies:
       '@types/express': 4.17.23
+    dev: false
 
   /@types/node-fetch@2.6.13:
     resolution: {integrity: sha512-QGpRVpzSaUs30JBSGPjOg4Uveu384erbHBoT1zeONvyCfwQxIkUshLAOqN/k9EjGviPRmWTTe6aH2qySWKTVSw==}
@@ -6582,6 +6586,17 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@vitejs/plugin-vue@5.0.4(vite@5.2.12)(vue@3.5.18):
+    resolution: {integrity: sha512-WS3hevEszI6CEVEx28F8RjTX97k3KsrcY6kvTg7+Whm5y3oYvcqzVeGCU3hxSAn4uY2CLCkeokkGKpoctccilQ==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    peerDependencies:
+      vite: ^5.0.0
+      vue: ^3.2.25
+    dependencies:
+      vite: 5.2.12(@types/node@20.19.9)(lightningcss@1.30.1)(sass@1.89.2)
+      vue: 3.5.18(typescript@5.4.2)
+    dev: false
 
   /@vitejs/plugin-vue@5.2.4(vite@5.2.12)(vue@3.5.18):
     resolution: {integrity: sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==}
@@ -14154,7 +14169,7 @@ packages:
       markdown-it-sub: 2.0.0
       markdown-it-sup: 2.0.0
       medium-zoom: 1.1.0
-      vue: 3.5.18(typescript@4.9.5)
+      vue: 3.5.18(typescript@5.4.2)
       xss: 1.0.15
     dev: false
 
@@ -15825,7 +15840,7 @@ packages:
       pinia:
         optional: true
     dependencies:
-      pinia: 2.3.1(typescript@4.9.5)(vue@3.5.18)
+      pinia: 2.3.1(typescript@5.4.2)(vue@3.5.18)
     dev: false
 
   /pinia@2.3.1(typescript@4.9.5)(vue@3.5.18):
@@ -19601,7 +19616,7 @@ packages:
     dependencies:
       lodash-es: 4.17.21
       viewerjs: 1.11.7
-      vue: 3.5.18(typescript@4.9.5)
+      vue: 3.5.18(typescript@5.4.2)
     dev: false
 
   /v8-compile-cache-lib@3.0.1:
@@ -20108,7 +20123,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.5.18(typescript@4.9.5)
+      vue: 3.5.18(typescript@5.4.2)
 
   /vue-devtools-stub@0.1.0:
     resolution: {integrity: sha512-RutnB7X8c5hjq39NceArgXg28WZtZpGc3+J16ljMiYnFhKvd8hITxSWQSQ5bvldxMDU6gG5mkxl1MTQLXckVSQ==}

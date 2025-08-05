@@ -98,9 +98,23 @@ jobs:
       - name: 安装依赖  
         run: |
           pnpm install --no-frozen-lockfile --force
+          
+          # 安装必要包
           pnpm add -w @oxc-parser/binding-linux-x64-gnu@0.78.0
           pnpm add -w typescript@5.4.2
           pnpm -r --filter=./packages/blog-* add typescript@5.4.2
+          
+          # 在 blog-nuxt 中安装兼容的 Vite
+          pnpm --filter blog-nuxt add vite@5.2.12 @vitejs/plugin-vue@5.0.4
+      
+      - name: 修复 Node.js 环境
+        run: |
+          # 在全局安装 crypto polyfill
+          npm install -g crypto-browserify
+          
+          # 创建全局 crypto 补丁
+          echo "global.crypto = global.crypto || require('crypto')" > crypto-patch.js
+          echo "NODE_OPTIONS='--require ./crypto-patch.js'" >> $GITHUB_ENV
 
       - name: 应用构建
         env:
