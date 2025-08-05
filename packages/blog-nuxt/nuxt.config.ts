@@ -71,9 +71,16 @@ export default defineNuxtConfig({
       exclude: ['lightningcss', 'jsencrypt']
     },
     define: {
-      // 解决 crypto 问题
       global: {},
-      'global.crypto': 'global.crypto || require("crypto")',
+    },
+    // 添加别名配置
+    resolve: {
+      alias: {
+        // 仅当在客户端构建时重定向 crypto
+        ...(process.env.NODE_ENV === 'production' && {
+          crypto: 'crypto-browserify'
+        })
+      }
     },
     // 减少构建警告
     build: {
@@ -108,8 +115,6 @@ export default defineNuxtConfig({
       }
     },
     plugins: [
-      // 确保使用兼容的 Vue 插件
-      '~/plugins/crypto.js',
       require('@vitejs/plugin-vue')()
     ]
   },
