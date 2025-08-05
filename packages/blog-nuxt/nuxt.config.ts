@@ -109,6 +109,7 @@ export default defineNuxtConfig({
     },
     plugins: [
       // 确保使用兼容的 Vue 插件
+      '~/plugins/crypto.js',
       require('@vitejs/plugin-vue')()
     ]
   },

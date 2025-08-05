@@ -106,15 +106,22 @@ jobs:
           
           # 在 blog-nuxt 中安装兼容的 Vite
           pnpm --filter blog-nuxt add vite@5.2.12 @vitejs/plugin-vue@5.0.4
-      
-      - name: 修复 Node.js 环境
+
+      - name: 修复 Nuxt crypto 问题
         run: |
-          # 在全局安装 crypto polyfill
-          npm install -g crypto-browserify
-          
-          # 创建全局 crypto 补丁
-          echo "global.crypto = global.crypto || require('crypto')" > crypto-patch.js
-          echo "NODE_OPTIONS='--require ./crypto-patch.js'" >> $GITHUB_ENV
+          # 在 blog-nuxt 中安装浏览器兼容的 crypto 实现
+          pnpm --filter blog-nuxt add crypto-browserify
+
+          # 创建 Nuxt 插件解决 crypto 问题
+          cat > packages/blog-nuxt/plugins/crypto.js << 'EOF'
+          import crypto from 'crypto-browserify';
+          export default defineNuxtPlugin(() => {
+            globalThis.crypto = crypto;
+          });
+          EOF
+
+          # 注册插件到 Nuxt 配置
+          echo "export default defineNuxtConfig({ plugins: ['~/plugins/crypto.js'] })" > packages/blog-nuxt/nuxt.config.ts
 
       - name: 应用构建
         env:
