@@ -4,7 +4,9 @@ let JSEncrypt: any = null;
 // 动态导入 jsencrypt
 export async function loadJSEncrypt() {
   if (process.client && !JSEncrypt) {
-    JSEncrypt = (await import('jsencrypt')).default;
+    // 使用动态导入避免服务端加载
+    const module = await import('jsencrypt');
+    JSEncrypt = module.default;
   }
   return JSEncrypt;
 }
