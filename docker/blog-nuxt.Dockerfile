@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:18.19.1-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -8,8 +8,8 @@ ENV NODE_ENV=production
 ENV VITE_BASE_URL=/
 ENV VITE_SERVICE_BASE_URL=https://api.conder.top
 
-# 安装 pnpm
-RUN npm install -g pnpm
+# 安装与仓库锁文件匹配的 pnpm 版本
+RUN npm install -g pnpm@8.15.4
 
 # 设置 pnpm 镜像源
 RUN pnpm config set registry https://registry.npmmirror.com/
@@ -18,19 +18,18 @@ RUN pnpm config set registry https://registry.npmmirror.com/
 RUN pnpm config set auto-install-peers true
 RUN pnpm config set strict-peer-dependencies false
 
-# 复制 Monorepo 配置文件
+# 复制 Monorepo 配置文件与子包 package.json（确保按锁文件解析 workspace）
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/blog-nuxt/package.json ./packages/blog-nuxt/
 
-# 安装项目依赖
-RUN pnpm install --prod=false --shamefully-hoist
+# 安装依赖（严格遵循锁文件，避免升级 Nuxt/@nuxt/kit 等版本）
+RUN pnpm install --frozen-lockfile --prod=false --shamefully-hoist
 
 # 复制子项目代码
 COPY packages/blog-nuxt ./packages/blog-nuxt
 
-# 安装子项目依赖并构建
+# 构建（依赖已在 workspace 级安装）
 RUN cd packages/blog-nuxt && \
-    pnpm install --prod=false && \
-    pnpm install vue-cropper@1.1.1 && \
     pnpm run build
 
 # 生产阶段
