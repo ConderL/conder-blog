@@ -73,13 +73,10 @@ export default defineNuxtConfig({
     define: {
       global: {},
     },
-    // 添加别名配置
+    // 移除对 Node 核心模块 `crypto` 的浏览器别名，避免 CI 构建期 (Node 环境) 注入 web crypto
+    // Source: Nuxt/Vite 构建在 Node 环境内执行，按主机替换会导致 @vitejs/plugin-vue 使用到 `globalThis.crypto`
     resolve: {
       alias: {
-        // 仅当在客户端构建时重定向 crypto
-        ...(process.env.NODE_ENV === 'production' && {
-          crypto: 'crypto-browserify'
-        })
       }
     },
     // 减少构建警告
