@@ -111,10 +111,7 @@ export default defineNuxtConfig({
         usePolling: true,
         interval: 1000
       }
-    },
-    plugins: [
-      require('@vitejs/plugin-vue')()
-    ]
+    }
   },
 
   // 更新Nuxt UI配置，确保正确加载组件
