@@ -70,13 +70,14 @@ export default defineNuxtConfig({
       include: ['vue', 'pinia', '@vueuse/core'],
       exclude: ['lightningcss', 'jsencrypt']
     },
-    define: {
-      global: {},
-    },
+    // 不再注入全局 global，避免影响构建期对 Node API 的解析
+    define: {},
     // 移除对 Node 核心模块 `crypto` 的浏览器别名，避免 CI 构建期 (Node 环境) 注入 web crypto
     // Source: Nuxt/Vite 构建在 Node 环境内执行，按主机替换会导致 @vitejs/plugin-vue 使用到 `globalThis.crypto`
     resolve: {
       alias: {
+        // 强制使用 Node 的原生 crypto，防止任何三方 polyfill 介入
+        crypto: 'node:crypto'
       }
     },
     // 减少构建警告

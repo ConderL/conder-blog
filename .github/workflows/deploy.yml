@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 18.19.1
+  NODE_VERSION: 20
   PNPM_VERSION: 8.15.4
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_DATABASE: ${{ secrets.DB_DATABASE }}
@@ -98,14 +98,10 @@ jobs:
       - name: 安装依赖  
         run: |
           pnpm install --no-frozen-lockfile --force
-          
-          pnpm --filter blog-nuxt add crypto-browserify
 
       - name: 应用构建
         env:
           OXC_DISABLE: 1
-          ROLLUP_SKIP_NODEJS_NATIVE: 1
-          VITE_NO_NATIVE_DEPS: 1
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
           cd packages/blog-nest && pnpm build
