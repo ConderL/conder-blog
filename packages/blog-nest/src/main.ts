@@ -10,6 +10,12 @@ import { DataSource } from 'typeorm';
 import { initDatabase } from './database';
 // 导入helmet
 import helmet from 'helmet';
+// 确保 Node 环境下存在全局 crypto，以供依赖方 (如 @nestjs/schedule) 使用 randomUUID
+import * as nodeCrypto from 'crypto';
+// 在最早阶段注入，避免模块初始化期间访问不到
+if (!(global as any).crypto || !(global as any).crypto.randomUUID) {
+  (global as any).crypto = nodeCrypto as any;
+}
 
 async function bootstrap() {
   // 创建应用实例
