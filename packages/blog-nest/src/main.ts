@@ -96,14 +96,17 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  // 配置Swagger
+  // 先完成应用初始化，确保路由/模块元数据可被 Swagger 正确扫描
+  await app.init()
+
+  // 配置Swagger（放在 init 之后，避免扫描未就绪的路由导致 TypeError）
   const options = new DocumentBuilder()
     .setTitle('博客API文档')
     .setDescription('博客系统后端API接口文档')
     .setVersion('1.0.0')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, options);
+  const document = SwaggerModule.createDocument(app, options, { deepScanRoutes: true });
   SwaggerModule.setup('api-docs', app, document);
   SwaggerModule.setup('swagger-ui', app, document);
 
