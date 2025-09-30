@@ -168,9 +168,16 @@ jobs:
             # 强制清理旧容器
             docker compose down --remove-orphans --timeout 30
 
-            # git fetch --all
-            # git reset --hard origin/main
-            # git pull origin main --force
+            # 同步仓库，确保拿到最新 docker-compose.yml 等配置
+            git init
+            if git remote | grep -q origin; then
+              git remote set-url origin ${{ github.server_url }}/${{ github.repository }}.git
+            else
+              git remote add origin ${{ github.server_url }}/${{ github.repository }}.git
+            fi
+            git fetch --all --prune
+            git reset --hard origin/main
+            git pull origin main --force
 
             # 创建环境变量文件
             cat > .env << EOF
