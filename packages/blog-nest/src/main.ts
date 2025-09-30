@@ -112,7 +112,10 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, options, { deepScanRoutes: true });
+  const document = SwaggerModule.createDocument(app, options, {
+    deepScanRoutes: true,
+    include: [AppModule]
+  });
   SwaggerModule.setup('api-docs', app, document);
   SwaggerModule.setup('swagger-ui', app, document);
 
