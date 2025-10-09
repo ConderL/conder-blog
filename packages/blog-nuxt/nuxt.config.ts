@@ -89,6 +89,7 @@ export default defineNuxtConfig({
         output: {
           manualChunks: {
             'vue-vendor': ['vue'],
+            'ui-vendor': ['@nuxt/ui'],  // 将Nuxt UI单独分包，减少首屏CSS体积
             'editor-vendor': ['md-editor-v3'],
             'utils-vendor': ['@vueuse/core', 'pinia'],
             'danmaku-vendor': ['vue3-danmaku']
@@ -290,7 +291,7 @@ export default defineNuxtConfig({
     emitRouteChunkError: false,
     restoreState: true,
     payloadExtraction: true,
-    inlineSSRStyles: true,
+    inlineSSRStyles: false,  // 禁用内联样式，改用外部CSS文件，提升SEO效果
     renderJsonPayloads: true,
     viewTransition: true,
     useOxc: false
