@@ -105,19 +105,28 @@ async function bootstrap() {
   // 先完成应用初始化，确保路由/模块元数据可被 Swagger 正确扫描
   await app.init()
 
-  // 配置Swagger（放在 init 之后，避免扫描未就绪的路由导致 TypeError）
-  const options = new DocumentBuilder()
-    .setTitle('博客API文档')
-    .setDescription('博客系统后端API接口文档')
-    .setVersion('1.0.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, options, {
-    deepScanRoutes: true,
-    include: [AppModule]
-  });
-  SwaggerModule.setup('api-docs', app, document);
-  SwaggerModule.setup('swagger-ui', app, document);
+  // 生产默认关闭 Swagger，避免运行时扫描异常导致进程退出
+  const enableSwagger = process.env.ENABLE_SWAGGER === 'true' || process.env.NODE_ENV !== 'production';
+  if (enableSwagger) {
+    try {
+      // 配置Swagger（放在 init 之后，避免扫描未就绪的路由导致 TypeError）
+      const options = new DocumentBuilder()
+        .setTitle('博客API文档')
+        .setDescription('博客系统后端API接口文档')
+        .setVersion('1.0.0')
+        .addBearerAuth()
+        .build();
+      const document = SwaggerModule.createDocument(app, options, {
+        deepScanRoutes: true,
+        include: [AppModule]
+      });
+      SwaggerModule.setup('api-docs', app, document);
+      SwaggerModule.setup('swagger-ui', app, document);
+    } catch (err) {
+      // 记录错误但不影响服务启动
+      new Logger('Swagger').error('Swagger 初始化失败，已跳过', err as any);
+    }
+  }
 
   // 获取数据源
   const dataSource = app.get(DataSource);
