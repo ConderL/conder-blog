@@ -8,7 +8,7 @@ done
 echo "MySQL TCP 连接成功!"
 
 echo "开始执行数据库迁移..."
-npx typeorm migration:run -d ./dist/src/data-source.js || echo "迁移可能失败，但继续启动"
+npx typeorm migration:run -d ./dist/data-source.js || echo "迁移可能失败，但继续启动"
 
 echo "使用 node 直接启动应用..."
-node dist/src/main.js
+node dist/main.js
