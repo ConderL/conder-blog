@@ -206,6 +206,9 @@ export const useApi = () => {
         throw error;
       }
     },
+    
+    // 获取番剧推荐
+    getAnimeRecommend: (limit?: number) => directFetch('/ai/dify/anime/recommend', { params: { limit } }),
 
     // AI 聊天对话（流式模式，返回EventSource）
     chatStream: (data: {

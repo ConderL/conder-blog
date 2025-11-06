@@ -69,6 +69,9 @@ export class DifyController {
       const stream = await this.difyService.chatStream(dto);
 
       // 处理流式数据
+      let hasAnimeIntent = false;
+      let animeData: any = null;
+      
       stream.on('data', (chunk: Buffer) => {
         const data = chunk.toString();
         const lines = data.split('\n');
@@ -77,6 +80,11 @@ export class DifyController {
           if (line.startsWith('data: ')) {
             const jsonStr = line.substring(6);
             if (jsonStr.trim() === '[DONE]') {
+              // 如果检测到推荐番剧意图，但还没有番剧数据，在这里添加
+              if (hasAnimeIntent && !animeData) {
+                // 这里可以异步获取番剧数据，但由于流式响应已经结束，建议在前端处理
+                // 或者使用message_end事件传递
+              }
               res.write('data: [DONE]\n\n');
               res.end();
               return;
@@ -84,6 +92,19 @@ export class DifyController {
 
             try {
               const jsonData = JSON.parse(jsonStr);
+              
+              // 检测是否包含推荐番剧的意图
+              if (jsonData.metadata?.intent === 'recommend_anime' || 
+                  jsonData.intent === 'recommend_anime' ||
+                  (jsonData.answer && /推荐.*番剧|推荐.*动漫|高分.*番剧/.test(jsonData.answer))) {
+                hasAnimeIntent = true;
+              }
+              
+              // 如果metadata中已经包含番剧数据，直接传递
+              if (jsonData.metadata?.animes) {
+                animeData = jsonData.metadata.animes;
+              }
+              
               // 发送SSE格式的数据
               res.write(`data: ${JSON.stringify(jsonData)}\n\n`);
             } catch (e) {
@@ -245,6 +266,21 @@ export class DifyController {
       return ResultDto.success(tags);
     } catch (error) {
       return ResultDto.error(`推荐标签失败: ${error.message}`);
+    }
+  }
+
+  @Get('anime/recommend')
+  @ApiOperation({ summary: '获取高分番剧推荐' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: 200, description: '获取成功' })
+  async getAnimeRecommend(@Query('limit') limit?: number): Promise<ResultDto<any>> {
+    try {
+      const animes = await this.difyService.getTopRatedAnimes(limit || 5);
+      return ResultDto.success(animes);
+    } catch (error) {
+      return ResultDto.error(`获取番剧推荐失败: ${error.message}`);
     }
   }
 }

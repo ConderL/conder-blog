@@ -11,6 +11,16 @@
     </div>
     <!-- 正常内容 -->
     <div v-else class="ai-message-text" v-html="processedContent"></div>
+    
+    <!-- 番剧推荐卡片 -->
+    <div v-if="animes && animes.length > 0" class="anime-cards-container">
+      <AnimeCard
+        v-for="anime in animes"
+        :key="anime.id"
+        :anime="anime"
+      />
+    </div>
+    
     <div v-if="metadata" class="ai-message-metadata">
       <div v-if="metadata.usage" class="usage-info">
         <span class="usage-item">Tokens: {{ metadata.usage.total_tokens }}</span>
@@ -31,7 +41,25 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import MessageActions from './MessageActions.vue';
+import AnimeCard from './AnimeCard.vue';
 import { useMarkdown } from '~/composables/useMarkdown';
+
+interface Anime {
+  id: number;
+  animeName: string;
+  cover?: string;
+  description?: string;
+  rating?: number;
+  ratingCount?: number;
+  animeStatus?: number;
+  totalEpisodes?: number;
+  currentEpisodes?: number;
+  platform?: number;
+  area?: { id: number; name: string };
+  styles?: string | string[];
+  views?: number;
+  publishTime?: string;
+}
 
 interface AIMetadata {
   usage?: {
@@ -55,6 +83,7 @@ interface Props {
   content: string;
   metadata?: AIMetadata;
   actions?: Action[];
+  animes?: Anime[];
 }
 
 interface Emits {
@@ -267,6 +296,12 @@ const processedContent = computed(() => {
       border-radius: 4px;
       margin: 8px 0;
     }
+  }
+  
+  .anime-cards-container {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--grey-3);
   }
   
   .ai-message-metadata {

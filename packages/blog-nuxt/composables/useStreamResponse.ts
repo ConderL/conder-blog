@@ -81,6 +81,16 @@ export const useStreamResponse = () => {
               callbacks.onMetadata(state.metadata);
             }
           }
+          
+          // 检查data中是否直接包含番剧数据（Dify工作流返回）
+          if (data.animes && Array.isArray(data.animes)) {
+            if (callbacks.onMetadata) {
+              callbacks.onMetadata({
+                ...state.metadata,
+                animes: data.animes,
+              });
+            }
+          }
 
           // 触发事件回调
           if (callbacks.onEvent) {

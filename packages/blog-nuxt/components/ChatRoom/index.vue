@@ -86,6 +86,23 @@ interface Action {
   class?: string;
 }
 
+interface Anime {
+  id: number;
+  animeName: string;
+  cover?: string;
+  description?: string;
+  rating?: number;
+  ratingCount?: number;
+  animeStatus?: number;
+  totalEpisodes?: number;
+  currentEpisodes?: number;
+  platform?: number;
+  area?: { id: number; name: string };
+  styles?: string | string[];
+  views?: number;
+  publishTime?: string;
+}
+
 interface AIMessage {
   id?: number;
   nickname: string;
@@ -97,6 +114,7 @@ interface AIMessage {
   metadata?: AIMetadata;
   actions?: Action[];
   needLogin?: boolean;
+  animes?: Anime[]; // 番剧推荐列表
 }
 
 const user = useUserStore();
@@ -358,19 +376,65 @@ const handleAIChat = async () => {
       onMetadata: (metadata) => {
         if (aiMessages.value[aiMessageIndex]) {
           aiMessages.value[aiMessageIndex].metadata = metadata;
+          
+          // 检查metadata中是否包含番剧数据（Dify工作流直接返回）
+          if (metadata.animes && Array.isArray(metadata.animes)) {
+            aiMessages.value[aiMessageIndex].animes = metadata.animes;
+          }
         }
       },
       onConversationId: (conversationId) => {
         aiConversationId.value = conversationId;
       },
-      onEvent: (event, data) => {
+      onEvent: async (event, data) => {
         // 更新创建时间
         if (data.created_at && aiMessages.value[aiMessageIndex]) {
           aiMessages.value[aiMessageIndex].createTime = new Date(data.created_at * 1000).toISOString();
         }
+        
+        // 检查是否需要获取番剧推荐
+        // 方式1: Dify工作流返回了意图识别结果
+        if (data.intent === 'recommend_anime' || data.function_call === 'get_anime_recommend') {
+          try {
+            const { ai } = useApi();
+            const limit = data.limit || 5;
+            const response = await ai.getAnimeRecommend(limit);
+            
+            if (response && response.flag && response.data && response.data.list) {
+              if (aiMessages.value[aiMessageIndex]) {
+                aiMessages.value[aiMessageIndex].animes = response.data.list;
+              }
+            }
+          } catch (error) {
+            console.error('获取番剧推荐失败:', error);
+          }
+        }
       },
-      onComplete: () => {
+      onComplete: async () => {
         console.log('AI流式回复完成');
+        
+        // 如果消息已完成且包含推荐番剧相关内容，但还没有番剧数据，则主动获取
+        const currentMessage = aiMessages.value[aiMessageIndex];
+        if (currentMessage && currentMessage.content && !currentMessage.animes) {
+          const recommendKeywords = ['推荐', '番剧', '动漫', '动画', '高分', '好看'];
+          const hasRecommendKeyword = recommendKeywords.some(keyword => 
+            currentMessage.content.includes(keyword)
+          );
+          
+          // 如果消息中包含推荐关键词，且消息长度较短（可能是AI准备推荐），主动获取
+          if (hasRecommendKeyword && currentMessage.content.length < 200) {
+            try {
+              const { ai } = useApi();
+              const response = await ai.getAnimeRecommend(5);
+              
+              if (response && response.flag && response.data && response.data.list) {
+                currentMessage.animes = response.data.list;
+              }
+            } catch (error) {
+              console.error('自动获取番剧推荐失败:', error);
+            }
+          }
+        }
       },
     });
     

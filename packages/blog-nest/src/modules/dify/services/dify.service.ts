@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { AnimeService } from '../../blog/services/anime.service';
+import { QueryAnimeDto } from '../../blog/dto/anime.dto';
 import {
   ChatMessageDto,
   ChatMessageResponse,
@@ -24,6 +26,7 @@ export class DifyService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly animeService: AnimeService,
   ) {
     this.baseUrl = this.configService.get<string>('DIFY_BASE_URL') || 'https://api.dify.ai';
     this.apiKey = this.configService.get<string>('DIFY_API_KEY') || '';
@@ -353,6 +356,51 @@ ${content.substring(0, 5000)}`;
       .filter((tag) => tag.length > 0);
 
     return tags.slice(0, 10);
+  }
+
+  /**
+   * 获取高分番剧推荐
+   * @param limit 返回数量限制，默认5
+   * @returns 番剧列表
+   */
+  async getTopRatedAnimes(limit: number = 5): Promise<any> {
+    try {
+      const queryDto: QueryAnimeDto = {
+        page: 1,
+        limit: limit,
+        sortBy: 'rating', // 按评分排序
+      };
+
+      const result = await this.animeService.findAll(queryDto);
+
+      // 格式化番剧信息，只返回必要的字段
+      const formattedAnimes = result.list.map((anime) => ({
+        id: anime.id,
+        animeName: anime.animeName,
+        cover: anime.cover,
+        description: anime.description,
+        rating: anime.rating,
+        ratingCount: anime.ratingCount,
+        animeStatus: anime.animeStatus,
+        totalEpisodes: anime.totalEpisodes,
+        currentEpisodes: anime.currentEpisodes,
+        platform: anime.platform,
+        area: anime.area,
+        styles: anime.styles,
+        publishTime: anime.publishTime,
+        views: anime.views,
+        favorites: anime.favorites,
+        seriesFollow: anime.seriesFollow,
+      }));
+
+      return {
+        list: formattedAnimes,
+        total: result.total,
+      };
+    } catch (error) {
+      this.logger.error(`获取高分番剧失败: ${error.message}`, error.stack);
+      throw new Error(`获取番剧推荐失败: ${error.message}`);
+    }
   }
 }
 

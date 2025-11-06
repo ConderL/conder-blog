@@ -33,6 +33,7 @@
             :content="message.content"
             :metadata="message.metadata"
             :actions="message.actions"
+            :animes="message.animes"
             @action="(key) => handleMessageAction(key, index)"
           />
           <div v-else v-html="processMessageContent(message.content)"></div>
@@ -65,6 +66,23 @@ interface Action {
   class?: string;
 }
 
+interface Anime {
+  id: number;
+  animeName: string;
+  cover?: string;
+  description?: string;
+  rating?: number;
+  ratingCount?: number;
+  animeStatus?: number;
+  totalEpisodes?: number;
+  currentEpisodes?: number;
+  platform?: number;
+  area?: { id: number; name: string };
+  styles?: string | string[];
+  views?: number;
+  publishTime?: string;
+}
+
 interface AIMessage {
   id?: number;
   nickname: string;
@@ -76,6 +94,7 @@ interface AIMessage {
   metadata?: AIMetadata;
   actions?: Action[];
   needLogin?: boolean; // 是否需要登录
+  animes?: Anime[]; // 番剧推荐列表
 }
 
 interface Props {
