@@ -1,5 +1,6 @@
 // 导入useRequest
 import { useRequest } from './useRequest';
+import { useToken } from './useToken';
 
 export const useApi = () => {
   const { fetchData, directFetch } = useRequest();
@@ -188,6 +189,131 @@ export const useApi = () => {
     getAnimeCollectionDetail: () => directFetch('/user/anime/collection/detail'),
   };
 
+  // AI 对话相关API
+  const ai = {
+    // AI 聊天对话（阻塞模式）
+    chat: async (data: { query: string; inputs?: Record<string, any>; user?: string; conversation_id?: string }) => {
+      try {
+        return await directFetch('/ai/dify/chat', { method: 'POST', body: data });
+      } catch (error: any) {
+        // 401错误特殊处理
+        if (error.statusCode === 401 || error.status === 401) {
+          const unauthorizedError = new Error('UNAUTHORIZED') as any;
+          unauthorizedError.status = 401;
+          unauthorizedError.isUnauthorized = true;
+          throw unauthorizedError;
+        }
+        throw error;
+      }
+    },
+
+    // AI 聊天对话（流式模式，返回EventSource）
+    chatStream: (data: {
+      query: string;
+      inputs?: Record<string, any>;
+      user?: string;
+      conversation_id?: string;
+      onMessage?: (data: any) => void;
+      onError?: (error: Error) => void;
+      onComplete?: () => void;
+    }) => {
+      const config = useRuntimeConfig();
+      const baseURL = config.public.serviceBaseUrl;
+      const { getToken, token_prefix } = useToken();
+      const token = getToken();
+
+      return new Promise<EventSource>((resolve, reject) => {
+        // 使用fetch发送POST请求获取流
+        fetch(`${baseURL}/ai/dify/chat/stream`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `${token_prefix}${token}` } : {}),
+          },
+          body: JSON.stringify({
+            query: data.query,
+            inputs: data.inputs || {},
+            user: data.user || 'anonymous',
+            conversation_id: data.conversation_id,
+          }),
+        }).then(response => {
+          if (!response.ok) {
+            // 401错误特殊处理，不抛出错误，而是通过onError传递401状态
+            if (response.status === 401) {
+              const error = new Error('UNAUTHORIZED') as any;
+              error.status = 401;
+              error.isUnauthorized = true;
+              if (data.onError) {
+                data.onError(error);
+              }
+              return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder();
+
+          if (!reader) {
+            throw new Error('No reader available');
+          }
+
+          let buffer = '';
+
+          const readStream = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                if (data.onComplete) {
+                  data.onComplete();
+                }
+                return;
+              }
+
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || ''; // 保留最后一个不完整的行
+
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  const jsonStr = line.substring(6).trim();
+                  if (jsonStr === '[DONE]') {
+                    if (data.onComplete) {
+                      data.onComplete();
+                    }
+                    return;
+                  }
+
+                  try {
+                    const jsonData = JSON.parse(jsonStr);
+                    if (data.onMessage) {
+                      data.onMessage(jsonData);
+                    }
+                  } catch (e) {
+                    // 忽略解析错误
+                    console.warn('Failed to parse SSE data:', jsonStr);
+                  }
+                }
+              }
+
+              readStream();
+            }).catch(error => {
+              if (data.onError) {
+                data.onError(error);
+              }
+            });
+          };
+
+          readStream();
+        }).catch(error => {
+          if (data.onError) {
+            data.onError(error);
+          }
+          reject(error);
+        });
+      });
+    },
+  };
+
   return {
     blogInfo,
     article,
@@ -202,6 +328,7 @@ export const useApi = () => {
     friend,
     message,
     anime,
-    user
+    user,
+    ai
   };
 }; 

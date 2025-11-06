@@ -1,80 +1,42 @@
 <template>
-  <div v-if="blog.blogInfo.siteConfig?.isChat">
+  <div v-if="(blog.blogInfo.siteConfig as any)?.isChat">
     <div v-show="show" class="chat-container">
-      <div class="chat-header">
-        <img
-          width="32"
-          height="32"
-          src="/icons/chat.svg"
-          alt="聊天室图标"
-        />
-        <div style="margin-left: 12px">
-          <div>聊天室</div>
-          <div style="font-size: 12px">
-            当前{{ onlineCount }}人在线
-          </div>
-        </div>
-        <UIcon
-          name="icon:close"
-          class="close text-lg"
-          @click="show = false"
-        />
-      </div>
-      <div id="chat-content" class="chat-content">
-        <div
-          v-for="(chat, index) of recordList"
-          :key="index"
-          class="chat-item"
-          :class="isMy(chat) ? 'my-chat' : ''"
-        >
-          <img class="user-avatar" :src="chat.avatar" alt="用户头像" />
-          <div :class="isMy(chat) ? 'right-info' : 'left-info'">
-            <div
-              class="user-info"
-              :class="isMy(chat) ? 'my-chat' : ''"
-            >
-              <span style="color: var(--color-red)">{{ chat.nickname }}</span>
-              <span
-                style="color: var(--color-blue)"
-                :class="isMy(chat) ? 'right-info' : 'left-info'"
-              >
-                {{ formatMessageTime(chat) }}
-              </span>
-            </div>
-            <div
-              class="user-content"
-              :class="isMy(chat) ? 'my-content' : ''"
-              @contextmenu.prevent.stop="showBack(chat, index, $event)"
-            >
-              <div v-html="processMessageContent(chat.content)"></div>
-              <div
-                ref="backBtn"
-                class="back-menu"
-                @click="back(chat, index)"
-              >
-                撤回
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="chat-footer">
-        <textarea
-          v-model="chatContent"
-          class="chat-input"
-          placeholder="开始聊天吧"
-          @keydown="handleKeyCode($event)"
-        ></textarea>
-        <Emoji
-          @add-emoji="handleEmoji"
-          @choose-type="handleType"
-        ></Emoji>
-        <UIcon
-          name="icon:plane"
-          class="send-btn text-xl"
-          @click="handleSend"
-        />
-      </div>
+      <!-- 头部组件 -->
+      <ChatHeader
+        :title="headerTitle"
+        :subtitle="headerSubtitle"
+        :switch-icon="chatMode === 'chat' ? 'icon:robot' : 'icon:chat'"
+        :switch-tooltip="chatMode === 'chat' ? '切换到AI助手' : '切换到聊天室'"
+        @switch="toggleChatMode"
+        @close="show = false"
+      />
+
+      <!-- 消息内容区域 -->
+      <ChatRoomMessages
+        v-if="chatMode === 'chat'"
+        :messages="chatRoomMessages"
+        :current-ip-address="ipAddress"
+        :current-user-id="user.id"
+        :current-sender-id="websocket?.id"
+        @recall="handleRecall"
+      />
+
+      <AIChatMessages
+        v-else
+        :messages="aiMessages"
+        :current-user-id="user.id"
+        :current-ip-address="ipAddress"
+        @action="handleAIMessageAction"
+      />
+
+      <!-- 底部输入框组件 -->
+      <ChatFooter
+        v-model:content="chatContent"
+        :placeholder="chatMode === 'chat' ? '开始聊天吧' : '向AI助手提问...'"
+        @send="handleSend"
+        @emoji="handleEmoji"
+        @type="handleType"
+      />
     </div>
     <div class="chat-btn cursor-pointer" @click="handleOpen">
       <span v-if="unreadCount > 0" class="unread">{{ unreadCount }}</span>
@@ -84,13 +46,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, reactive, toRefs, computed, onUpdated } from "vue";
-import { useBlogStore, useUserStore } from "~/stores";
-import { formatDateTime } from "~/utils/date";
-import { emojiGenshinList } from "~/utils/emojiGenshin";
-import { emojiList } from "~/utils/emoji";
-import { emojiMygoList } from "~/utils/emojiMygo";
-import { cleanupContent } from "~/utils/emojiProcessor";
+import { ref, reactive, toRefs, computed, onUpdated, watch } from "vue";
+import { useBlogStore, useUserStore, useAppStore } from "~/stores";
+import { useStreamResponse } from "~/composables/useStreamResponse";
+import ChatHeader from "./ChatHeader.vue";
+import ChatRoomMessages from "./ChatRoomMessages.vue";
+import AIChatMessages from "./AIChatMessages.vue";
+import ChatFooter from "./ChatFooter.vue";
 
 // 导入基本类型
 interface ChatRecord {
@@ -106,25 +68,64 @@ interface ChatRecord {
   time?: string;
 }
 
+interface AIMetadata {
+  usage?: {
+    total_tokens?: number;
+    latency?: number;
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  };
+  retriever_resources?: any[];
+  annotation_reply?: any;
+}
+
+interface Action {
+  key: string;
+  label: string;
+  icon?: string;
+  class?: string;
+}
+
+interface AIMessage {
+  id?: number;
+  nickname: string;
+  avatar: string;
+  content: string;
+  userId?: number;
+  ipAddress?: string;
+  createTime?: string;
+  metadata?: AIMetadata;
+  actions?: Action[];
+  needLogin?: boolean;
+}
+
 const user = useUserStore();
 const blog = useBlogStore();
+const app = useAppStore();
 const { $io } = useNuxtApp();
+
+// 流式响应处理
+const streamResponse = useStreamResponse();
 
 const data = reactive({
   show: false,
   ipAddress: "",
   ipSource: "",
-  recordList: [] as ChatRecord[],
+  chatRoomMessages: [] as ChatRecord[], // 聊天室消息
+  aiMessages: [] as AIMessage[], // AI对话消息
   chatContent: "",
   emojiType: 0,
   unreadCount: 0,
   webSocketState: false,
   onlineCount: 0,
+  chatMode: 'ai' as 'chat' | 'ai',
+  aiConversationId: '',
 });
 
 const {
   show,
-  recordList,
+  chatRoomMessages,
+  aiMessages,
   ipAddress,
   ipSource,
   chatContent,
@@ -132,30 +133,28 @@ const {
   unreadCount,
   webSocketState,
   onlineCount,
+  chatMode,
+  aiConversationId,
 } = toRefs(data);
 
-const backBtn = ref<any>([]);
 const websocket = ref<any>();
 const timeout = ref<NodeJS.Timeout>();
 const serverTimeout = ref<NodeJS.Timeout>();
 
-const isMy = computed(
-  () => (chat: ChatRecord) =>
-    chat.ipAddress == ipAddress.value ||
-    (chat.userId !== undefined && chat.userId === user.id) ||
-    (chat.senderId !== undefined && chat.senderId === websocket.value?.id),
-);
+const headerTitle = computed(() => {
+  return chatMode.value === 'chat' ? '聊天室' : 'AI助手';
+});
+
+const headerSubtitle = computed(() => {
+  return chatMode.value === 'chat' 
+    ? `当前${onlineCount.value}人在线` 
+    : 'Conder Blog 智能助手';
+});
 
 const userNickname = computed(() => {
-  // 如果是登录用户，使用登录昵称
   if (user.isLogin && user.nickname) {
     return user.nickname;
   }
-  // 未登录用户，优先使用随机昵称
-  if (user.tempNickname) {
-    return user.tempNickname;
-  }
-  // 如果都没有，使用IP地址
   return ipAddress.value || "访客";
 });
 
@@ -170,7 +169,6 @@ const handleOpen = () => {
       return;
     }
 
-    // 构建连接选项，添加查询参数传递用户信息
     const connectionOptions = {
       transports: ["websocket", "polling"],
       reconnection: true,
@@ -178,7 +176,6 @@ const handleOpen = () => {
       query: {} as { [key: string]: any },
     };
 
-    // 如果用户已登录，添加用户ID和昵称到查询参数
     if (user.isLogin) {
       connectionOptions.query.userId = user.id;
       connectionOptions.query.nickname = user.nickname;
@@ -188,7 +185,7 @@ const handleOpen = () => {
     }
 
     const socket = $io(
-      blog.blogInfo.siteConfig?.websocketUrl,
+      (blog.blogInfo.siteConfig as any)?.websocketUrl,
       connectionOptions,
     );
 
@@ -204,13 +201,13 @@ const handleOpen = () => {
       console.error("WebSocket连接错误:", error);
       console.log(
         "尝试连接的URL:",
-        blog.blogInfo.siteConfig?.websocketUrl,
+        (blog.blogInfo.siteConfig as any)?.websocketUrl,
       );
     });
 
     socket.on("chat-message", (data: any) => {
       console.log("收到消息:", data);
-      recordList.value.push(data);
+      chatRoomMessages.value.push(data);
       if (!show.value) {
         unreadCount.value++;
       }
@@ -223,38 +220,33 @@ const handleOpen = () => {
 
     socket.on("history", (messages: any) => {
       console.log("收到历史消息:", messages);
-      recordList.value = messages;
+      chatRoomMessages.value = messages;
     });
 
     socket.on("init", (data: any) => {
       console.log("收到初始化数据:", data);
-      // 设置IP和昵称
       ipAddress.value = data.ip;
       ipSource.value = data.ipSource || "";
-
-      // 如果用户没有登录，使用随机昵称
-      if (!user.isLogin) {
-        user.setTempNickname(data.nickname);
-      }
     });
 
     socket.on("recall", (messageId: number) => {
       console.log("收到撤回消息:", messageId);
-      for (let i = 0; i < recordList.value.length; i++) {
-        if (recordList.value[i].id === messageId) {
-          recordList.value.splice(i, 1);
-          break;
-        }
+      const index = chatRoomMessages.value.findIndex(msg => msg.id === messageId);
+      if (index !== -1) {
+        chatRoomMessages.value.splice(index, 1);
       }
     });
 
     socket.on("error", (error: any) => {
       console.error("Socket错误:", error);
-      useToast().add({
-        title: '错误',
-        description: error.message || "发生错误",
-        color: 'red'
-      });
+      const toast = useToast();
+      if (toast) {
+        toast.add({
+          title: '错误',
+          description: error.message || "发生错误",
+          color: 'red'
+        });
+      }
     });
 
     socket.on("disconnect", () => {
@@ -264,63 +256,45 @@ const handleOpen = () => {
 
     socket.on("warning", (data: any) => {
       console.warn("敏感词警告:", data);
-      useToast().add({
-        title: '警告',
-        description: data.message,
-        color: 'yellow'
-      });
+      const toast = useToast();
+      if (toast) {
+        toast.add({
+          title: '警告',
+          description: data.message,
+          color: 'yellow'
+        });
+      }
     });
   }
   unreadCount.value = 0;
   show.value = !show.value;
 };
 
-const showBack = (chat: ChatRecord, index: number, e: any) => {
-  if (backBtn.value && backBtn.value.length) {
-    backBtn.value.forEach((item: any) => {
-      if (item) item.style.display = "none";
-    });
-    
-    if (
-      chat.ipAddress === ipAddress.value ||
-      (chat.userId != null && chat.userId == user.id)
-    ) {
-      backBtn.value[index].style.left = e.offsetX + "px";
-      backBtn.value[index].style.bottom = e.offsetY + "px";
-      backBtn.value[index].style.display = "block";
-    }
-  }
-};
-
-const back = (item: ChatRecord, index: number) => {
+const handleRecall = (messageId: number) => {
   if (websocket.value) {
-    websocket.value.emit("recall", item.id);
-  }
-  if (backBtn.value && backBtn.value[index]) {
-    backBtn.value[index].style.display = "none";
+    websocket.value.emit("recall", messageId);
   }
 };
 
-const handleKeyCode = (e: any) => {
-  if (e.ctrlKey && e.keyCode === 13) {
-    chatContent.value = chatContent.value + "\n";
-  } else if (e.keyCode === 13) {
-    e.preventDefault();
-    handleSend();
-  }
-};
-
-const handleSend = () => {
+const handleSend = async () => {
   if (chatContent.value.trim() == "") {
-    useToast().add({
-      title: '错误',
-      description: '内容不能为空',
-      color: 'red'
-    });
+    const toast = useToast();
+    if (toast) {
+      toast.add({
+        title: '错误',
+        description: '内容不能为空',
+        color: 'red'
+      });
+    }
     return;
   }
-  
-  // 直接发送原始表情代码，不进行转换
+
+  if (chatMode.value === 'ai') {
+    await handleAIChat();
+    return;
+  }
+
+  // 聊天室模式
   const chat = {
     nickname: userNickname.value,
     avatar: userAvatar.value,
@@ -337,55 +311,222 @@ const handleSend = () => {
   chatContent.value = "";
 };
 
+const handleAIChat = async () => {
+  const content = chatContent.value;
+  const userNick = userNickname.value;
+  const userAv = userAvatar.value || '/icons/chat.svg';
+
+  // 添加用户消息
+  const userMessage: AIMessage = {
+    nickname: userNick,
+    avatar: userAv,
+    content: content,
+    userId: user.id,
+    ipAddress: ipAddress.value,
+    createTime: new Date().toISOString(),
+  };
+  aiMessages.value.push(userMessage);
+
+  chatContent.value = "";
+
+  // 创建AI消息占位符
+  const aiMessageIndex = aiMessages.value.length;
+  const aiMessage: AIMessage = {
+    nickname: 'AI助手',
+    avatar: blog.blogInfo.siteConfig?.touristAvatar || '/icons/chat.svg',
+    content: '',
+    createTime: new Date().toISOString(),
+  };
+  aiMessages.value.push(aiMessage);
+
+  try {
+    const { ai } = useApi();
+    
+    // 重置流式响应状态
+    streamResponse.reset();
+    
+    // 使用流式响应处理器
+    const handleDifyMessage = streamResponse.handleDifyStream({
+      onContent: (delta, fullContent) => {
+        // 累积更新消息内容
+        // delta: 本次接收到的增量内容
+        // fullContent: 累积后的完整内容（由 hooks 内部维护）
+        if (aiMessages.value[aiMessageIndex]) {
+          aiMessages.value[aiMessageIndex].content = fullContent;
+        }
+      },
+      onMetadata: (metadata) => {
+        if (aiMessages.value[aiMessageIndex]) {
+          aiMessages.value[aiMessageIndex].metadata = metadata;
+        }
+      },
+      onConversationId: (conversationId) => {
+        aiConversationId.value = conversationId;
+      },
+      onEvent: (event, data) => {
+        // 更新创建时间
+        if (data.created_at && aiMessages.value[aiMessageIndex]) {
+          aiMessages.value[aiMessageIndex].createTime = new Date(data.created_at * 1000).toISOString();
+        }
+      },
+      onComplete: () => {
+        console.log('AI流式回复完成');
+      },
+    });
+    
+    // 使用流式接口
+    await ai.chatStream({
+      query: content,
+      user: user.id?.toString() || `user-${ipAddress.value || 'guest'}`,
+      conversation_id: aiConversationId.value || undefined,
+      onMessage: handleDifyMessage,
+      onError: (error: any) => {
+        // 移除空消息
+        if (!aiMessages.value[aiMessageIndex]?.content) {
+          aiMessages.value.splice(aiMessageIndex, 1);
+        }
+        
+        // 401错误：显示登录提示，不显示错误toast
+        if (error.isUnauthorized || error.status === 401) {
+          const loginPromptMessage: AIMessage = {
+            nickname: 'AI助手',
+            avatar: blog.blogInfo.siteConfig?.touristAvatar || '/icons/chat.svg',
+            content: '使用AI助手功能需要登录账号，请先登录后再试。',
+            createTime: new Date().toISOString(),
+            needLogin: true,
+            actions: [
+              {
+                key: 'login',
+                label: '去登录',
+                icon: 'i-icon-user',
+                class: 'primary'
+              }
+            ]
+          };
+          aiMessages.value.push(loginPromptMessage);
+          return;
+        }
+        
+        // 其他错误：显示错误提示
+        const toast = useToast();
+        if (toast) {
+          toast.add({
+            title: '错误',
+            description: error.message || 'AI对话失败，请稍后重试',
+            color: 'red'
+          });
+        }
+
+        // 如果消息为空，添加错误消息
+        if (!aiMessages.value[aiMessageIndex]?.content) {
+          const errorMessage: AIMessage = {
+            nickname: 'AI助手',
+            avatar: blog.blogInfo.siteConfig?.touristAvatar || '/icons/chat.svg',
+            content: '抱歉，我暂时无法回答这个问题，请稍后重试。',
+            createTime: new Date().toISOString(),
+          };
+          aiMessages.value.push(errorMessage);
+        }
+      },
+    });
+  } catch (error: any) {
+    // 移除空消息
+    if (!aiMessages.value[aiMessageIndex]?.content) {
+      aiMessages.value.splice(aiMessageIndex, 1);
+    }
+
+    // 401错误：显示登录提示，不显示错误toast
+    if (error.isUnauthorized || error.status === 401) {
+      const loginPromptMessage: AIMessage = {
+        nickname: 'AI助手',
+        avatar: blog.blogInfo.siteConfig?.touristAvatar || '/icons/chat.svg',
+        content: '使用AI助手功能需要登录账号，请先登录后再试。',
+        createTime: new Date().toISOString(),
+        needLogin: true,
+        actions: [
+          {
+            key: 'login',
+            label: '去登录',
+            icon: 'i-icon-user',
+            class: 'primary'
+          }
+        ]
+      };
+      aiMessages.value.push(loginPromptMessage);
+      return;
+    }
+
+    const toast = useToast();
+    if (toast) {
+      toast.add({
+        title: '错误',
+        description: error.message || 'AI对话失败，请稍后重试',
+        color: 'red'
+      });
+    }
+
+    // 如果消息为空，添加错误消息
+    if (!aiMessages.value[aiMessageIndex]?.content) {
+      const errorMessage: AIMessage = {
+        nickname: 'AI助手',
+        avatar: blog.blogInfo.siteConfig?.touristAvatar || '/icons/chat.svg',
+        content: '抱歉，我暂时无法回答这个问题，请稍后重试。',
+        createTime: new Date().toISOString(),
+      };
+      aiMessages.value.push(errorMessage);
+    }
+  }
+};
+
+// 处理AI消息操作
+const handleAIMessageAction = (key: string, message: AIMessage) => {
+  if (key === 'login') {
+    // 打开登录弹窗
+    app.setLoginFlag(true);
+  }
+};
+
+const toggleChatMode = () => {
+  chatMode.value = chatMode.value === 'chat' ? 'ai' : 'chat';
+};
+
 const startHeart = () => {
-  // 清除之前可能存在的定时器
   clear();
 
-  // 设置定时发送心跳的任务
   timeout.value = setTimeout(() => {
     if (websocket.value && websocket.value.connected) {
       console.log("发送心跳...");
-      // 向服务器发送心跳事件
       websocket.value.emit("heartbeat", { timestamp: Date.now() });
-      // 设置等待响应的定时器
       waitServer();
     } else {
       console.log("WebSocket未连接，尝试重连...");
-      // 如果已断开，尝试重连
       websocket.value?.connect();
     }
-  }, 60 * 1000); // 改为1分钟发送一次心跳
+  }, 60 * 1000);
 };
 
 const waitServer = () => {
-  // 清除可能存在的等待响应定时器
   if (serverTimeout.value) {
     clearTimeout(serverTimeout.value);
   }
 
-  // 设置心跳超时的状态标记
   let heartbeatReceived = false;
 
-  // 在接收到心跳响应时修改标记
   const heartbeatListener = () => {
     console.log("收到心跳响应");
     heartbeatReceived = true;
     webSocketState.value = true;
   };
 
-  // 添加一次性心跳响应监听器
   websocket.value.once("heartbeat", heartbeatListener);
 
-  // 设置心跳响应超时检查
   serverTimeout.value = setTimeout(() => {
-    // 移除一次性监听器
     websocket.value?.off("heartbeat", heartbeatListener);
 
     if (!heartbeatReceived) {
       console.warn("心跳响应超时，尝试重连");
       webSocketState.value = false;
 
-      // 尝试重新连接
       if (websocket.value) {
         try {
           websocket.value.disconnect();
@@ -398,9 +539,8 @@ const waitServer = () => {
       }
     }
 
-    // 继续发送下一个心跳
     startHeart();
-  }, 10 * 1000); // 10秒超时时间
+  }, 10 * 1000);
 };
 
 const clear = () => {
@@ -422,32 +562,19 @@ const handleType = (key: number) => {
   emojiType.value = key;
 };
 
-const formatMessageTime = (chat: ChatRecord) => {
-  if (!chat) return "";
-
-  // 优先使用createTime，如果没有则使用time
-  const timeValue =
-    chat.createTime || (chat.time ? new Date(chat.time).toISOString() : "");
-  return formatDateTime(timeValue || new Date());
-};
-
-onUpdated(() => {
-  const element = document.getElementById("chat-content");
-  if (element) {
-    element.scrollTop = element.scrollHeight;
+// 自动滚动到底部
+watch([chatRoomMessages, aiMessages, show], () => {
+  if (show.value) {
+    setTimeout(() => {
+      const element = document.getElementById(
+        chatMode.value === 'chat' ? 'chat-content' : 'ai-chat-content'
+      );
+      if (element) {
+        element.scrollTop = element.scrollHeight;
+      }
+    }, 100);
   }
-});
-
-/**
- * 处理消息内容中的表情符号
- * @param content 消息内容
- * @returns 处理后的HTML
- */
-function processMessageContent(content: string): string {
-  if (!content) return '';
-  
-  return cleanupContent(content)
-}
+}, { deep: true });
 </script>
 
 <style lang="scss" scoped>
@@ -471,10 +598,6 @@ function processMessageContent(content: string): string {
     min-height: 250px;
     border-radius: 1rem;
   }
-
-  .close {
-    display: none;
-  }
 }
 
 @media (max-width: 760px) {
@@ -485,19 +608,6 @@ function processMessageContent(content: string): string {
     right: 0;
     left: 0;
   }
-
-  .close {
-    display: block;
-    margin-left: auto;
-  }
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  padding: 20px 24px;
-  border-radius: 1rem 1rem 0 0;
-  background-color: var(--grey-0);
 }
 
 .unread {
@@ -512,77 +622,6 @@ function processMessageContent(content: string): string {
   color: var(--grey-0);
 }
 
-.chat-content {
-  position: absolute;
-  top: 80px;
-  bottom: 46px;
-  width: 100%;
-  padding: 20px 16px 0 16px;
-  background-color: var(--chat-bg);
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.my-chat {
-  flex-direction: row-reverse;
-}
-
-.chat-item {
-  display: flex;
-  margin-bottom: 0.5rem;
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-  }
-
-  .left-info {
-    margin-left: 0.5rem;
-  }
-
-  .right-info {
-    margin-right: 0.5rem;
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    font-size: 12px;
-  }
-
-  .user-content {
-    position: relative;
-    padding: 10px;
-    border-radius: 5px 20px 20px 20px;
-    background: var(--grey-0);
-    width: fit-content;
-    white-space: pre-line;
-    word-wrap: break-word;
-    word-break: break-all;
-  }
-
-  .my-content {
-    float: right;
-    border-radius: 20px 5px 20px 20px;
-    background: var(--color-blue);
-    color: var(--grey-0);
-  }
-}
-
-.back-menu {
-  position: absolute;
-  width: 80px;
-  height: 35px;
-  line-height: 35px;
-  font-size: 13px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #000;
-  text-align: center;
-  display: none;
-}
-
 .chat-btn {
   position: fixed;
   bottom: 36px;
@@ -592,32 +631,4 @@ function processMessageContent(content: string): string {
   border-radius: 100px;
   z-index: 1000;
 }
-
-.chat-footer {
-  position: absolute;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 8px 16px;
-  background: var(--grey-2);
-  border-radius: 0 0 1rem 1rem;
-
-  .chat-input {
-    width: 100%;
-    height: 30px;
-    padding: 0.2rem 0 0 0.3rem;
-    margin-right: 0.5rem;
-    font-size: 13px;
-    color: var(--text-color);
-    background-color: var(--grey-1);
-    outline: none;
-    resize: none;
-  }
-
-  .send-btn {
-    color: var(--color-blue);
-    margin-left: 0.5rem;
-  }
-}
-</style> 
+</style>

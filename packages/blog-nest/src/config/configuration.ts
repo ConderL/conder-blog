@@ -129,4 +129,10 @@ export default () => ({
     apiKey: process.env.BAIDU_API_KEY || '',
     secretKey: process.env.BAIDU_SECRET_KEY || '',
   },
+  // Dify AI 配置
+  dify: {
+    baseUrl: process.env.DIFY_BASE_URL || 'https://api.dify.ai',
+    apiKey: process.env.DIFY_API_KEY || '',
+    datasetId: process.env.DIFY_DATASET_ID || '',
+  },
 });

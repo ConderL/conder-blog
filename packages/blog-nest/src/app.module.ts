@@ -36,6 +36,7 @@ import { MiddlewaresModule } from './common/middlewares/middlewares.module';
 import configuration from './config/configuration';
 import { createTypeOrmOptions } from './config/database.config';
 import { AdminModule } from './modules/admin/admin.modules';
+import { DifyModule } from './modules/dify/dify.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { AdminModule } from './modules/admin/admin.modules';
     ToolsModule,
     OnlineModule,
     AdminModule,
+    DifyModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api*'],
