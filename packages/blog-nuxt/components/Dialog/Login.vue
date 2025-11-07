@@ -246,9 +246,23 @@ const handleLogin = async () => {
       
       // 关闭登录框
       emit('close');
+    } else {
+      // 登录失败，显示错误信息
+      const errorMsg = response?.msg || response?.message || "登录失败，请检查账号密码";
+      window.$message?.error(errorMsg);
+      
+      // 刷新验证码
+      await initCaptcha();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("登录失败", error);
+    
+    // 显示错误提示
+    const errorMsg = error?.data?.msg || error?.message || "登录失败，请稍后重试";
+    window.$message?.error(errorMsg);
+    
+    // 刷新验证码
+    await initCaptcha();
   } finally {
     loading.value = false;
   }

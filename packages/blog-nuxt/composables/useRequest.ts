@@ -66,20 +66,37 @@ export const useRequest = () => {
       fetchOptions.headers.Authorization = token_prefix + token;
     }
 
-    // 发送请求
-    const response = await $fetch(url, {
-      ...fetchOptions,
-      baseURL,
-      onResponse: ({ response }) => {
-        handleResponse(response._data);
-        if (fetchOptions.isNotify) {
-          window.$message?.success(response._data.msg);
+    try {
+      // 发送请求
+      const response = await $fetch(url, {
+        ...fetchOptions,
+        baseURL,
+        onResponse: ({ response }) => {
+          handleResponse(response._data);
+          if (fetchOptions.isNotify) {
+            window.$message?.success(response._data.msg);
+          }
+        },
+        onResponseError: ({ response }) => {
+          // 对于4xx和5xx错误，不自动抛出，而是返回错误响应
+          console.log('请求错误:', response._data);
         }
-      }
-    });
+      });
 
-    // 返回完整响应，而不仅仅是data部分
-    return response;
+      // 返回完整响应，而不仅仅是data部分
+      return response;
+    } catch (error: any) {
+      // 捕获错误并返回错误信息
+      console.error('directFetch error:', error);
+      
+      // 如果是FetchError，返回其data
+      if (error.data) {
+        return error.data;
+      }
+      
+      // 否则重新抛出
+      throw error;
+    }
   };
 
   /**
