@@ -67,8 +67,8 @@ export default defineNuxtConfig({
   vite: {
     // 优化构建性能
     optimizeDeps: {
-      include: ['vue', 'pinia', '@vueuse/core'],
-      exclude: ['lightningcss', 'jsencrypt']
+      include: ['vue', 'pinia', '@vueuse/core', 'jsencrypt'],
+      exclude: ['lightningcss']
     },
     // 不再注入全局 global，避免影响构建期对 Node API 的解析
     define: {},
@@ -85,13 +85,14 @@ export default defineNuxtConfig({
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
-        external: ['lightningcss', 'jsencrypt'],
+        external: ['lightningcss'],
         output: {
           manualChunks: {
             'vue-vendor': ['vue'],
             'editor-vendor': ['md-editor-v3'],
             'utils-vendor': ['@vueuse/core', 'pinia'],
-            'danmaku-vendor': ['vue3-danmaku']
+            'danmaku-vendor': ['vue3-danmaku'],
+            'jsencrypt-vendor': ['jsencrypt']
           }
         }
       },

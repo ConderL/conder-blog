@@ -4,9 +4,15 @@ let JSEncrypt: any = null;
 // 动态导入 jsencrypt
 export async function loadJSEncrypt() {
   if (process.client && !JSEncrypt) {
-    // 使用动态导入避免服务端加载
-    const module = await import('jsencrypt');
-    JSEncrypt = module.default;
+    try {
+      // 使用动态导入避免服务端加载
+      const module = await import('jsencrypt');
+      // jsencrypt 可能导出为 default 或直接导出 JSEncrypt 类
+      JSEncrypt = module.default?.default || module.default || module.JSEncrypt || module;
+      console.log('JSEncrypt loaded:', JSEncrypt);
+    } catch (error) {
+      console.error('Failed to load jsencrypt:', error);
+    }
   }
   return JSEncrypt;
 }
