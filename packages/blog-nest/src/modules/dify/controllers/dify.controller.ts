@@ -36,8 +36,7 @@ export class DifyController {
 
   @Post('chat')
   @ApiOperation({ summary: '发送聊天消息（阻塞模式）' })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: '聊天成功' })
   async chat(@Body() dto: ChatMessageDto): Promise<ResultDto<any>> {
@@ -54,8 +53,7 @@ export class DifyController {
 
   @Post('chat/stream')
   @ApiOperation({ summary: '发送聊天消息（SSE流式响应）' })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: '流式聊天成功' })
   async chatStream(@Body() dto: ChatMessageDto, @Res() res: Response): Promise<void> {
@@ -71,7 +69,7 @@ export class DifyController {
       // 处理流式数据
       let hasAnimeIntent = false;
       let animeData: any = null;
-      
+
       stream.on('data', (chunk: Buffer) => {
         const data = chunk.toString();
         const lines = data.split('\n');
@@ -92,19 +90,19 @@ export class DifyController {
 
             try {
               const jsonData = JSON.parse(jsonStr);
-              
+
               // 检测是否包含推荐番剧的意图
-              if (jsonData.metadata?.intent === 'recommend_anime' || 
-                  jsonData.intent === 'recommend_anime' ||
-                  (jsonData.answer && /推荐.*番剧|推荐.*动漫|高分.*番剧/.test(jsonData.answer))) {
+              if (jsonData.metadata?.intent === 'recommend_anime' ||
+                jsonData.intent === 'recommend_anime' ||
+                (jsonData.answer && /推荐.*番剧|推荐.*动漫|高分.*番剧/.test(jsonData.answer))) {
                 hasAnimeIntent = true;
               }
-              
+
               // 如果metadata中已经包含番剧数据，直接传递
               if (jsonData.metadata?.animes) {
                 animeData = jsonData.metadata.animes;
               }
-              
+
               // 发送SSE格式的数据
               res.write(`data: ${JSON.stringify(jsonData)}\n\n`);
             } catch (e) {

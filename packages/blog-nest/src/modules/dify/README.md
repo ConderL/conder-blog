@@ -29,7 +29,6 @@ DIFY_DATASET_ID=your-dataset-id  # 可选，用于数据集操作
 
 ```http
 POST /api/ai/dify/chat
-Authorization: Bearer <token>
 Content-Type: application/json
 
 {
@@ -193,7 +192,7 @@ async syncArticleToDataset(article: Article) {
 
 ## 注意事项
 
-1. 所有 API 接口都需要 JWT 认证（除了特殊标记为 Public 的接口）
+1. 所有 API 接口都需要 JWT 认证（除了特殊标记为 Public 的接口，当前聊天接口为 Public）
 2. Dify API Key 需要从 Dify 平台获取
 3. 数据集操作需要先创建数据集并获取 Dataset ID
 4. 工作流运行需要先配置工作流并获取 Workflow ID
