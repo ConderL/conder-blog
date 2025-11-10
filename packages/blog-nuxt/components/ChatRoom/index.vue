@@ -133,7 +133,14 @@ const data = reactive({
   ipAddress: "",
   ipSource: "",
   chatRoomMessages: [] as ChatRecord[], // 聊天室消息
-  aiMessages: [] as AIMessage[], // AI对话消息
+  aiMessages: [
+    {
+      nickname: 'AI助手',
+      avatar: '/icons/chat.svg',
+      content: '你好呀，我是Conder博客里的AI助手~ 想聊聊天，还是想让我推荐番剧？',
+      createTime: new Date().toISOString(),
+    },
+  ] as AIMessage[], // AI对话消息
   chatContent: "",
   emojiType: 0,
   unreadCount: 0,
