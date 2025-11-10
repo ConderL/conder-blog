@@ -269,8 +269,7 @@ export class DifyController {
 
   @Get('anime/recommend')
   @ApiOperation({ summary: '获取高分番剧推荐' })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: '获取成功' })
   async getAnimeRecommend(@Query('limit') limit?: number): Promise<ResultDto<any>> {

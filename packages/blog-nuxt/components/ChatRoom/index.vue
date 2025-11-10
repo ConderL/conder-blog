@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, toRefs, computed, onUpdated, watch } from "vue";
+import { useToast } from "#imports";
 import { useBlogStore, useUserStore, useAppStore } from "~/stores";
 import { useStreamResponse } from "~/composables/useStreamResponse";
 import ChatHeader from "./ChatHeader.vue";
@@ -68,24 +69,6 @@ interface ChatRecord {
   time?: string;
 }
 
-interface AIMetadata {
-  usage?: {
-    total_tokens?: number;
-    latency?: number;
-    prompt_tokens?: number;
-    completion_tokens?: number;
-  };
-  retriever_resources?: any[];
-  annotation_reply?: any;
-}
-
-interface Action {
-  key: string;
-  label: string;
-  icon?: string;
-  class?: string;
-}
-
 interface Anime {
   id: number;
   animeName: string;
@@ -101,6 +84,26 @@ interface Anime {
   styles?: string | string[];
   views?: number;
   publishTime?: string;
+}
+
+interface AIMetadata {
+  usage?: {
+    total_tokens?: number;
+    latency?: number;
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  };
+  retriever_resources?: any[];
+  annotation_reply?: any;
+  intent?: string;
+  animes?: Anime[];
+}
+
+interface Action {
+  key: string;
+  label: string;
+  icon?: string;
+  class?: string;
 }
 
 interface AIMessage {
@@ -262,7 +265,7 @@ const handleOpen = () => {
         toast.add({
           title: '错误',
           description: error.message || "发生错误",
-          color: 'red'
+          color: 'error'
         });
       }
     });
@@ -279,7 +282,7 @@ const handleOpen = () => {
         toast.add({
           title: '警告',
           description: data.message,
-          color: 'yellow'
+          color: 'warning'
         });
       }
     });
@@ -301,7 +304,7 @@ const handleSend = async () => {
       toast.add({
         title: '错误',
         description: '内容不能为空',
-        color: 'red'
+        color: 'error'
       });
     }
     return;
@@ -392,48 +395,14 @@ const handleAIChat = async () => {
           aiMessages.value[aiMessageIndex].createTime = new Date(data.created_at * 1000).toISOString();
         }
         
-        // 检查是否需要获取番剧推荐
-        // 方式1: Dify工作流返回了意图识别结果
-        if (data.intent === 'recommend_anime' || data.function_call === 'get_anime_recommend') {
-          try {
-            const { ai } = useApi();
-            const limit = data.limit || 5;
-            const response = await ai.getAnimeRecommend(limit);
-            
-            if (response && response.flag && response.data && response.data.list) {
-              if (aiMessages.value[aiMessageIndex]) {
-                aiMessages.value[aiMessageIndex].animes = response.data.list;
-              }
-            }
-          } catch (error) {
-            console.error('获取番剧推荐失败:', error);
-          }
-        }
       },
       onComplete: async () => {
         console.log('AI流式回复完成');
         
-        // 如果消息已完成且包含推荐番剧相关内容，但还没有番剧数据，则主动获取
+        // 结束时，若 metadata 已附带番剧数据，则保持；未提供则说明工作流未返回
         const currentMessage = aiMessages.value[aiMessageIndex];
-        if (currentMessage && currentMessage.content && !currentMessage.animes) {
-          const recommendKeywords = ['推荐', '番剧', '动漫', '动画', '高分', '好看'];
-          const hasRecommendKeyword = recommendKeywords.some(keyword => 
-            currentMessage.content.includes(keyword)
-          );
-          
-          // 如果消息中包含推荐关键词，且消息长度较短（可能是AI准备推荐），主动获取
-          if (hasRecommendKeyword && currentMessage.content.length < 200) {
-            try {
-              const { ai } = useApi();
-              const response = await ai.getAnimeRecommend(5);
-              
-              if (response && response.flag && response.data && response.data.list) {
-                currentMessage.animes = response.data.list;
-              }
-            } catch (error) {
-              console.error('自动获取番剧推荐失败:', error);
-            }
-          }
+        if (currentMessage && currentMessage.metadata?.animes && !currentMessage.animes) {
+          currentMessage.animes = currentMessage.metadata.animes;
         }
       },
     });
@@ -477,7 +446,7 @@ const handleAIChat = async () => {
           toast.add({
             title: '错误',
             description: error.message || 'AI对话失败，请稍后重试',
-            color: 'red'
+            color: 'error'
           });
         }
 
@@ -525,7 +494,7 @@ const handleAIChat = async () => {
       toast.add({
         title: '错误',
         description: error.message || 'AI对话失败，请稍后重试',
-        color: 'red'
+        color: 'error'
       });
     }
 

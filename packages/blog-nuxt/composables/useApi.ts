@@ -77,8 +77,8 @@ export const useApi = () => {
     // 登录 - 用于客户端交互
     login: (data: any) => directFetch('/auth/login', { method: 'POST', body: { ...data, type: 'ConderView' } }),
 
-    // 获取用户信息 - 修改为使用directFetch
-    getUserInfo: () => directFetch('/user/getUserInfo'),
+    // 获取用户信息 - 首次加载不提示错误
+    getUserInfo: () => directFetch('/user/getUserInfo', { skipErrorNotify: true }),
 
     // 退出登录 - 用于客户端交互
     logout: () => directFetch('/auth/logout', { method: 'POST' }),
@@ -194,7 +194,7 @@ export const useApi = () => {
     // AI 聊天对话（阻塞模式）
     chat: async (data: { query: string; inputs?: Record<string, any>; user?: string; conversation_id?: string }) => {
       try {
-        return await directFetch('/ai/dify/chat', { method: 'POST', body: data });
+        return await directFetch('/ai/dify/chat', { method: 'POST', body: data, skipErrorNotify: true });
       } catch (error: any) {
         // 401错误特殊处理
         if (error.statusCode === 401 || error.status === 401) {
@@ -208,7 +208,7 @@ export const useApi = () => {
     },
     
     // 获取番剧推荐
-    getAnimeRecommend: (limit?: number) => directFetch('/ai/dify/anime/recommend', { params: { limit } }),
+    getAnimeRecommend: (limit?: number) => directFetch('/ai/dify/anime/recommend', { params: { limit }, skipErrorNotify: true }),
 
     // AI 聊天对话（流式模式，返回EventSource）
     chatStream: (data: {

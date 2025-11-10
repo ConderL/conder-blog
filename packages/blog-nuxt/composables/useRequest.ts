@@ -20,22 +20,38 @@ export const useRequest = () => {
    * @param response 响应对象
    */
 
-  const handleResponse = (response: any) => {
+  const handleResponse = (response: any, options: { skipErrorNotify?: boolean } = {}) => {
+    if (!response) {
+      return;
+    }
+
+    const shouldNotify = !options.skipErrorNotify;
+
     if (process.client) {
       switch (response.code) {
         case -1:
-          window.$message?.error(response.msg);
+          if (shouldNotify) {
+            window.$message?.error(response.msg);
+          }
           break;
         case 400:
-          window.$message?.error(response.msg);
+          if (shouldNotify) {
+            window.$message?.error(response.msg);
+          }
           break;
         case 402:
-          const user = useUserStore();
-          user.forceLogOut();
-          window.$message?.error(response.msg);
+          {
+            const user = useUserStore();
+            user.forceLogOut();
+            if (shouldNotify) {
+              window.$message?.error(response.msg);
+            }
+          }
           break;
         case 500:
-          window.$message?.error(response.msg);
+          if (shouldNotify) {
+            window.$message?.error(response.msg);
+          }
           break;
       }
     }
@@ -51,12 +67,13 @@ export const useRequest = () => {
 
     // 准备请求选项
     const fetchOptions = {
+      ...options,
       isNotify: options.isNotify || false,
+      skipErrorNotify: options.skipErrorNotify || false,
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
       },
-      ...options
     };
 
     // 添加token
@@ -66,14 +83,18 @@ export const useRequest = () => {
       fetchOptions.headers.Authorization = token_prefix + token;
     }
 
+    const { isNotify, skipErrorNotify, ...requestOptions } = fetchOptions;
+    delete (requestOptions as any).skipErrorNotify;
+    delete (requestOptions as any).isNotify;
+
     try {
       // 发送请求
       const response = await $fetch(url, {
-        ...fetchOptions,
+        ...requestOptions,
         baseURL,
         onResponse: ({ response }) => {
-          handleResponse(response._data);
-          if (fetchOptions.isNotify) {
+          handleResponse(response._data, { skipErrorNotify });
+          if (isNotify) {
             window.$message?.success(response._data.msg);
           }
         },

@@ -91,15 +91,23 @@ export const useUserStore = defineStore('user', () => {
 
     try {
       const { login: loginApi } = useApi();
-      const { data } = await loginApi.getUserInfo();
+      const response = await loginApi.getUserInfo();
 
-      if (data) {
-        setUserInfo(data);
+      if (response?.flag && response.data) {
+        setUserInfo(response.data);
         console.log('用户信息设置成功');
-      } else {
-        // 如果获取用户信息失败，可能是token已过期
-        console.log('获取用户信息失败，执行登出');
+        return;
+      }
+
+      // 未登录或响应异常时保持游客状态，不弹窗
+      if (response?.code === 401 || response?.code === 402) {
+        console.log('用户未登录或授权已过期');
         logout();
+        return;
+      }
+
+      if (response?.flag === false) {
+        console.warn('获取用户信息失败:', response?.msg);
       }
     } catch (error) {
       console.error('获取用户信息失败', error);
