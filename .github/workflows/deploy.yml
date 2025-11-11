@@ -44,6 +44,7 @@ env:
   OAUTH_QQ_APP_ID: ${{ secrets.OAUTH_QQ_APP_ID }}
   OAUTH_QQ_APP_KEY: ${{ secrets.OAUTH_QQ_APP_KEY }}
   OAUTH_QQ_REDIRECT_URL: ${{ secrets.OAUTH_QQ_REDIRECT_URL }}
+  DIFY_API_KEY: ${{ secrets.DIFY_API_KEY }}
   TAG: ${{ github.sha }}
 
 jobs:
