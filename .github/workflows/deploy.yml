@@ -260,6 +260,9 @@ jobs:
 
             # 登录鉴权私钥
             RSA_PRIVATE_KEY=${{ env.RSA_PRIVATE_KEY }}
+
+            # DifyApiKey
+            DIFY_API_KEY=${{ env.DIFY_API_KEY }}
             EOF
 
       - name: 部署到服务器 - 拉取镜像
