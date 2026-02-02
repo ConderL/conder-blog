@@ -15,7 +15,11 @@ export class ChatMessageDto {
   @IsOptional()
   inputs?: Record<string, any>;
 
-  @ApiPropertyOptional({ description: '响应模式', enum: ['blocking', 'streaming'], default: 'blocking' })
+  @ApiPropertyOptional({
+    description: '响应模式',
+    enum: ['blocking', 'streaming'],
+    default: 'blocking',
+  })
   @IsString()
   @IsOptional()
   response_mode?: 'blocking' | 'streaming';
@@ -70,7 +74,11 @@ export class DatasetDocumentDto {
   @IsOptional()
   id?: string;
 
-  @ApiPropertyOptional({ description: '索引技术', enum: ['high_quality', 'economy'], default: 'high_quality' })
+  @ApiPropertyOptional({
+    description: '索引技术',
+    enum: ['high_quality', 'economy'],
+    default: 'high_quality',
+  })
   @IsString()
   @IsOptional()
   indexing_technique?: 'high_quality' | 'economy';
@@ -117,7 +125,11 @@ export class WorkflowRunDto {
   @IsOptional()
   inputs?: Record<string, any>;
 
-  @ApiPropertyOptional({ description: '响应模式', enum: ['blocking', 'streaming'], default: 'blocking' })
+  @ApiPropertyOptional({
+    description: '响应模式',
+    enum: ['blocking', 'streaming'],
+    default: 'blocking',
+  })
   @IsString()
   @IsOptional()
   response_mode?: 'blocking' | 'streaming';
@@ -221,5 +233,3 @@ export class SuggestTagsDto {
   @IsOptional()
   userId?: string;
 }
-
-

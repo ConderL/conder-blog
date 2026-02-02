@@ -220,4 +220,4 @@ export class UpdateAnimeInfoDto {
   @IsNumber()
   @Type(() => Number)
   id: number;
-} 
+}

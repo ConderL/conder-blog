@@ -39,7 +39,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     '/swagger-ui',
     '/swagger-resources',
     '/v2/api-docs',
-    '/v3/api-docs'
+    '/v3/api-docs',
   ];
 
   // 需要精确匹配的路径（不应用于子路径）

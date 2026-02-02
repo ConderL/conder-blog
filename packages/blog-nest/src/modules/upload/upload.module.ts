@@ -28,7 +28,7 @@ import { UploadFileEntity } from './entities/file.entity';
   exports: [UploadService, ImageProcessorService],
 })
 export class UploadModule implements OnModuleInit {
-  constructor(private configService: ConfigService) { }
+  constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
     try {

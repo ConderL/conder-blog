@@ -166,7 +166,7 @@ export class TaskService implements OnModuleInit {
     taskName: string,
     taskGroup: string,
     invokeTarget: string,
-    fn: () => Promise<any>
+    fn: () => Promise<any>,
   ) {
     let result;
     try {
@@ -653,7 +653,7 @@ export class TaskService implements OnModuleInit {
       this.logger.log(`验证cron表达式: ${taskData.cronExpression} -> ${testExpression}`);
 
       // 尝试创建一个临时的CronJob来验证表达式
-      const testJob = new CronJob(testExpression, () => { });
+      const testJob = new CronJob(testExpression, () => {});
 
       // 确保任务不会立即执行
       if (testJob.nextDate) {
@@ -954,8 +954,8 @@ export class TaskService implements OnModuleInit {
     const updatedJobs = this.dynamicTaskManager.updateTasksInfo(tasks);
 
     // 合并基本任务信息和更新的任务信息
-    const mergedJobs = basicJobs.map(job => {
-      const updatedJob = updatedJobs.find(uj => uj.id === job.id);
+    const mergedJobs = basicJobs.map((job) => {
+      const updatedJob = updatedJobs.find((uj) => uj.id === job.id);
       return updatedJob ? { ...job, ...updatedJob } : job;
     });
 

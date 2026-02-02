@@ -138,10 +138,7 @@ export class DifyService {
 
       return response.data;
     } catch (error) {
-      this.logger.error(
-        `创建/更新数据集文档失败: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`创建/更新数据集文档失败: ${error.message}`, error.stack);
       throw new Error(`Dify 数据集文档操作失败: ${error.message}`);
     }
   }
@@ -151,10 +148,7 @@ export class DifyService {
    * @param datasetId 数据集ID
    * @param documentId 文档ID
    */
-  async deleteDatasetDocument(
-    datasetId: string,
-    documentId: string,
-  ): Promise<void> {
+  async deleteDatasetDocument(datasetId: string, documentId: string): Promise<void> {
     try {
       const url = `${this.baseUrl}/v1/datasets/${datasetId}/documents/${documentId}`;
       await firstValueFrom(
@@ -165,10 +159,7 @@ export class DifyService {
         }),
       );
     } catch (error) {
-      this.logger.error(
-        `删除数据集文档失败: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`删除数据集文档失败: ${error.message}`, error.stack);
       throw new Error(`Dify 删除文档失败: ${error.message}`);
     }
   }
@@ -179,10 +170,7 @@ export class DifyService {
    * @param dto 工作流运行DTO
    * @returns 工作流响应
    */
-  async runWorkflow(
-    workflowId: string,
-    dto: WorkflowRunDto,
-  ): Promise<WorkflowRunResponse> {
+  async runWorkflow(workflowId: string, dto: WorkflowRunDto): Promise<WorkflowRunResponse> {
     try {
       const url = `${this.baseUrl}/v1/workflows/run`;
       const response = await firstValueFrom(
@@ -329,11 +317,7 @@ ${content.substring(0, 5000)}`;
    * @param userId 用户ID
    * @returns 推荐的标签列表
    */
-  async suggestTags(
-    title: string,
-    content: string,
-    userId?: string,
-  ): Promise<string[]> {
+  async suggestTags(title: string, content: string, userId?: string): Promise<string[]> {
     const prompt = `为以下文章推荐5-10个标签：
 
 标题：${title}
@@ -403,5 +387,3 @@ ${content.substring(0, 5000)}`;
     }
   }
 }
-
-

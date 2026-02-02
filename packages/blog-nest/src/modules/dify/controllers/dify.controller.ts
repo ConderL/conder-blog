@@ -32,7 +32,7 @@ import { Public } from '../../../common/decorators/public.decorator';
 @ApiTags('Dify AI')
 @Controller('ai/dify')
 export class DifyController {
-  constructor(private readonly difyService: DifyService) { }
+  constructor(private readonly difyService: DifyService) {}
 
   @Post('chat')
   @ApiOperation({ summary: '发送聊天消息（阻塞模式）' })
@@ -92,9 +92,11 @@ export class DifyController {
               const jsonData = JSON.parse(jsonStr);
 
               // 检测是否包含推荐番剧的意图
-              if (jsonData.metadata?.intent === 'recommend_anime' ||
+              if (
+                jsonData.metadata?.intent === 'recommend_anime' ||
                 jsonData.intent === 'recommend_anime' ||
-                (jsonData.answer && /推荐.*番剧|推荐.*动漫|高分.*番剧/.test(jsonData.answer))) {
+                (jsonData.answer && /推荐.*番剧|推荐.*动漫|高分.*番剧/.test(jsonData.answer))
+              ) {
                 hasAnimeIntent = true;
               }
 
@@ -190,9 +192,7 @@ export class DifyController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: '生成成功' })
-  async generateArticleContent(
-    @Body() dto: GenerateArticleContentDto,
-  ): Promise<ResultDto<string>> {
+  async generateArticleContent(@Body() dto: GenerateArticleContentDto): Promise<ResultDto<string>> {
     try {
       const content = await this.difyService.generateArticleContent(
         dto.title,
@@ -212,9 +212,7 @@ export class DifyController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: '生成成功' })
-  async generateArticleSummary(
-    @Body() dto: GenerateArticleSummaryDto,
-  ): Promise<ResultDto<string>> {
+  async generateArticleSummary(@Body() dto: GenerateArticleSummaryDto): Promise<ResultDto<string>> {
     try {
       const summary = await this.difyService.generateArticleSummary(
         dto.content,
@@ -237,11 +235,7 @@ export class DifyController {
     @Body() dto: GenerateSEOMetaDto,
   ): Promise<ResultDto<{ description: string; keywords: string[] }>> {
     try {
-      const meta = await this.difyService.generateSEOMeta(
-        dto.title,
-        dto.content,
-        dto.userId,
-      );
+      const meta = await this.difyService.generateSEOMeta(dto.title, dto.content, dto.userId);
       return ResultDto.success(meta);
     } catch (error) {
       return ResultDto.error(`生成SEO元数据失败: ${error.message}`);
@@ -256,11 +250,7 @@ export class DifyController {
   @ApiResponse({ status: 200, description: '推荐成功' })
   async suggestTags(@Body() dto: SuggestTagsDto): Promise<ResultDto<string[]>> {
     try {
-      const tags = await this.difyService.suggestTags(
-        dto.title,
-        dto.content,
-        dto.userId,
-      );
+      const tags = await this.difyService.suggestTags(dto.title, dto.content, dto.userId);
       return ResultDto.success(tags);
     } catch (error) {
       return ResultDto.error(`推荐标签失败: ${error.message}`);
@@ -281,5 +271,3 @@ export class DifyController {
     }
   }
 }
-
-

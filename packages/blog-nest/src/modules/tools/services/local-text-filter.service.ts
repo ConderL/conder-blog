@@ -30,15 +30,12 @@ export class LocalTextFilterService {
       };
     }
 
-    const imgDomains = [
-      'img\\.conder\\.top',
-      'bbs\\.api\\.hoilai\\.com'
-    ];
-    
+    const imgDomains = ['img\\.conder\\.top', 'bbs\\.api\\.hoilai\\.com'];
+
     // 创建正则表达式
     const emojiImgRegex = new RegExp(
       `<img\\s+[^>]*?src\\s*=\\s*(['"])[^>]*?(?:${imgDomains.join('|')})[^>]*?>`,
-      'gi'
+      'gi',
     );
 
     // 表情代码正则表达式
@@ -101,7 +98,10 @@ export class LocalTextFilterService {
     // 只过滤非图片标签和非表情代码的段落
     const filteredSegments = segments.map((segment) => {
       // 如果是图片标签或表情代码占位符，直接返回
-      if ((segment.startsWith('__IMG_TAG_') || segment.startsWith('__EMOJI_CODE_')) && segment.endsWith('__')) {
+      if (
+        (segment.startsWith('__IMG_TAG_') || segment.startsWith('__EMOJI_CODE_')) &&
+        segment.endsWith('__')
+      ) {
         return segment;
       }
 

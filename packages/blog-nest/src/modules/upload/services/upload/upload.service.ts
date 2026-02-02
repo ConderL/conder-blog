@@ -121,8 +121,10 @@ export class UploadService {
       if (result.success) {
         this.logger.log(
           `图片处理成功: ${file.originalname}, 原始大小: ${result.originalSize} 字节, ` +
-          `处理后大小: ${result.processedSize} 字节, 压缩率: ${((result.originalSize - result.processedSize) / result.originalSize * 100).toFixed(2)
-          }%, 格式: ${result.extension}`
+            `处理后大小: ${result.processedSize} 字节, 压缩率: ${(
+              ((result.originalSize - result.processedSize) / result.originalSize) *
+              100
+            ).toFixed(2)}%, 格式: ${result.extension}`,
         );
         return {
           buffer: result.buffer,

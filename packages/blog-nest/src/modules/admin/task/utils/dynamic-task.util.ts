@@ -14,9 +14,7 @@ export class DynamicTaskManager {
   // 存储自定义函数的映射
   private taskFunctions = new Map<string, () => Promise<any>>();
 
-  constructor(
-    private schedulerRegistry: SchedulerRegistry,
-  ) {
+  constructor(private schedulerRegistry: SchedulerRegistry) {
     // 注册一些内置的任务函数
     this.registerTaskFunction('system.logMemoryUsage', this.logMemoryUsage.bind(this));
     this.registerTaskFunction('system.logActiveUsers', this.logActiveUsers.bind(this));

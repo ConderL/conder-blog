@@ -160,7 +160,9 @@ export class ImageProcessorService {
               fit: 'inside', // 保持宽高比
               withoutEnlargement: true, // 不放大小图片
             });
-            this.logger.log(`调整图片尺寸至最大: ${processingOptions.maxWidth}x${processingOptions.maxHeight}`);
+            this.logger.log(
+              `调整图片尺寸至最大: ${processingOptions.maxWidth}x${processingOptions.maxHeight}`,
+            );
           }
         }
       }
@@ -234,7 +236,7 @@ export class ImageProcessorService {
 
       this.logger.log(
         `图片处理完成: 原始大小=${originalSize}字节, 处理后大小=${processedSize}字节, ` +
-        `压缩率=${compressionRatio.toFixed(2)}%, 格式=${extension}`
+          `压缩率=${compressionRatio.toFixed(2)}%, 格式=${extension}`,
       );
 
       return {
@@ -257,4 +259,4 @@ export class ImageProcessorService {
       };
     }
   }
-} 
+}

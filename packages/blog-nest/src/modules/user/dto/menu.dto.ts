@@ -73,4 +73,4 @@ export class UpdateMenuDto extends CreateMenuDto {
   @Type(() => Number)
   @IsInt({ message: '菜单ID必须是整数' })
   id: number;
-} 
+}

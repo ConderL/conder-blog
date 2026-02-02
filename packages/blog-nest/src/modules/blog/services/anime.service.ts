@@ -16,7 +16,7 @@ export class AnimeService {
     private readonly animeRepository: Repository<Anime>,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly uploadService: UploadService,
-  ) { }
+  ) {}
 
   /**
    * 创建番剧
@@ -40,7 +40,9 @@ export class AnimeService {
     }
 
     const savedAnime = await this.animeRepository.save(anime);
-    this.logger.log(`创建番剧: ID=${savedAnime.id}, 名称=${savedAnime.animeName}, 初始状态=${savedAnime.animeStatus}`);
+    this.logger.log(
+      `创建番剧: ID=${savedAnime.id}, 名称=${savedAnime.animeName}, 初始状态=${savedAnime.animeStatus}`,
+    );
 
     // 创建后立即获取番剧信息
     this.logger.log(`创建番剧后获取信息: ID=${savedAnime.id}`);
@@ -48,7 +50,9 @@ export class AnimeService {
 
     // 重新获取更新后的番剧信息
     const finalAnime = await this.findOne(savedAnime.id);
-    this.logger.log(`创建番剧完成: ID=${finalAnime.id}, 名称=${finalAnime.animeName}, 最终状态=${finalAnime.animeStatus}`);
+    this.logger.log(
+      `创建番剧完成: ID=${finalAnime.id}, 名称=${finalAnime.animeName}, 最终状态=${finalAnime.animeStatus}`,
+    );
 
     return finalAnime;
   }
@@ -59,7 +63,16 @@ export class AnimeService {
    * @returns 番剧列表和总数
    */
   async findAll(queryAnimeDto: QueryAnimeDto): Promise<{ list: Anime[]; total: number }> {
-    const { page = 1, limit = 10, animeName, platform, animeStatus, watchStatus, sortBy = 'rating', area } = queryAnimeDto;
+    const {
+      page = 1,
+      limit = 10,
+      animeName,
+      platform,
+      animeStatus,
+      watchStatus,
+      sortBy = 'rating',
+      area,
+    } = queryAnimeDto;
 
     const queryBuilder = this.animeRepository.createQueryBuilder('anime');
 
@@ -80,7 +93,9 @@ export class AnimeService {
     }
 
     if (area) {
-      queryBuilder.andWhere('JSON_UNQUOTE(JSON_EXTRACT(anime.area, "$.id")) = :areaId', { areaId: area });
+      queryBuilder.andWhere('JSON_UNQUOTE(JSON_EXTRACT(anime.area, "$.id")) = :areaId', {
+        areaId: area,
+      });
     }
 
     const total = await queryBuilder.getCount();
@@ -88,9 +103,7 @@ export class AnimeService {
     // 根据sortBy字段进行排序
     if (sortBy === 'rating') {
       // 按评分排序，评分为空的排在后面
-      queryBuilder
-        .orderBy('anime.rating IS NULL', 'ASC')
-        .addOrderBy('anime.rating', 'DESC');
+      queryBuilder.orderBy('anime.rating IS NULL', 'ASC').addOrderBy('anime.rating', 'DESC');
     } else if (sortBy === 'publishTime') {
       // 按发布时间排序，发布时间为空的排在后面
       queryBuilder
@@ -205,12 +218,15 @@ export class AnimeService {
 
     // 只有bilibili和腾讯视频平台才需要获取API信息
     // 如果番剧ID或平台发生变化，需要重新获取信息
-    const needFetch = (anime.platform === 1 || anime.platform === 2) &&
+    const needFetch =
+      (anime.platform === 1 || anime.platform === 2) &&
       (originalAnimeId !== updateAnimeDto.animeId || originalPlatform !== updateAnimeDto.platform);
 
     // 如果需要重新获取信息，立即执行
     if (needFetch) {
-      this.logger.log(`番剧ID或平台发生变化，重新获取信息: ID从 ${originalAnimeId} 到 ${updateAnimeDto.animeId}, 平台从 ${originalPlatform} 到 ${updateAnimeDto.platform}`);
+      this.logger.log(
+        `番剧ID或平台发生变化，重新获取信息: ID从 ${originalAnimeId} 到 ${updateAnimeDto.animeId}, 平台从 ${originalPlatform} 到 ${updateAnimeDto.platform}`,
+      );
       await this.fetchAnimeInfo(id);
 
       // 获取信息后再次获取番剧，确保返回最新状态
@@ -246,7 +262,9 @@ export class AnimeService {
     try {
       const anime = await this.findOne(id);
 
-      this.logger.log(`开始获取番剧信息: ID=${id}, 名称=${anime.animeName}, 当前状态=${anime.animeStatus}`);
+      this.logger.log(
+        `开始获取番剧信息: ID=${id}, 名称=${anime.animeName}, 当前状态=${anime.animeStatus}`,
+      );
 
       // 保存原始封面，以便在更新后恢复
       const originalCover = anime.cover;
@@ -255,16 +273,17 @@ export class AnimeService {
       if (anime.platform === 1) {
         const response = await axios.get('https://api.bilibili.com/pgc/view/web/season', {
           params: {
-            season_id: anime.animeId
-          }
+            season_id: anime.animeId,
+          },
         });
 
         if (response.data.code === 0 && response.data.result) {
           const result = response.data.result;
 
           // 获取seasons中与当前season_id匹配的索引
-          const seasonIndex = result.seasons ?
-            result.seasons.findIndex(item => item.season_id === result.season_id) : -1;
+          const seasonIndex = result.seasons
+            ? result.seasons.findIndex((item) => item.season_id === result.season_id)
+            : -1;
 
           // 解析weekday信息
           let weekday = 0;
@@ -272,22 +291,26 @@ export class AnimeService {
             const weekdayMatch = result.new_ep.desc.match(/每周([一二三四五六日天])/);
             if (weekdayMatch) {
               const weekdayText = weekdayMatch[1];
-              const weekdayMap = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 0, '天': 0 };
+              const weekdayMap = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 日: 0, 天: 0 };
               weekday = weekdayMap[weekdayText] || 0;
             }
           }
 
           // 获取indexShow
-          const indexShow = seasonIndex !== -1 && result.seasons[seasonIndex].new_ep ?
-            result.seasons[seasonIndex].new_ep.index_show : null;
+          const indexShow =
+            seasonIndex !== -1 && result.seasons[seasonIndex].new_ep
+              ? result.seasons[seasonIndex].new_ep.index_show
+              : null;
 
           // 根据番剧状态和indexShow确定当前集数
           let currentEpisodes;
           const animeStatus = result.publish?.is_finish === 1 ? 2 : 1; // 1: 连载中, 2: 已完结
 
-          if (animeStatus === 2) { // 已完结
+          if (animeStatus === 2) {
+            // 已完结
             currentEpisodes = result.total || result.episodes?.length;
-          } else { // 连载中
+          } else {
+            // 连载中
             if (indexShow) {
               // 从indexShow中提取数字（如"更新至第4话"中的"4"）
               const match = indexShow.match(/第(\d+)话/);
@@ -307,12 +330,13 @@ export class AnimeService {
           this.logger.log(`更新番剧状态: 从 ${anime.animeStatus} 到 ${animeStatus}`);
           anime.animeStatus = animeStatus;
 
-          // 封面处理逻辑: 
-          // 1. 保留原有自定义封面 
+          // 封面处理逻辑:
+          // 1. 保留原有自定义封面
           // 2. 记录日志以便追踪问题
           if (originalCover) {
             // 检查是否是自定义封面 (通常自定义封面会有不同的域名)
-            const isBilibiliCover = originalCover.includes('hdslb.com') || originalCover.includes('bilibili.com');
+            const isBilibiliCover =
+              originalCover.includes('hdslb.com') || originalCover.includes('bilibili.com');
             if (!isBilibiliCover) {
               this.logger.log(`保留自定义封面: ${originalCover}`);
               // 保持原有自定义封面不变
@@ -334,9 +358,11 @@ export class AnimeService {
           anime.indexShow = indexShow;
 
           // 根据番剧状态设置当前集数
-          if (animeStatus === 2) { // 已完结
+          if (animeStatus === 2) {
+            // 已完结
             anime.currentEpisodes = anime.totalEpisodes;
-          } else { // 连载中
+          } else {
+            // 连载中
             if (anime.indexShow) {
               // 从indexShow中提取数字（如"更新至第4话"中的"4"）
               const match = anime.indexShow.match(/第(\d+)话/);
@@ -347,23 +373,27 @@ export class AnimeService {
           }
 
           anime.description = result.evaluate || anime.description;
-          anime.actors = result.actors ? (Array.isArray(result.actors) ? result.actors.join(', ') : result.actors) : anime.actors;
+          anime.actors = result.actors
+            ? Array.isArray(result.actors)
+              ? result.actors.join(', ')
+              : result.actors
+            : anime.actors;
 
           // 处理地区信息
           if (result.areas && result.areas.length > 0) {
             // 保存原始areas字符串
-            anime.areas = result.areas?.map(area => area.name).join(', ') || anime.areas;
+            anime.areas = result.areas?.map((area) => area.name).join(', ') || anime.areas;
 
             // 处理area对象
             const areaMapping = [
               { id: 1, name: '国漫' },
               { id: 2, name: '日漫' },
-              { id: 3, name: '美漫' }
+              { id: 3, name: '美漫' },
             ];
 
             // 根据areas[0].id查找对应的area
             if (result.areas[0] && result.areas[0].id) {
-              const matchedArea = areaMapping.find(item => item.id === result.areas[0].id);
+              const matchedArea = areaMapping.find((item) => item.id === result.areas[0].id);
               if (matchedArea) {
                 anime.area = matchedArea;
               }
@@ -393,7 +423,9 @@ export class AnimeService {
             anime.views = safeBigint(result.seasons[seasonIndex].stat.views);
             anime.seriesFollow = safeBigint(result.seasons[seasonIndex].stat.series_follow);
 
-            this.logger.log(`统计信息更新: 播放量=${anime.views}, 收藏数=${anime.favorites}, 追番人数=${anime.seriesFollow}`);
+            this.logger.log(
+              `统计信息更新: 播放量=${anime.views}, 收藏数=${anime.favorites}, 追番人数=${anime.seriesFollow}`,
+            );
           }
 
           anime.lastUpdateTime = new Date();
@@ -403,14 +435,18 @@ export class AnimeService {
 
           // 获取更新后的完整对象进行验证
           const updatedAnime = await this.findOne(id);
-          this.logger.log(`验证更新后的番剧状态: ID=${id}, 名称=${updatedAnime.animeName}, 状态=${updatedAnime.animeStatus}`);
+          this.logger.log(
+            `验证更新后的番剧状态: ID=${id}, 名称=${updatedAnime.animeName}, 状态=${updatedAnime.animeStatus}`,
+          );
         } else {
           this.logger.warn(`获取番剧信息失败: ${response.data.message}`);
         }
       } else if (anime.platform === 2) {
         // 腾讯视频平台
         try {
-          const response = await axios.get(`http://node.video.qq.com/x/api/float_vinfo2?cid=${anime.animeId}`);
+          const response = await axios.get(
+            `http://node.video.qq.com/x/api/float_vinfo2?cid=${anime.animeId}`,
+          );
 
           if (response.data) {
             const result = response.data;
@@ -423,19 +459,20 @@ export class AnimeService {
 
             // 更新番剧信息
             if (result.nam && result.nam[0]) {
-              anime.actors = Array.isArray(result.nam[0]) ? result.nam[0].join(', ') : result.nam[0];
+              anime.actors = Array.isArray(result.nam[0])
+                ? result.nam[0].join(', ')
+                : result.nam[0];
             }
 
             this.logger.log(result.typ);
 
             if (result.typ) {
-
               // 处理area对象
               const areaMapping = [
                 { id: 1, name: '国漫' },
                 { id: 2, name: '日漫' },
                 { id: 3, name: '美漫' },
-                { id: 4, name: '其他' }
+                { id: 4, name: '其他' },
               ];
 
               if (result.typ.length === 1) {
@@ -445,9 +482,13 @@ export class AnimeService {
                 styles = Array.isArray(result.typ[0]) ? result.typ[0] : [];
               }
 
-              area = areaSource.includes('日本') ? areaMapping[1] : areaSource.includes('美国') ? areaMapping[2] : areaMapping[3];
+              area = areaSource.includes('日本')
+                ? areaMapping[1]
+                : areaSource.includes('美国')
+                  ? areaMapping[2]
+                  : areaMapping[3];
 
-              ['内地', '中国大陆', '中国香港', '中国台湾'].forEach(item => {
+              ['内地', '中国大陆', '中国香港', '中国台湾'].forEach((item) => {
                 if (areaSource.includes(item)) {
                   area = areaMapping[0];
                 }
@@ -514,7 +555,7 @@ export class AnimeService {
       for (const anime of animes) {
         await this.fetchAnimeInfo(anime.id);
         // 添加延迟，避免频繁请求API
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
       this.logger.log('番剧信息更新完成');
@@ -533,7 +574,7 @@ export class AnimeService {
       // 创建一个一次性的延迟任务
       const timeout = setTimeout(() => {
         this.logger.warn(`手动任务 "${name}" 执行中!`);
-        this.updateAnimeInfo().catch(err => {
+        this.updateAnimeInfo().catch((err) => {
           this.logger.error(`任务执行失败: ${err.message}`);
         });
       }, seconds * 1000);
@@ -541,9 +582,7 @@ export class AnimeService {
       // 将任务添加到超时任务列表中
       this.schedulerRegistry.addTimeout(name, timeout);
 
-      this.logger.warn(
-        `任务 ${name} 已添加，将在 ${seconds} 秒后执行!`,
-      );
+      this.logger.warn(`任务 ${name} 已添加，将在 ${seconds} 秒后执行!`);
     } catch (error) {
       this.logger.error(`添加任务失败: ${error.message}`);
       throw error;
@@ -564,8 +603,8 @@ export class AnimeService {
       const existingAnime = await this.animeRepository.findOne({
         where: {
           platform: 1, // bilibili
-          animeId: animeId
-        }
+          animeId: animeId,
+        },
       });
 
       if (existingAnime) {
@@ -584,12 +623,15 @@ export class AnimeService {
       // 从B站API获取番剧信息
       const response = await axios.get('https://api.bilibili.com/pgc/view/web/season', {
         params: {
-          season_id: animeId
-        }
+          season_id: animeId,
+        },
       });
 
       if (response.data.code !== 0 || !response.data.result) {
-        throw new HttpException(`获取B站番剧信息失败: ${response.data.message || '未知错误'}`, HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          `获取B站番剧信息失败: ${response.data.message || '未知错误'}`,
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       const result = response.data.result;
@@ -600,26 +642,31 @@ export class AnimeService {
         const weekdayMatch = result.new_ep.desc.match(/每周([一二三四五六日天])/);
         if (weekdayMatch) {
           const weekdayText = weekdayMatch[1];
-          const weekdayMap = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 0, '天': 0 };
+          const weekdayMap = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 日: 0, 天: 0 };
           weekday = weekdayMap[weekdayText] || 0;
         }
       }
 
       // 获取seasons中与当前season_id匹配的索引
-      const seasonIndex = result.seasons ?
-        result.seasons.findIndex(item => item.season_id === result.season_id) : -1;
+      const seasonIndex = result.seasons
+        ? result.seasons.findIndex((item) => item.season_id === result.season_id)
+        : -1;
 
       // 获取indexShow
-      const indexShow = seasonIndex !== -1 && result.seasons[seasonIndex].new_ep ?
-        result.seasons[seasonIndex].new_ep.index_show : null;
+      const indexShow =
+        seasonIndex !== -1 && result.seasons[seasonIndex].new_ep
+          ? result.seasons[seasonIndex].new_ep.index_show
+          : null;
 
       // 根据番剧状态和indexShow确定当前集数
       let currentEpisodes;
       const animeStatus = result.publish?.is_finish === 1 ? 2 : 1; // 1: 连载中, 2: 已完结
 
-      if (animeStatus === 2) { // 已完结
+      if (animeStatus === 2) {
+        // 已完结
         currentEpisodes = result.total || result.episodes?.length;
-      } else { // 连载中
+      } else {
+        // 连载中
         if (indexShow) {
           // 从indexShow中提取数字（如"更新至第4话"中的"4"）
           const match = indexShow.match(/第(\d+)话/);
@@ -647,8 +694,12 @@ export class AnimeService {
         totalEpisodes: result.total || result.episodes?.length,
         currentEpisodes: currentEpisodes,
         description: result.evaluate,
-        actors: result.actors ? (Array.isArray(result.actors) ? result.actors.join(', ') : result.actors) : null,
-        areas: result.areas?.map(area => area.name).join(', '),
+        actors: result.actors
+          ? Array.isArray(result.actors)
+            ? result.actors.join(', ')
+            : result.actors
+          : null,
+        areas: result.areas?.map((area) => area.name).join(', '),
         subtitle: result.subtitle,
         uname: result.up_info?.uname,
         publishTime: result.publish?.pub_time_show,
@@ -658,7 +709,7 @@ export class AnimeService {
         weekday: weekday,
         favorites: seasonIndex !== -1 ? result.seasons[seasonIndex].stat?.favorites : null,
         views: seasonIndex !== -1 ? result.seasons[seasonIndex].stat?.views : null,
-        seriesFollow: seasonIndex !== -1 ? result.seasons[seasonIndex].stat?.series_follow : null
+        seriesFollow: seasonIndex !== -1 ? result.seasons[seasonIndex].stat?.series_follow : null,
       });
 
       // 处理area字段
@@ -666,11 +717,11 @@ export class AnimeService {
         const areaMapping = [
           { id: 1, name: '国漫' },
           { id: 2, name: '日漫' },
-          { id: 3, name: '美漫' }
+          { id: 3, name: '美漫' },
         ];
 
         if (result.areas[0] && result.areas[0].id) {
-          const matchedArea = areaMapping.find(item => item.id === result.areas[0].id);
+          const matchedArea = areaMapping.find((item) => item.id === result.areas[0].id);
           if (matchedArea) {
             newAnime.area = matchedArea;
           }
@@ -690,7 +741,10 @@ export class AnimeService {
         throw error;
       }
       this.logger.error(`获取B站番剧信息出错: ${error.message}`, error.stack);
-      throw new HttpException(`获取B站番剧信息出错: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        `获取B站番剧信息出错: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-} 
+}

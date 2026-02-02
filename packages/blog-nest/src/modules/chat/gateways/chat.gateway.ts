@@ -60,7 +60,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
    */
   async handleConnection(client: Socket) {
     const ip = IPUtil.getSocketIp(client);
-    this.logger.log(`客户端连接: ${client.id}, IP: ${ip}`);
+    this.logger.debug(`客户端连接: ${client.id}, IP: ${ip}`);
     this.clients.push(client);
     this.ipSocketMap.set(ip, client);
     this.onlineCount++;
@@ -82,7 +82,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     // 确定最终使用的昵称，已登录用户优先使用查询参数中的昵称
     const nickname = (client.handshake?.query?.nickname as string) || randomNickname;
-    this.logger.log(`为客户端 ${client.id}, IP: ${ip} 分配昵称: ${nickname}`);
+    this.logger.debug(`为客户端 ${client.id}, IP: ${ip} 分配昵称: ${nickname}`);
 
     // 默认头像
     const defaultAvatar = 'https://img.conder.top/config/default_avatar.jpg';
@@ -148,7 +148,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
    */
   @SubscribeMessage('chat-message')
   async handleChatMessage(@MessageBody() data: ChatMessageDto, @ConnectedSocket() client: Socket) {
-    this.logger.log('收到消息:', data);
+    this.logger.debug('收到消息:', data);
     if (!data || !data.content || data.content.trim() === '') {
       this.logger.warn('收到空消息');
       return { success: false, message: '消息内容不能为空' };
@@ -170,7 +170,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       // 使用百度文本审核服务替代本地敏感词过滤
       const censorResult = await this.baiduTextCensorService.textCensor(data.content);
 
-      this.logger.log('百度文本审核结果:', censorResult);
+      this.logger.debug('百度文本审核结果:', censorResult);
 
       // 使用过滤后的文本（无论是否安全）
       const messageContent = censorResult.filteredText || data.content;

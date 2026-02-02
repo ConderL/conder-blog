@@ -1,7 +1,6 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { tap, finalize } from 'rxjs/operators';
-import { setCurrentRequest, clearCurrentRequest } from '../utils/request.util';
+import { Observable, Subscription } from 'rxjs';
+import { runWithRequest } from '../utils/request.util';
 
 /**
  * 请求拦截器
@@ -18,15 +17,18 @@ export class RequestInterceptor implements NestInterceptor {
     // 获取请求对象
     const request = context.switchToHttp().getRequest();
 
-    // 设置当前请求
-    setCurrentRequest(request);
+    return new Observable((subscriber) => {
+      let subscription: Subscription | undefined;
 
-    // 处理请求
-    return next.handle().pipe(
-      // 请求处理完成后清除当前请求
-      finalize(() => {
-        clearCurrentRequest();
-      }),
-    );
+      runWithRequest(request, () => {
+        subscription = next.handle().subscribe({
+          next: (value) => subscriber.next(value),
+          error: (error) => subscriber.error(error),
+          complete: () => subscriber.complete(),
+        });
+      });
+
+      return () => subscription?.unsubscribe();
+    });
   }
 }

@@ -18,6 +18,4 @@ import { BlogModule } from '../blog/blog.module';
   controllers: [DifyController],
   exports: [DifyService],
 })
-export class DifyModule { }
-
-
+export class DifyModule {}

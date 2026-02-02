@@ -12,6 +12,9 @@ import { VisitLogService } from '../../modules/blog/services/visit-log.service';
  */
 @Injectable()
 export class VisitLogInterceptor implements NestInterceptor {
+  private readonly minLogIntervalMs = 10_000;
+  private readonly lastLogAtByKey = new Map<string, number>();
+
   constructor(
     private reflector: Reflector,
     private visitLogService: VisitLogService,
@@ -31,11 +34,12 @@ export class VisitLogInterceptor implements NestInterceptor {
     }
 
     const request = context.switchToHttp().getRequest();
-    const { url, method, headers } = request;
+    const { url, headers } = request;
 
     // 获取客户端信息
     const ipAddress = IPUtil.getClientIp(request);
     const userAgent = headers['user-agent'];
+    const throttleKey = `${ipAddress}:${pageName}`;
 
     // 解析UA (简化版本，不使用ua-parser-js库)
     const browser = this.getBrowserInfo(userAgent);
@@ -44,15 +48,33 @@ export class VisitLogInterceptor implements NestInterceptor {
     // 返回的结果处理
     return next.handle().pipe(
       tap(() => {
+        if (!this.shouldLog(throttleKey)) return;
         // 创建访问日志
-        this.visitLogService.create({
-          ipAddress,
-          pageUrl: url,
-          browser: browser,
-          os: os,
-        });
+        void this.visitLogService
+          .create({
+            ipAddress,
+            pageUrl: url,
+            browser: browser,
+            os: os,
+          })
+          .catch(() => undefined);
       }),
     );
+  }
+
+  private shouldLog(key: string): boolean {
+    const now = Date.now();
+    const last = this.lastLogAtByKey.get(key) ?? 0;
+    if (now - last < this.minLogIntervalMs) return false;
+
+    this.lastLogAtByKey.set(key, now);
+
+    // Prevent unbounded growth under crawler/bot traffic.
+    if (this.lastLogAtByKey.size > 50_000) {
+      this.lastLogAtByKey.clear();
+    }
+
+    return true;
   }
 
   /**

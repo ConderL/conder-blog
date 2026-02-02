@@ -64,8 +64,7 @@ export class OnlineUserGuard implements CanActivate {
       // 将令牌ID添加到请求对象中
       request.tokenId = token;
 
-      // 更新最后访问时间
-      await this.onlineService.updateLastAccessTime(token);
+      // 最后访问时间由全局 OnlineUserInterceptor 统一节流更新，避免每次请求都写 Redis
 
       return true;
     } catch (error) {

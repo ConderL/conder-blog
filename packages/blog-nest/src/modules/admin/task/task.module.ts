@@ -19,10 +19,10 @@ import { Article } from '../../blog/entities/article.entity';
     LogModule,
     OnlineModule,
     ChatModule,
-    BlogModule
+    BlogModule,
   ],
   controllers: [TaskController],
   providers: [TaskService, DynamicTaskManager],
   exports: [TaskService],
 })
-export class TaskModule { }
+export class TaskModule {}

@@ -18,7 +18,12 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { AnimeService } from '../services/anime.service';
-import { CreateAnimeDto, QueryAnimeDto, UpdateAnimeDto, UpdateAnimeInfoDto } from '../dto/anime.dto';
+import {
+  CreateAnimeDto,
+  QueryAnimeDto,
+  UpdateAnimeDto,
+  UpdateAnimeInfoDto,
+} from '../dto/anime.dto';
 import { Anime } from '../entities/anime.entity';
 import { Public } from '../../../common/decorators/public.decorator';
 import { Result } from '../../../common/result';
@@ -94,8 +99,8 @@ export class AnimeController {
   constructor(
     private readonly animeService: AnimeService,
     private readonly uploadService: UploadService,
-    private readonly userService: UserService
-  ) { }
+    private readonly userService: UserService,
+  ) {}
 
   @ApiOperation({ summary: '创建番剧' })
   @ApiResponse({ status: 201, description: '创建成功', type: Anime })
@@ -105,7 +110,10 @@ export class AnimeController {
       this.logger.log(`创建番剧: ${JSON.stringify(createAnimeDto)}`);
 
       // 对爱奇艺和优酷平台特殊处理
-      if ((createAnimeDto.platform === 3 || createAnimeDto.platform === 4) && (!createAnimeDto.animeId || createAnimeDto.animeId.trim() === '')) {
+      if (
+        (createAnimeDto.platform === 3 || createAnimeDto.platform === 4) &&
+        (!createAnimeDto.animeId || createAnimeDto.animeId.trim() === '')
+      ) {
         // 为爱奇艺和优酷平台生成一个唯一ID
         createAnimeDto.animeId = `${createAnimeDto.platform}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
         this.logger.log(`为平台${createAnimeDto.platform}生成唯一ID: ${createAnimeDto.animeId}`);
@@ -242,7 +250,7 @@ export class AnimeController {
     try {
       const anime = await this.animeService.fetchAndSaveBilibiliAnime(
         importDto.animeId,
-        importDto.customCover
+        importDto.customCover,
       );
       return Result.ok(anime, '获取并保存B站番剧信息成功');
     } catch (error) {
@@ -261,7 +269,7 @@ export class AnimeController {
       // 调用 fetchAndSaveBilibiliAnime 获取并保存番剧信息
       const anime = await this.animeService.fetchAndSaveBilibiliAnime(
         importDto.animeId,
-        importDto.customCover
+        importDto.customCover,
       );
 
       // 更新追番状态
@@ -275,7 +283,7 @@ export class AnimeController {
           platform: anime.platform,
           animeId: anime.animeId,
           watchStatus: importDto.watchStatus,
-          cover: anime.cover
+          cover: anime.cover,
         };
 
         await this.animeService.update(anime.id, updateDto);
@@ -370,7 +378,7 @@ export class AnimeController {
         animeId: importDto.animeId,
         animeStatus: importDto.animeStatus || 1,
         watchStatus: importDto.watchStatus || 1,
-        cover: importDto.customCover
+        cover: importDto.customCover,
       };
 
       // 创建番剧
@@ -385,7 +393,7 @@ export class AnimeController {
           animeId: anime.animeId,
           animeStatus: importDto.animeStatus || anime.animeStatus,
           watchStatus: anime.watchStatus,
-          cover: anime.cover
+          cover: anime.cover,
         };
 
         if (importDto.rating) {
@@ -417,10 +425,7 @@ export class AnimeController {
   @ApiOperation({ summary: '追番' })
   @ApiResponse({ status: 200, description: '操作成功' })
   @Post(':id/collect')
-  async collectAnime(
-    @Param('id', ParseIntPipe) id: number,
-    @Request() req,
-  ) {
+  async collectAnime(@Param('id', ParseIntPipe) id: number, @Request() req) {
     try {
       const userId = req.user.id;
       this.logger.log(`用户${userId}追番: ${id}`);
@@ -445,10 +450,7 @@ export class AnimeController {
   @ApiOperation({ summary: '取消追番' })
   @ApiResponse({ status: 200, description: '操作成功' })
   @Post(':id/uncollect')
-  async uncollectAnime(
-    @Param('id', ParseIntPipe) id: number,
-    @Request() req,
-  ) {
+  async uncollectAnime(@Param('id', ParseIntPipe) id: number, @Request() req) {
     try {
       const userId = req.user.id;
       this.logger.log(`用户${userId}取消追番: ${id}`);
@@ -470,10 +472,7 @@ export class AnimeController {
   @ApiOperation({ summary: '检查是否已追番' })
   @ApiResponse({ status: 200, description: '操作成功' })
   @Get(':id/collected')
-  async isAnimeCollected(
-    @Param('id', ParseIntPipe) id: number,
-    @Request() req,
-  ) {
+  async isAnimeCollected(@Param('id', ParseIntPipe) id: number, @Request() req) {
     try {
       const userId = req.user.id;
       const isCollected = await this.userService.isAnimeCollected(userId, id);
@@ -484,4 +483,4 @@ export class AnimeController {
       return Result.fail('检查是否已追番失败: ' + error.message);
     }
   }
-} 
+}

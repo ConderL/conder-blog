@@ -41,7 +41,7 @@ export class UserController {
     private readonly menuService: MenuService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly redisService: RedisService,
-  ) { }
+  ) {}
 
   /**
    * 将数据库菜单格式转换为前端路由格式
@@ -470,7 +470,7 @@ export class AdminUserController {
   constructor(
     private readonly userService: UserService,
     private readonly menuService: MenuService,
-  ) { }
+  ) {}
 
   /**
    * 查询用户列表

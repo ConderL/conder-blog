@@ -36,7 +36,7 @@ export class UserService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
-  ) { }
+  ) {}
 
   /**
    * 根据用户名查找用户
@@ -355,7 +355,9 @@ export class UserService {
         if (map[menu.parentId]) {
           map[menu.parentId].children.push(map[menu.id]);
         } else {
-          console.log(`警告: 菜单 ${menu.menuName}(ID=${menu.id}) 的父菜单 ID=${menu.parentId} 不存在`);
+          console.log(
+            `警告: 菜单 ${menu.menuName}(ID=${menu.id}) 的父菜单 ID=${menu.parentId} 不存在`,
+          );
         }
       }
     });
@@ -1491,10 +1493,9 @@ export class UserService {
       const entityManager = this.userRepository.manager;
 
       // 使用IN查询一次性获取所有番剧详情
-      const animeDetails = await entityManager.query(
-        `SELECT * FROM t_anime WHERE id IN (?)`,
-        [animeIds]
-      );
+      const animeDetails = await entityManager.query(`SELECT * FROM t_anime WHERE id IN (?)`, [
+        animeIds,
+      ]);
 
       this.logger.log(`获取到${animeDetails.length}条番剧详情`);
 
@@ -1504,13 +1505,13 @@ export class UserService {
           try {
             const areaResult = await entityManager.query(
               `SELECT id, name FROM t_anime_area WHERE id = ?`,
-              [anime.area_id]
+              [anime.area_id],
             );
 
             if (areaResult && areaResult.length > 0) {
               anime.area = {
                 id: areaResult[0].id,
-                name: areaResult[0].name
+                name: areaResult[0].name,
               };
             }
           } catch (error) {
@@ -1520,7 +1521,7 @@ export class UserService {
       }
 
       // 转换数据库字段为驼峰命名
-      const formattedAnimes = animeDetails.map(anime => {
+      const formattedAnimes = animeDetails.map((anime) => {
         return {
           id: anime.id,
           animeName: anime.anime_name,
@@ -1569,7 +1570,12 @@ export class UserService {
    * @param sortBy 排序字段
    * @returns 分页结果和总数
    */
-  async getUserAnimeCollectionPage(userId: number, page: number = 1, limit: number = 10, sortBy: string = 'rating'): Promise<any> {
+  async getUserAnimeCollectionPage(
+    userId: number,
+    page: number = 1,
+    limit: number = 10,
+    sortBy: string = 'rating',
+  ): Promise<any> {
     try {
       // 1. 获取用户的追番ID列表
       const animeIds = await this.getUserAnimeList(userId);
@@ -1593,14 +1599,14 @@ export class UserService {
       // 计算总数
       const countResult = await entityManager.query(
         `SELECT COUNT(*) as total FROM t_anime WHERE id IN (?)`,
-        [animeIds]
+        [animeIds],
       );
       const total = parseInt(countResult[0].total);
 
       // 使用IN查询一次性获取所有番剧详情（带分页和排序）
       const animeDetails = await entityManager.query(
         `SELECT * FROM t_anime WHERE id IN (?) ORDER BY ${orderField} DESC LIMIT ? OFFSET ?`,
-        [animeIds, limit, offset]
+        [animeIds, limit, offset],
       );
 
       this.logger.log(`获取到第${page}页的${animeDetails.length}条番剧详情，总共${total}条`);
@@ -1611,13 +1617,13 @@ export class UserService {
           try {
             const areaResult = await entityManager.query(
               `SELECT id, name FROM t_anime_area WHERE id = ?`,
-              [anime.area_id]
+              [anime.area_id],
             );
 
             if (areaResult && areaResult.length > 0) {
               anime.area = {
                 id: areaResult[0].id,
-                name: areaResult[0].name
+                name: areaResult[0].name,
               };
             }
           } catch (error) {
@@ -1627,7 +1633,7 @@ export class UserService {
       }
 
       // 转换数据库字段为驼峰命名
-      const formattedAnimes = animeDetails.map(anime => {
+      const formattedAnimes = animeDetails.map((anime) => {
         let styles = [];
         try {
           if (anime.styles) {

@@ -1,40 +1,42 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { OnlineService } from '../../modules/online/online.service';
 
-/**
- * 在线用户拦截器
- * 用于更新在线用户的最后访问时间
- */
 @Injectable()
 export class OnlineUserInterceptor implements NestInterceptor {
+  private readonly minUpdateIntervalMs = 30_000;
+  private readonly lastUpdateAtByToken = new Map<string, number>();
+
   constructor(private readonly onlineService: OnlineService) {}
 
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-    // 获取请求对象
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
+    const authHeader: unknown = request?.headers?.authorization;
 
-    // 从请求头中获取令牌
-    const authHeader = request.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-
-      // 异步更新用户最后访问时间
-      setTimeout(async () => {
-        try {
-          await this.onlineService.updateLastAccessTime(token);
-        } catch (error) {
-          console.error('更新用户最后访问时间失败:', error);
-        }
-      }, 0);
+      this.updateLastAccessTimeThrottled(token);
     }
 
-    // 继续处理请求
-    return next.handle().pipe(
-      tap(() => {
-        // 请求完成后的操作（如有需要）
-      }),
-    );
+    return next.handle();
+  }
+
+  private updateLastAccessTimeThrottled(token: string) {
+    const now = Date.now();
+    const last = this.lastUpdateAtByToken.get(token) ?? 0;
+    if (now - last < this.minUpdateIntervalMs) return;
+
+    this.lastUpdateAtByToken.set(token, now);
+
+    // Prevent unbounded growth in pathological cases.
+    if (this.lastUpdateAtByToken.size > 50_000) {
+      this.lastUpdateAtByToken.clear();
+    }
+
+    void this.onlineService.updateLastAccessTime(token).catch((error) => {
+      // Keep errors visible without crashing request handling.
+      // eslint-disable-next-line no-console
+      console.error('Failed to update last access time', error);
+    });
   }
 }

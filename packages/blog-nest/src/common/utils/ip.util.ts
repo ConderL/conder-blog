@@ -10,6 +10,9 @@ import { getCurrentRequest } from './request.util';
  */
 export class IPUtil {
   private static readonly logger = new Logger('IPUtil');
+  private static readonly ipLocationCache = new Map<string, { value: string; expiresAt: number }>();
+  private static readonly ipLocationCacheTtlMs = 24 * 60 * 60 * 1000;
+  private static readonly ipLocationCacheMaxSize = 10_000;
 
   /**
    * 获取客户端IP地址
@@ -145,22 +148,33 @@ export class IPUtil {
       return '内网IP';
     }
 
+    const cached = this.ipLocationCache.get(ip);
+    if (cached && cached.expiresAt > Date.now()) return cached.value;
+
     try {
       // 使用IP地址查询API
-      const response = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`);
+      const response = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`, {
+        timeout: 2000,
+      });
       const data = response.data;
 
       if (data.status === 'success') {
-        return `${data.country || ''} ${data.regionName || ''} ${data.city || ''}`;
+        const value = `${data.country || ''} ${data.regionName || ''} ${data.city || ''}`.trim();
+        this.setIpLocationCache(ip, value);
+        return value;
       }
 
       // 备用查询方法，如果第一个API不可用
-      return this.getIpSourceBackup(ip);
+      const fallback = await this.getIpSourceBackup(ip);
+      this.setIpLocationCache(ip, fallback);
+      return fallback;
     } catch (error) {
       this.logger.error(`获取IP地址位置失败: ${error.message}`);
 
       // 尝试备用方法
-      return this.getIpSourceBackup(ip);
+      const fallback = await this.getIpSourceBackup(ip);
+      this.setIpLocationCache(ip, fallback);
+      return fallback;
     }
   }
 
@@ -182,7 +196,7 @@ export class IPUtil {
   private static async getIpSourceBackup(ip: string): Promise<string> {
     try {
       // 使用备用API
-      const response = await axios.get(`https://ipapi.co/${ip}/json/`);
+      const response = await axios.get(`https://ipapi.co/${ip}/json/`, { timeout: 2000 });
       const data = response.data;
 
       if (data && !data.error) {
@@ -193,6 +207,17 @@ export class IPUtil {
     } catch (error) {
       this.logger.error(`备用IP查询也失败: ${error.message}`);
       return '未知位置';
+    }
+  }
+
+  private static setIpLocationCache(ip: string, value: string) {
+    const expiresAt = Date.now() + this.ipLocationCacheTtlMs;
+    this.ipLocationCache.set(ip, { value, expiresAt });
+
+    while (this.ipLocationCache.size > this.ipLocationCacheMaxSize) {
+      const oldestKey = this.ipLocationCache.keys().next().value as string | undefined;
+      if (!oldestKey) break;
+      this.ipLocationCache.delete(oldestKey);
     }
   }
 

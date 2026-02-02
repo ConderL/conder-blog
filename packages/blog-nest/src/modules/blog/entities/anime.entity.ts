@@ -50,7 +50,14 @@ export class Anime {
   cover: string;
 
   @ApiProperty({ description: '评分' })
-  @Column({ name: 'rating', comment: '评分', type: 'decimal', precision: 3, scale: 1, nullable: true })
+  @Column({
+    name: 'rating',
+    comment: '评分',
+    type: 'decimal',
+    precision: 3,
+    scale: 1,
+    nullable: true,
+  })
   rating: number;
 
   @ApiProperty({ description: '评分人数' })
@@ -106,7 +113,13 @@ export class Anime {
   indexShow: string;
 
   @ApiProperty({ description: '更新星期几' })
-  @Column({ name: 'weekday', comment: '更新星期几 (0-6，对应周日到周六)', type: 'tinyint', width: 1, nullable: true })
+  @Column({
+    name: 'weekday',
+    comment: '更新星期几 (0-6，对应周日到周六)',
+    type: 'tinyint',
+    width: 1,
+    nullable: true,
+  })
   weekday: number;
 
   @ApiProperty({ description: '收藏数' })
@@ -130,16 +143,21 @@ export class Anime {
   lastUpdateTime: Date;
 
   @ApiProperty({ description: '创建时间' })
-  @Column({ name: 'create_time', comment: '创建时间', type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    name: 'create_time',
+    comment: '创建时间',
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createTime: Date;
 
   @ApiProperty({ description: '更新时间' })
-  @Column({ 
-    name: 'update_time', 
-    comment: '更新时间', 
-    type: 'datetime', 
+  @Column({
+    name: 'update_time',
+    comment: '更新时间',
+    type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP'
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updateTime: Date;
-} 
+}
