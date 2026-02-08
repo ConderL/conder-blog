@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@codemirror/view": "^6.34.1",
     "@element-plus/icons-vue": "^2.0.10",
     "@vavt/cm-extension": "^1.5.0",
     "@vavt/message": "^2.0.1",
