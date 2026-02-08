@@ -7,8 +7,8 @@ COPY package.json pnpm-lock.yaml turbo.json pnpm-workspace.yaml ./
 COPY packages/blog-nest/package.json ./packages/blog-nest/
 
 # 安装依赖
-RUN npm install -g pnpm@8.15.4 && \
-    pnpm install --frozen-lockfile --shamefully-hoist
+RUN npm install -g pnpm@10.10.0 && \
+    pnpm install --shamefully-hoist
 
 # 构建阶段
 FROM node:18.19.1 AS builder

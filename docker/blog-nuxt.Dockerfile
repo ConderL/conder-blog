@@ -9,7 +9,7 @@ ENV VITE_BASE_URL=/
 ENV VITE_SERVICE_BASE_URL=https://api.conder.top
 
 # 安装与仓库锁文件匹配的 pnpm 版本
-RUN npm install -g pnpm@8.15.4
+RUN npm install -g pnpm@10.10.0
 
 # 设置 pnpm 镜像源
 RUN pnpm config set registry https://registry.npmmirror.com/
