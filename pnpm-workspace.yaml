@@ -1,2 +1,11 @@
 packages:
   - "packages/*"
+
+# 解决 codemirror 版本冲突
+pnpm:
+  overrides:
+    # 强制使用特定版本的 codemirror/view，与其他包兼容
+    '@codemirror/view': 6.23.0
+    '@codemirror/search': 6.5.0
+    '@codemirror/state': 6.4.0
+    '@codemirror/language': 6.9.0
