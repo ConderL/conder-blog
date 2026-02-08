@@ -1,12 +1,12 @@
 <template>
   <div class="anime-list-wrapper">
-    <!-- 加载状态 -->
-    <div v-if="loading" class="flex justify-center items-center py-10">
+    <!-- 首次加载状态 -->
+    <div v-if="loading && animes.length === 0" class="flex justify-center items-center py-10">
       <UIcon name="i-lucide-loader-2" class="animate-spin text-3xl text-gray-400" />
     </div>
-    
+
     <!-- 番剧列表 -->
-    <div v-else class="anime-list">
+    <div v-show="animes.length > 0" class="anime-list">
       <div v-for="anime in animes" :key="anime.id" class="anime-item" @click="openAnimeDetail(anime)">
         <div class="anime-cover">
           <img :src="anime.cover || ''" alt="番剧封面" class="cover-img">
@@ -145,6 +145,8 @@ const total = ref(0);
 const expandedDescriptions = ref({});
 const collectedAnimeIds = ref(new Set());
 const currentParams = ref({ ...props.queryParams });
+// 用于防止 watch 在加载更多时触发重置
+const isLoadingMore = ref(false);
 
 // 声明滚动事件处理函数
 let handleScroll;
@@ -169,7 +171,19 @@ onUnmounted(() => {
 
 // 监听queryParams变化
 watch(() => props.queryParams, (newParams) => {
-  if (JSON.stringify(newParams) !== JSON.stringify(currentParams.value)) {
+  // 如果正在加载更多，不处理
+  if (isLoadingMore.value) return;
+
+  // 只比较非分页参数
+  const currentParamsForCompare = { ...currentParams.value };
+  const newParamsForCompare = { ...newParams };
+
+  // 移除页码参数进行比较
+  delete currentParamsForCompare.page;
+  delete newParamsForCompare.page;
+
+  if (JSON.stringify(newParamsForCompare) !== JSON.stringify(currentParamsForCompare)) {
+    // 筛选条件变化，重置列表
     currentParams.value = { ...newParams, page: 1 };
     resetList();
     fetchAnimeList();
@@ -201,7 +215,7 @@ async function fetchCollectedAnimes() {
 async function fetchAnimeList() {
   try {
     loading.value = true;
-    
+
     let response;
     if (props.isCollection) {
       // 获取用户收藏的番剧列表
@@ -210,14 +224,14 @@ async function fetchAnimeList() {
       // 获取普通番剧列表
       response = await animeApi.getList(currentParams.value);
     }
-    
+
     if (response && response.data) {
       if (currentParams.value.page === 1) {
         animes.value = response.data.list || [];
       } else {
         animes.value = [...animes.value, ...(response.data.list || [])];
       }
-      
+
       total.value = response.data.total || 0;
       hasMore.value = animes.value.length < total.value;
     }
@@ -249,28 +263,31 @@ async function refresh() {
 // 加载更多
 function loadMore() {
   if (loadingMore.value || !hasMore.value) return;
-  
+
   loadingMore.value = true;
+  isLoadingMore.value = true;
   currentParams.value.page++;
-  emit('update:queryParams', currentParams.value);
-  fetchAnimeList();
+  // 不通过 emit 更新父组件，直接在内部处理分页
+  fetchAnimeList().finally(() => {
+    isLoadingMore.value = false;
+  });
 }
 
 // 无限滚动处理
 function useInfiniteScroll() {
   handleScroll = () => {
     if (loading.value || loadingMore.value || !hasMore.value) return;
-    
+
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
-    
+
     // 当距离底部100px时加载更多
     if (scrollTop + windowHeight >= documentHeight - 100) {
       loadMore();
     }
   };
-  
+
   window.addEventListener('scroll', handleScroll);
 }
 

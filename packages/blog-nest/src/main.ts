@@ -50,7 +50,7 @@ async function bootstrap() {
     'https://www.conder.top',
     'http://localhost:4173',
     'http://localhost:4000',
-    'http://192.168.83.207:4000',
+    'http://192.168.5.17:4000',
     'http://localhost:3334',
   ];
 

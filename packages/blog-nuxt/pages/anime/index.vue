@@ -9,47 +9,50 @@
     <div class="bg">
       <div class="page-container">
         <div class="anime-content">
-          <!-- Tabs组件 - 状态筛选 -->
-          <UTabs v-model="activeTab" :items="tabItems" class="w-full mb-4" />
-          
-          <!-- Tabs组件 - 地区筛选 -->
-          <UTabs v-model="activeAreaTab" :items="areaTabItems" class="w-full mb-4" />
-          
-          <!-- 平台筛选和排序控制 -->
-          <div class="sm:flex justify-between items-center w-full mb-4">
-            <!-- Tabs组件 - 平台筛选 -->
-            <UTabs v-model="activePlatformTab" :items="platformTabItems" class="flex-grow" />
-            
-            <!-- 排序下拉框 - 自定义样式 -->
-            <div class="sort-dropdown menu-item dropdown">
-              <a class="menu-btn drop">
-                <UIcon name="i-icon-sort" class="icon" />
-                {{ getSortLabel(sortBy) }}
-              </a>
-              <ul class="submenu">
-                <li v-for="option in sortOptions" :key="option.value" 
-                    class="subitem" 
-                    :class="{ active: sortBy === option.value }"
-                    @click="changeSortOption(option.value)">
-                  <a class="link">
-                    <UIcon :name="getSortIcon(option.value)" class="icon" />
-                    {{ option.label }}
-                  </a>
-                </li>
-              </ul>
+          <!-- 筛选容器 -->
+          <div class="filter-container">
+            <!-- Tabs组件 - 状态筛选 -->
+            <UTabs v-model="activeTab" :items="tabItems" class="w-full mb-4" />
+
+            <!-- Tabs组件 - 地区筛选 -->
+            <UTabs v-model="activeAreaTab" :items="areaTabItems" class="w-full mb-4" />
+
+            <!-- 平台筛选和排序控制 -->
+            <div class="sm:flex justify-between items-center w-full mb-4">
+              <!-- Tabs组件 - 平台筛选 -->
+              <UTabs v-model="activePlatformTab" :items="platformTabItems" class="flex-grow" />
+
+              <!-- 排序下拉框 - 自定义样式 -->
+              <div class="sort-dropdown menu-item dropdown">
+                <a class="menu-btn drop">
+                  <UIcon name="i-icon-sort" class="icon" />
+                  {{ getSortLabel(sortBy) }}
+                </a>
+                <ul class="submenu">
+                  <li v-for="option in sortOptions" :key="option.value"
+                      class="subitem"
+                      :class="{ active: sortBy === option.value }"
+                      @click="changeSortOption(option.value)">
+                    <a class="link">
+                      <UIcon :name="getSortIcon(option.value)" class="icon" />
+                      {{ option.label }}
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
+
+            <!-- 在番剧列表前添加Alert组件 -->
+            <UAlert
+              type="warning"
+              title="接口说明"
+              description="bilibili接口已开放权限可以实时更新番剧信息，而其他视频平台接口采取了反爬虫措施，可获取的有效数据有限，目前暂时无法实现数据的实时同步更新，因此采用静态数据展示。"
+              class="mb-4"
+            />
           </div>
-          
-          <!-- 在番剧列表前添加Alert组件 -->
-          <UAlert
-            type="warning"
-            title="接口说明"
-            description="bilibili接口已开放权限可以实时更新番剧信息，而其他视频平台接口采取了反爬虫措施，可获取的有效数据有限，目前暂时无法实现数据的实时同步更新，因此采用静态数据展示。"
-            class="mb-4"
-          />
-          
+
           <!-- 番剧列表组件 -->
-          <AnimeList 
+          <AnimeList
             v-model:queryParams="queryParams"
             :emptyText="'暂无符合条件的番剧'"
             @collected="handleCollected"
@@ -66,7 +69,7 @@ import { useBlogStore } from "~/stores/blog";
 import { useUserStore } from "~/stores/user";
 import type { TabsItem } from '@nuxt/ui';
 import AnimeList from '~/components/Anime/AnimeList.vue';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 
 // 定义页面元数据
 definePageMeta({
@@ -103,10 +106,6 @@ const queryParams = reactive({
   sortBy: 'rating', // 默认按评分排序
   area: undefined as number | undefined
 });
-
-// 吸顶相关状态
-const isScrolled = ref(false);
-const filterContainerTop = ref(0);
 
 // 当前激活的标签
 const activeTab = ref('all');
@@ -229,35 +228,6 @@ const handleUncollected = (animeId) => {
   console.log('取消追番成功:', animeId);
 };
 
-// 吸顶效果处理
-const handleScroll = () => {
-  if (filterContainerTop.value === 0) {
-    const filterContainer = document.querySelector('.filter-container');
-    if (filterContainer) {
-      // 获取元素相对于视窗的位置
-      const rect = filterContainer.getBoundingClientRect();
-      // 记录元素的初始顶部位置（相对于文档）
-      filterContainerTop.value = rect.top + window.scrollY;
-    }
-  }
-  
-  // 判断是否应该激活吸顶
-  isScrolled.value = window.scrollY > filterContainerTop.value;
-};
-
-// 组件挂载和卸载
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-  // 初始计算一次位置
-  setTimeout(() => {
-    handleScroll();
-  }, 100);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
-
 // SEO优化
 useHead({
   title: '我的追番 - 博客网站',
@@ -312,6 +282,11 @@ useHead({
 
 .anime-content {
   margin-top: 20px;
+}
+
+.filter-container {
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
 }
 
 @keyframes slideDown {
@@ -441,10 +416,10 @@ useHead({
   .page-container {
     padding: 0.75rem;
   }
-  
+
   .filter-container {
     padding: 10px;
-    
+
     &.sticky-active {
       padding-top: 5px;
       padding-bottom: 5px;

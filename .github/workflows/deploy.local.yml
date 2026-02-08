@@ -14,7 +14,7 @@ on:
 
 env:
   NODE_VERSION: 19.6.1
-  PNPM_VERSION: 9.7.1
+  PNPM_VERSION: 10.10.0
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_DATABASE: ${{ secrets.DB_DATABASE }}
   DB_USERNAME: ${{ secrets.DB_USERNAME }}
@@ -82,7 +82,7 @@ jobs:
             ${{ runner.os }}-pnpm-
 
       - name: 安装依赖
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 应用构建
         run: pnpm build

@@ -3,49 +3,11 @@ name: 生产环境发布
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 env:
   NODE_VERSION: 20
-  PNPM_VERSION: 8.15.4
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_DATABASE: ${{ secrets.DB_DATABASE }}
-  DB_USERNAME: ${{ secrets.DB_USERNAME }}
-  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-  JWT_SECRET: ${{ secrets.JWT_SECRET }}
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-  ELASTICSEARCH_PASSWORD: ${{ secrets.ELASTICSEARCH_PASSWORD }}
-  OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
-  OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-  OSS_REGION: ${{ secrets.OSS_REGION }}
-  OSS_BUCKET: ${{ secrets.OSS_BUCKET }}
-  OSS_ENDPOINT: ${{ secrets.OSS_ENDPOINT }}
-  OSS_CDN_URL: ${{ secrets.OSS_CDN_URL }}
-  BAIDU_API_KEY: ${{ secrets.BAIDU_API_KEY }}
-  BAIDU_SECRET_KEY: ${{ secrets.BAIDU_SECRET_KEY }}
-  RSA_PRIVATE_KEY: ${{ secrets.RSA_PRIVATE_KEY }}
-  SERVER_HOST: ${{ secrets.SERVER_HOST }}
-  SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
-  SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-  SERVER_DEPLOY_PATH: ${{ secrets.SERVER_DEPLOY_PATH }}
-  MAIL_HOST: ${{ secrets.MAIL_HOST }}
-  MAIL_PORT: ${{ secrets.MAIL_PORT }}
-  MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-  MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-  OAUTH_GITHUB_CLIENT_ID: ${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
-  OAUTH_GITHUB_CLIENT_SECRET: ${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
-  OAUTH_GITHUB_REDIRECT_URL: ${{ secrets.OAUTH_GITHUB_REDIRECT_URL }}
-  OAUTH_GITEE_CLIENT_ID: ${{ secrets.OAUTH_GITEE_CLIENT_ID }}
-  OAUTH_GITEE_CLIENT_SECRET: ${{ secrets.OAUTH_GITEE_CLIENT_SECRET }}
-  OAUTH_GITEE_REDIRECT_URL: ${{ secrets.OAUTH_GITEE_REDIRECT_URL }}
-  OAUTH_QQ_APP_ID: ${{ secrets.OAUTH_QQ_APP_ID }}
-  OAUTH_QQ_APP_KEY: ${{ secrets.OAUTH_QQ_APP_KEY }}
-  OAUTH_QQ_REDIRECT_URL: ${{ secrets.OAUTH_QQ_REDIRECT_URL }}
-  DIFY_API_KEY: ${{ secrets.DIFY_API_KEY }}
-  TAG: ${{ github.sha }}
+  PNPM_VERSION: 10.10.0
 
 jobs:
   build-and-deploy:
@@ -54,31 +16,11 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: 设置Node.js环境
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: 安装系统依赖
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential python3 gcc g++
-
-      - name: 清理无用容器
-        run: |
-          docker container prune -f
-
-      - name: 清理悬空镜像
-        run: |
-          docker image prune -f
-
-      - name: 清理构建缓存
-        run: |
-          docker builder prune -f
-
 
       - name: 安装PNPM
         uses: pnpm/action-setup@v2
@@ -90,15 +32,9 @@ jobs:
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
 
-      - name: 清理 pnpm 缓存
-        run: pnpm store prune || echo "缓存已清理或无需清理"
-
-      - name: 安装依赖  
-        run: |
-          pnpm install --no-frozen-lockfile --force
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
 
       - name: 应用构建
         env:
@@ -112,76 +48,44 @@ jobs:
       - name: 设置Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: 登录Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+      - name: 构建Docker镜像
+        run: |
+          docker build -f docker/blog-nest.Dockerfile -t blog-nest:latest .
+          docker build -f docker/blog-nuxt.Dockerfile -t blog-nuxt:latest .
+          docker build -f docker/blog-admin.Dockerfile -t blog-admin:latest .
 
-      - name: 构建并推送后端镜像
-        if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./docker/blog-nest.Dockerfile
-          push: true
-          tags: |
-            ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
-            ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest
-          no-cache: true
+      - name: 保存镜像为tar文件
+        run: |
+          docker save blog-nest:latest | gzip > blog-nest.tar.gz
+          docker save blog-nuxt:latest | gzip > blog-nuxt.tar.gz
+          docker save blog-admin:latest | gzip > blog-admin.tar.gz
 
-      - name: 构建并推送前台镜像
-        if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@v4
+      - name: 传输镜像到服务器
+        uses: appleboy/scp-action@master
         with:
-          context: .
-          file: ./docker/blog-nuxt.Dockerfile
-          push: true
-          tags: |
-            ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }}
-            ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:latest
-          no-cache: true
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "*.tar.gz"
+          target: ${{ secrets.SERVER_DEPLOY_PATH }}/
 
-      - name: 构建并推送后台镜像
-        if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./docker/blog-admin.Dockerfile
-          push: true
-          tags: |
-            ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}
-            ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest
-          no-cache: true
-
-      - name: 部署到服务器 - 准备环境
-        if: github.event_name != 'pull_request'
+      - name: 部署到服务器
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.SERVER_HOST }}
-          username: ${{ env.SERVER_USERNAME }}
-          key: ${{ env.SERVER_SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 30m
           script: |
             set -exo pipefail
-            cd ${{ env.SERVER_DEPLOY_PATH }}
+            cd ${{ secrets.SERVER_DEPLOY_PATH }}
 
-            # 强制清理旧容器
-            docker compose down --remove-orphans --timeout 30
-
-            # 同步仓库，确保拿到最新 docker-compose.yml 等配置
-            git init
-            if git remote | grep -q origin; then
-              git remote set-url origin ${{ github.server_url }}/${{ github.repository }}.git
-            else
-              git remote add origin ${{ github.server_url }}/${{ github.repository }}.git
-            fi
-            git fetch --all --prune
+            # 同步代码
+            git fetch --all
             git reset --hard origin/main
-            git pull origin main --force
 
-            # 创建环境变量文件
-            cat > .env << EOF
+            # 创建环境变量
+            cat > .env << 'EOF'
             DB_HOST=mysql
             DB_PORT=3306
             DB_DATABASE=${{ secrets.DB_DATABASE }}
@@ -191,142 +95,75 @@ jobs:
             REDIS_PORT=6379
             REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
-            TAG=${{ env.TAG }}
             EOF
 
-            # 创建后端环境配置
-            cat > packages/blog-nest/.env << EOF
+            # 创建后端环境变量
+            cat > packages/blog-nest/.env << 'EOF'
             FRONTEND_URL=https://conder.top
             PORT=3000
-
-            # 数据库配置
             DB_HOST=mysql
             DB_PORT=3306
-            DB_USERNAME=${{ env.DB_USERNAME }}
-            DB_PASSWORD=${{ env.DB_PASSWORD }}
-            DB_DATABASE=${{ env.DB_DATABASE }}
-
-            # NGINX配置
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_DATABASE=${{ secrets.DB_DATABASE }}
             NGINX_PORT=80
             NGINX_DOMAIN=localhost
-
-            # Redis配置
             REDIS_HOST=redis
             REDIS_PORT=6379
-
-            # JWT配置
-            JWT_SECRET=${{ env.JWT_SECRET }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=7d
-
-            # 邮件服务配置
-            MAIL_HOST=${{ env.MAIL_HOST }}
-            MAIL_PORT=${{ env.MAIL_PORT }}
-            MAIL_USERNAME=${{ env.MAIL_USERNAME }}
-            MAIL_PASSWORD=${{ env.MAIL_PASSWORD }}
-
-            # 第三方登录配置
-            OAUTH_GITHUB_CLIENT_ID=${{ env.OAUTH_GITHUB_CLIENT_ID }}
-            OAUTH_GITHUB_CLIENT_SECRET=${{ env.OAUTH_GITHUB_CLIENT_SECRET }}
-            OAUTH_GITHUB_REDIRECT_URL=${{ env.OAUTH_GITHUB_REDIRECT_URL }}
-
-            OAUTH_GITEE_CLIENT_ID=${{ env.OAUTH_GITEE_CLIENT_ID }}
-            OAUTH_GITEE_CLIENT_SECRET=${{ env.OAUTH_GITEE_CLIENT_SECRET }}
-            OAUTH_GITEE_REDIRECT_URL=${{ env.OAUTH_GITEE_REDIRECT_URL }}
-
-            OAUTH_QQ_APP_ID=${{ env.OAUTH_QQ_APP_ID }}
-            OAUTH_QQ_APP_KEY=${{ env.OAUTH_QQ_APP_KEY }}
-            OAUTH_QQ_REDIRECT_URL=${{ env.OAUTH_QQ_REDIRECT_URL }}
-
-            # 搜索配置
+            MAIL_HOST=${{ secrets.MAIL_HOST }}
+            MAIL_PORT=${{ secrets.MAIL_PORT }}
+            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            OAUTH_GITHUB_CLIENT_ID=${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
+            OAUTH_GITHUB_CLIENT_SECRET=${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
+            OAUTH_GITHUB_REDIRECT_URL=${{ secrets.OAUTH_GITHUB_REDIRECT_URL }}
+            OAUTH_GITEE_CLIENT_ID=${{ secrets.OAUTH_GITEE_CLIENT_ID }}
+            OAUTH_GITEE_CLIENT_SECRET=${{ secrets.OAUTH_GITEE_CLIENT_SECRET }}
+            OAUTH_GITEE_REDIRECT_URL=${{ secrets.OAUTH_GITEE_REDIRECT_URL }}
+            OAUTH_QQ_APP_ID=${{ secrets.OAUTH_QQ_APP_ID }}
+            OAUTH_QQ_APP_KEY=${{ secrets.OAUTH_QQ_APP_KEY }}
+            OAUTH_QQ_REDIRECT_URL=${{ secrets.OAUTH_QQ_REDIRECT_URL }}
             SEARCH_MODE=mysql
             ELASTICSEARCH_USERNAME=elastic
-            ELASTICSEARCH_PASSWORD=${{ env.ELASTICSEARCH_PASSWORD }}
+            ELASTICSEARCH_PASSWORD=${{ secrets.ELASTICSEARCH_PASSWORD }}
             ELASTICSEARCH_HOSTNAME=localhost
             ELASTICSEARCH_PORT=9200
-
-            ## 阿里云OSS配置
             UPLOAD_STRATEGY=oss
-            OSS_ACCESS_KEY_ID=${{ env.OSS_ACCESS_KEY_ID }}
-            OSS_ACCESS_KEY_SECRET=${{ env.OSS_ACCESS_KEY_SECRET }}
-            OSS_REGION=${{ env.OSS_REGION }}
-            OSS_BUCKET=${{ env.OSS_BUCKET }}
-            OSS_ENDPOINT=${{ env.OSS_ENDPOINT }}
-            OSS_CDN_URL=${{ env.OSS_CDN_URL }}
-
-            # 百度文本审核配置
-            BAIDU_API_KEY=${{ env.BAIDU_API_KEY }}
-            BAIDU_SECRET_KEY=${{ env.BAIDU_SECRET_KEY }}
-
-            # 登录鉴权私钥
-            RSA_PRIVATE_KEY=${{ env.RSA_PRIVATE_KEY }}
-
-            # DifyApiKey
-            DIFY_API_KEY=${{ env.DIFY_API_KEY }}
+            OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
+            OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
+            OSS_REGION=${{ secrets.OSS_REGION }}
+            OSS_BUCKET=${{ secrets.OSS_BUCKET }}
+            OSS_ENDPOINT=${{ secrets.OSS_ENDPOINT }}
+            OSS_CDN_URL=${{ secrets.OSS_CDN_URL }}
+            BAIDU_API_KEY=${{ secrets.BAIDU_API_KEY }}
+            BAIDU_SECRET_KEY=${{ secrets.BAIDU_SECRET_KEY }}
+            RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }}
+            DIFY_API_KEY=${{ secrets.DIFY_API_KEY }}
             EOF
 
-      - name: 部署到服务器 - 拉取镜像
-        if: github.event_name != 'pull_request'
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SERVER_HOST }}
-          username: ${{ env.SERVER_USERNAME }}
-          key: ${{ env.SERVER_SSH_KEY }}
-          command_timeout: 30m
-          script: |
-            set -exo pipefail
-            cd ${{ env.SERVER_DEPLOY_PATH }}
+            # 停止旧容器
+            docker compose down --remove-orphans --timeout 30
 
-            # 安全删除旧的 latest 镜像（存在则删，不存在忽略）
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest 2>/dev/null || echo "镜像 blog-nest:latest 不存在，跳过删除"
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:latest 2>/dev/null || echo "镜像 blog-nuxt:latest 不存在，跳过删除"
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest 2>/dev/null || echo "镜像 blog-admin:latest 不存在，跳过删除"
+            # 加载新镜像
+            docker load < blog-nest.tar.gz
+            docker load < blog-nuxt.tar.gz
+            docker load < blog-admin.tar.gz
 
-            # 拉取镜像
-            echo "开始拉取镜像..."
-            for i in {1..6}; do
-              echo "尝试拉取镜像 (第 $i 次)"
-              if docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }} && \
-                 docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }} && \
-                 docker pull ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}; then
-                echo "镜像拉取成功"
-                break
-              fi
-              if [ $i -eq 6 ]; then
-                echo "镜像拉取失败，已达到最大重试次数"
-                exit 1
-              fi
-              echo "等待 30 秒后重试..."
-              sleep 30
-            done
+            # 标记镜像
+            docker tag blog-nest:latest ${{ secrets.DOCKERHUB_USERNAME }}/blog-nest:latest
+            docker tag blog-nuxt:latest ${{ secrets.DOCKERHUB_USERNAME }}/blog-nuxt:latest
+            docker tag blog-admin:latest ${{ secrets.DOCKERHUB_USERNAME }}/blog-admin:latest
 
-            # 新镜像指定为latest
-            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-nest:latest
-            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:latest
-            docker tag ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }} ${{ env.DOCKERHUB_USERNAME }}/blog-admin:latest
-
-            # 删除旧镜像
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nest:${{ env.TAG }}
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-nuxt:${{ env.TAG }}
-            docker rmi ${{ env.DOCKERHUB_USERNAME }}/blog-admin:${{ env.TAG }}
-
-      - name: 部署到服务器 - 启动数据库
-        if: github.event_name != 'pull_request'
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SERVER_HOST }}
-          username: ${{ env.SERVER_USERNAME }}
-          key: ${{ env.SERVER_SSH_KEY }}
-          script: |
-            set -exo pipefail
-            cd ${{ env.SERVER_DEPLOY_PATH }}
+            # 启动数据库
             docker compose up -d mysql redis
 
             # 等待数据库就绪
             echo "等待数据库启动..."
             for i in {1..20}; do
-              if docker compose exec mysql mysqladmin ping -h localhost --silent; then
+              if docker compose exec mysql mysqladmin ping -h localhost --silent 2>/dev/null; then
                 echo "MySQL 已就绪"
                 break
               fi
@@ -334,54 +171,13 @@ jobs:
               sleep 10
             done
 
-      - name: 部署到服务器 - 启动服务
-        if: github.event_name != 'pull_request'
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SERVER_HOST }}
-          username: ${{ env.SERVER_USERNAME }}
-          key: ${{ env.SERVER_SSH_KEY }}
-          script: |
-            set -exo pipefail
-            cd ${{ env.SERVER_DEPLOY_PATH }}
+            # 启动应用
+            docker compose up -d nest nuxt admin nginx
 
-            # 先启动除Nginx外的服务
-            docker compose up -d mysql redis nest nuxt admin
-            echo "等待前后端服务启动完成..."
-            sleep 30
+            # 清理tar文件和旧镜像
+            rm -f *.tar.gz
+            docker image prune -a -f --filter "until=24h"
 
-            # 检查服务是否成功启动
-            echo "检查服务状态:"
+            # 健康检查
+            sleep 10
             docker compose ps
-
-            # 最后启动Nginx
-            docker compose up -d nginx
-            sleep 5
-
-            # 清理镜像
-            docker image prune -a -f --filter "until=24h"
-            docker image prune -a -f --filter "until=24h"
-            docker images | grep "blog-" | grep -vE "${{ env.TAG }}|latest" | awk '{print $3}' | xargs -I {} docker rmi {} || true
-
-            # 清理未使用的卷和网络
-            docker system prune -f --volumes
-
-            # 保存日志
-            docker compose logs > deployment.log
-
-            # # 执行预渲染
-            # echo "开始执行Nuxt预渲染..."
-            # # 确保所有服务已经正常启动
-            # docker compose ps
-            # # 等待额外的时间确保API服务完全就绪
-            # sleep 300
-            
-            # # 增加超时时间到20分钟，并添加错误处理
-            # timeout 1200 docker compose exec -T nuxt sh -c "cd /app && NODE_ENV=production NITRO_PRESET=node NITRO_PRERENDER_TIMEOUT=600000 node .output/server/index.mjs --prerender" || {
-            #   echo "预渲染超时或失败，但继续执行后续步骤"
-            #   # 记录预渲染日志以便调试
-            #   docker compose logs nuxt > nuxt_prerender_logs.txt
-            # }
-
-            # # 重新加载Nginx配置
-            # docker compose exec nginx nginx -s reload || echo "Nginx配置重载失败"

@@ -3,11 +3,14 @@ name: 测试博客应用
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 env:
-  NODE_VERSION: 18
-  PNPM_VERSION: 9.7.1
+  # Keep CI toolchain aligned with deploy.yml to avoid "tests pass, deploy fails".
+  NODE_VERSION: 20
+  PNPM_VERSION: 10.10.0
 
 jobs:
   test:
@@ -35,7 +38,7 @@ jobs:
             ${{ runner.os }}-pnpm-
 
       - name: 安装依赖
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: 运行后端测试
         run: |
@@ -53,4 +56,9 @@ jobs:
           pnpm test:unit
 
       - name: 构建检查
+        env:
+          OXC_DISABLE: 1
+          NODE_ENV: production
+          NITRO_PRESET: node-server
+          NODE_OPTIONS: --max-old-space-size=4096
         run: pnpm build

@@ -8,20 +8,16 @@
         <Waves></Waves>
       </div>
     </ClientOnly>
-    
+
     <div class="bg">
       <div class="page-container">
-        <!-- 使用 nuxt-echarts 提供的图表组件 -->
+        <!-- 使用 echarts 图表 -->
         <div class="chart-container">
-          <VChart
-            :option="chartOption"
-            :init-options="{ renderer: 'svg', height: '400px' }"
-            :theme="colorMode.value"
-            class="pie-chart"
-            autoresize
-          />
+          <ClientOnly>
+            <div ref="chartRef" class="pie-chart"></div>
+          </ClientOnly>
         </div>
-        
+
         <!-- 分类列表 -->
         <ul class="category-list">
           <li v-for="category in categoryList" :key="category.id" class="category-item">
@@ -35,9 +31,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed, unref } from 'vue';
+import { ref, reactive, watch, computed, unref, onMounted, nextTick } from 'vue';
 import { useBlogStore } from '~/stores';
-import type { ECOption } from '#build/types/nuxt-echarts';
+import * as echarts from 'echarts/core';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+} from 'echarts/components';
+import { PieChart } from 'echarts/charts';
+import { SVGRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
+
+// 注册必要的组件
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  PieChart,
+  SVGRenderer
+]);
 
 // 定义页面元数据
 definePageMeta({
@@ -47,98 +62,119 @@ definePageMeta({
 // 获取博客信息和当前颜色模式
 const blog = useBlogStore();
 const colorMode = useColorMode();
+const chartRef = ref<HTMLDivElement>();
 
 // 使用封装好的API
 const { category: categoryApi } = useApi();
 const { data } = await categoryApi.getCategoryList();
 const categoryList = computed(() => unref(data) || []);
 
-// 图表配置
-const chartOption = reactive<ECOption>({
-  backgroundColor: 'transparent',
-  tooltip: {
-    trigger: 'item',
-    formatter: '{b}: {c} ({d}%)',
-    backgroundColor: computed(() => colorMode.value === 'dark' ? 'rgba(50,50,50,0.9)' : 'rgba(255,255,255,0.9)'),
-    borderColor: computed(() => colorMode.value === 'dark' ? '#444' : '#ddd'),
-    textStyle: {
-      color: computed(() => colorMode.value === 'dark' ? '#eee' : '#333')
-    }
-  },
-  title: {
-    text: "文章分类统计图",
-    left: "center",
-    top: 10,
-    textStyle: {
-      color: computed(() => colorMode.value === 'dark' ? '#ffffff' : '#333333'),
-      fontSize: 18,
-      fontWeight: 'bold'
-    }
-  },
-  legend: {
-    orient: 'horizontal',
-    bottom: 10,
-    left: 'center',
-    icon: 'circle',
-    itemWidth: 10,
-    itemHeight: 10,
-    textStyle: {
-      color: computed(() => colorMode.value === 'dark' ? '#dddddd' : '#666666')
-    }
-  },
-  series: [
-    {
-      name: '分类统计',
-      type: 'pie',
-      radius: ['35%', '60%'],
-      center: ['50%', '50%'],
-      avoidLabelOverlap: true,
-      itemStyle: {
-        borderRadius: 6,
-        borderColor: computed(() => colorMode.value === 'dark' ? '#333' : '#fff'),
-        borderWidth: 1
-      },
-      label: {
-        show: true,
-        position: 'outside',
-        formatter: '{b}\n{c} 篇',
-        color: computed(() => colorMode.value === 'dark' ? '#ddd' : '#333')
-      },
-      labelLine: {
-        length: 10,
-        length2: 10,
-        smooth: true
-      },
-      emphasis: {
-        scale: true,
-        scaleSize: 10,
+// 图表实例
+let chartInstance: echarts.ECharts | null = null;
+
+// 初始化图表
+const initChart = () => {
+  if (!chartRef.value) return;
+
+  chartInstance = echarts.init(chartRef.value, undefined, { renderer: 'svg' });
+  updateChart();
+
+  // 监听窗口大小变化
+  window.addEventListener('resize', () => {
+    chartInstance?.resize();
+  });
+};
+
+// 更新图表
+const updateChart = () => {
+  if (!chartInstance) return;
+
+  const option: EChartsOption = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)',
+      backgroundColor: colorMode.value === 'dark' ? 'rgba(50,50,50,0.9)' : 'rgba(255,255,255,0.9)',
+      borderColor: colorMode.value === 'dark' ? '#444' : '#ddd',
+      textStyle: {
+        color: colorMode.value === 'dark' ? '#eee' : '#333'
+      }
+    },
+    title: {
+      text: "文章分类统计图",
+      left: "center",
+      top: 10,
+      textStyle: {
+        color: colorMode.value === 'dark' ? '#ffffff' : '#333333',
+        fontSize: 18,
+        fontWeight: 'bold'
+      }
+    },
+    legend: {
+      orient: 'horizontal',
+      bottom: 10,
+      left: 'center',
+      icon: 'circle',
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: {
+        color: colorMode.value === 'dark' ? '#dddddd' : '#666666'
+      }
+    },
+    series: [
+      {
+        name: '分类统计',
+        type: 'pie',
+        radius: ['35%', '60%'],
+        center: ['50%', '50%'],
+        avoidLabelOverlap: true,
         itemStyle: {
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
+          borderRadius: 6,
+          borderColor: colorMode.value === 'dark' ? '#333' : '#fff',
+          borderWidth: 1
         },
         label: {
           show: true,
-          fontWeight: 'bold',
-          fontSize: 14
-        }
-      },
-      data: []
-    }
-  ]
-});
+          position: 'outside',
+          formatter: '{b}\n{c} 篇',
+          color: colorMode.value === 'dark' ? '#ddd' : '#333'
+        },
+        labelLine: {
+          length: 10,
+          length2: 10,
+          smooth: true
+        },
+        emphasis: {
+          scale: true,
+          scaleSize: 10,
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          },
+          label: {
+            show: true,
+            fontWeight: 'bold',
+            fontSize: 14
+          }
+        },
+        data: []
+      }
+    ]
+  };
+
+  chartInstance.setOption(option);
+};
 
 // 处理分类数据
 watch(() => categoryList.value, (newList) => {
-  // 清空旧数据
-  chartOption.series[0].data = [];
-  
-  // 添加新数据
+  const data: { value: number; name: string; itemStyle: { color: string } }[] = [];
+
   if (newList && newList.length > 0) {
     const colors = ['#3AA1FF', '#36CBCB', '#4ECB73', '#FBD437', '#F2637B', '#975FE4', '#5B8FF9', '#FF9845'];
-    
+
     newList.forEach((item, index) => {
-      chartOption.series[0].data.push({
+      data.push({
         value: item.articleCount,
         name: item.categoryName,
         itemStyle: {
@@ -147,7 +183,25 @@ watch(() => categoryList.value, (newList) => {
       });
     });
   }
+
+  if (chartInstance) {
+    chartInstance.setOption({
+      series: [{ data }]
+    });
+  }
 }, { immediate: true });
+
+// 监听颜色模式变化
+watch(colorMode, () => {
+  updateChart();
+});
+
+// 组件挂载后初始化图表
+onMounted(() => {
+  nextTick(() => {
+    initChart();
+  });
+});
 
 // SEO优化
 useHead({

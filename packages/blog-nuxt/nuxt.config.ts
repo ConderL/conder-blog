@@ -16,7 +16,6 @@ export default defineNuxtConfig({
     '@nuxt/image',
     'nuxt-lazy-load',
     '@nuxtjs/color-mode',
-    'nuxt-echarts',
   ],
 
   // 添加服务器配置，设置端口为 4000
@@ -33,15 +32,6 @@ export default defineNuxtConfig({
 
   lazyLoad: {
     defaultImage: '/images/loading.gif',
-  },
-
-  echarts: {
-    // 注册渲染器
-    renderer: 'svg',
-    // 注册图表类型
-    charts: ['PieChart'],
-    // 注册组件
-    components: ['TitleComponent', 'TooltipComponent', 'LegendComponent', 'GridComponent'],
   },
 
   css: [
@@ -68,7 +58,7 @@ export default defineNuxtConfig({
     // 优化构建性能
     optimizeDeps: {
       include: ['vue', 'pinia', '@vueuse/core', 'jsencrypt'],
-      exclude: ['lightningcss']
+      exclude: ['lightningcss', 'nuxt-echarts']
     },
     // 不再注入全局 global，避免影响构建期对 Node API 的解析
     define: {},
@@ -78,6 +68,14 @@ export default defineNuxtConfig({
       alias: {
         // 强制使用 Node 的原生 crypto，防止任何三方 polyfill 介入
         crypto: 'node:crypto'
+      }
+    },
+    // CSS 处理配置
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler'
+        }
       }
     },
     // 减少构建警告
