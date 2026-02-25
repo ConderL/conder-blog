@@ -8,7 +8,7 @@ COPY packages/blog-nest/package.json ./packages/blog-nest/
 
 # 安装依赖
 RUN npm install -g pnpm@10.10.0 && \
-    pnpm install --shamefully-hoist
+    pnpm install --frozen-lockfile --shamefully-hoist
 
 # 构建阶段
 FROM node:18.19.1 AS builder
@@ -22,7 +22,7 @@ COPY --from=deps /app/packages/blog-nest/node_modules ./packages/blog-nest/node_
 COPY . .
 
 # 构建应用
-RUN npm install -g pnpm@8.15.4 && \
+RUN npm install -g pnpm@10.10.0 && \
     cd packages/blog-nest && \
     pnpm run build
 
@@ -36,6 +36,8 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages/blog-nest/node_modules ./packages/blog-nest/node_modules
 COPY --from=builder /app/packages/blog-nest/dist ./dist
 COPY --from=builder /app/packages/blog-nest/migrations ./migrations
 COPY --from=builder /app/packages/blog-nest/package*.json ./
@@ -44,7 +46,6 @@ COPY --from=builder /app/packages/blog-nest/package*.json ./
 ENV NODE_ENV=production
 
 # 安装依赖
-RUN npm install --legacy-peer-deps --build-from-source
 
 # 添加入口脚本
 COPY entrypoint.sh ./entrypoint.sh

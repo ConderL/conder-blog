@@ -16,16 +16,17 @@ ENV VITE_COMPRESS=Y
 ENV VITE_COMPRESS_TYPE=gzip
 
 # 安装 pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10.10.0
 
 # 设置 pnpm 镜像源
 RUN pnpm config set registry https://registry.npmmirror.com/
 
 # 复制 Monorepo 配置文件
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/blog-web/package.json ./packages/blog-web/
 
 # 安装项目依赖
-RUN pnpm install --prod=false --shamefully-hoist
+RUN pnpm install --frozen-lockfile --prod=false --shamefully-hoist
 
 # 复制子项目代码
 COPY packages/blog-web ./packages/blog-web
@@ -33,7 +34,6 @@ COPY packages/blog-web ./packages/blog-web
 
 # 安装子项目依赖并构建
 RUN cd packages/blog-web && \
-    pnpm install --prod=false && \
     pnpm run build
 
 # 生产阶段

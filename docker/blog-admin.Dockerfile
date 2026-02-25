@@ -9,7 +9,7 @@ ENV VITE_SERVICE_BASE_URL=https://api.conder.top
 ENV VITE_APP_TITLE=博客管理系统
 
 # 安装 pnpm
-RUN npm install -g pnpm@8.15.4
+RUN npm install -g pnpm@10.10.0
 
 # 设置 pnpm 镜像源
 RUN pnpm config set registry https://registry.npmmirror.com/
