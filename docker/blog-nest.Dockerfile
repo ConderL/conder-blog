@@ -8,7 +8,8 @@ COPY packages/blog-nest/package.json ./packages/blog-nest/
 
 # 安装依赖
 RUN npm install -g pnpm@10.10.0 && \
-    pnpm install --frozen-lockfile --shamefully-hoist
+    pnpm install --frozen-lockfile --shamefully-hoist && \
+    npm rebuild sharp --foreground-scripts
 
 # 构建阶段
 FROM node:18.19.1 AS builder
