@@ -1,6 +1,6 @@
 services:
   migrations:
-    image: ${DOCKERHUB_USERNAME}/blog-nest:latest
+    image: ${BLOG_NEST_IMAGE:-blog-nest:latest}
     container_name: blog-migrations
     restart: "no"
     depends_on:
@@ -55,7 +55,7 @@ services:
       - blog-network
 
   nest:
-    image: ${DOCKERHUB_USERNAME}/blog-nest:latest
+    image: ${BLOG_NEST_IMAGE:-blog-nest:latest}
     pull_policy: if_not_present
     labels:
       - "sh.rancher.container.pull_images=always"
@@ -88,7 +88,6 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=7d
 
-      - DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
     networks:
       - blog-network
     volumes:
@@ -97,7 +96,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
 
   admin:
-    image: ${DOCKERHUB_USERNAME}/blog-admin:latest
+    image: ${BLOG_ADMIN_IMAGE:-blog-admin:latest}
     pull_policy: if_not_present
     deploy:
       update_config:
@@ -113,7 +112,7 @@ services:
       - blog-network
 
   nuxt:
-    image: ${DOCKERHUB_USERNAME}/blog-nuxt:latest
+    image: ${BLOG_NUXT_IMAGE:-blog-nuxt:latest}
     pull_policy: if_not_present
     deploy:
       update_config:

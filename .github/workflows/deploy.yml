@@ -96,6 +96,9 @@ jobs:
             REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            BLOG_NEST_IMAGE=blog-nest:latest
+            BLOG_NUXT_IMAGE=blog-nuxt:latest
+            BLOG_ADMIN_IMAGE=blog-admin:latest
             EOF
 
             # 创建后端环境变量
@@ -151,11 +154,6 @@ jobs:
             docker load < blog-nest.tar.gz
             docker load < blog-nuxt.tar.gz
             docker load < blog-admin.tar.gz
-
-            # 标记镜像
-            docker tag blog-nest:latest ${{ secrets.DOCKERHUB_USERNAME }}/blog-nest:latest
-            docker tag blog-nuxt:latest ${{ secrets.DOCKERHUB_USERNAME }}/blog-nuxt:latest
-            docker tag blog-admin:latest ${{ secrets.DOCKERHUB_USERNAME }}/blog-admin:latest
 
             # 启动数据库
             docker compose up -d mysql redis
